@@ -1,16 +1,17 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import type { Locale } from "@/lib/locales";
+import { defaultLocale, isLocale } from "@/lib/locales";
 
 export default async function DashboardLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const { locale: rawLocale } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const session = await auth();
 
   if (!session?.user?.id) {
