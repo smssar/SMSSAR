@@ -47,7 +47,7 @@ export default async function proxy(request: NextRequest) {
     // Check if authenticated user trying to access auth routes
     if (isAuthRoute(pathname, locale) && session) {
       return NextResponse.redirect(
-        new URL(`/${locale}/dashboard/seller`, request.url),
+        new URL(`/${locale}/dashboard`, request.url),
       );
     }
 
@@ -82,9 +82,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   if (isAuthRoute(newPathname, locale) && session) {
-    return NextResponse.redirect(
-      new URL(`/${locale}/dashboard/seller`, request.url),
-    );
+    return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
   }
 
   const response = NextResponse.redirect(new URL(newPathname, request.url));

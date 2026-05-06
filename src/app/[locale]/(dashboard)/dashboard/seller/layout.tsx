@@ -28,13 +28,11 @@ export default async function SellerDashboardLayout({
   }
 
   if (session.user.role !== "SELLER") {
-    return (
-      <div className="rounded-3xl border border-border/70 bg-card p-8 text-sm text-muted-foreground">
-        {locale === "ar"
-          ? "هذه الصفحة متاحة للبائعين فقط."
-          : "This page is available to sellers only."}
-      </div>
-    );
+    if (session.user.role === "ADMIN") {
+      redirect(`/${locale}/dashboard/admin`);
+    }
+
+    redirect(`/${locale}/dashboard/profile`);
   }
 
   const messages = getMessages(locale);

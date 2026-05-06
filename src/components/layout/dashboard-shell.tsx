@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import {
   ChevronLeft,
+  House,
   Menu,
   PanelLeftClose,
   LogOut,
@@ -110,6 +111,21 @@ export function DashboardShell({
               })}
             </nav>
             <div className="border-t border-border/60 p-4">
+              <Link
+                href={`/${locale}`}
+                className="mb-2 inline-flex h-11 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-5 text-sm font-medium transition-all hover:bg-muted/60"
+              >
+                <span className="flex items-center gap-2">
+                  <House className="h-4 w-4" />
+                  {t(locale, {
+                    en: "Home",
+                    ar: "الرئيسية",
+                    fr: "Accueil",
+                  })}
+                </span>
+                <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+              </Link>
+
               <Button
                 variant="outline"
                 className="w-full justify-between"
@@ -149,6 +165,17 @@ export function DashboardShell({
               </div>
               <div className="flex items-center gap-3">
                 <LanguageSwitcher currentLocale={locale} />
+                <Link
+                  href={`/${locale}`}
+                  className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-border bg-background px-3 text-sm font-medium transition-all hover:bg-muted/60"
+                >
+                  <House className="h-4 w-4" />
+                  {t(locale, {
+                    en: "Home",
+                    ar: "الرئيسية",
+                    fr: "Accueil",
+                  })}
+                </Link>
                 <Button
                   variant="outline"
                   size="sm"

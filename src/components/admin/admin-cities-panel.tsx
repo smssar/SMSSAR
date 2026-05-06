@@ -33,10 +33,6 @@ export function AdminCitiesPanel({
   const [nameFr, setNameFr] = useState("");
   const [slug, setSlug] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editNameEn, setEditNameEn] = useState("");
-  const [editNameAr, setEditNameAr] = useState("");
-  const [editNameFr, setEditNameFr] = useState("");
-  const [editSlug, setEditSlug] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -65,112 +61,89 @@ export function AdminCitiesPanel({
       return;
     }
 
-    setCreating(true);
+    const isEditing = Boolean(editingId);
+    if (isEditing) {
+      setSaving(true);
+    } else {
+      setCreating(true);
+    }
 
     try {
-      const response = await fetch("/api/cities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name_en: cleanedNameEn,
-          name_ar: cleanedNameAr || undefined,
-          name_fr: cleanedNameFr || undefined,
-          slug: cleanedSlug || undefined,
-        }),
-      });
+      const response = await fetch(
+        editingId ? `/api/cities/${editingId}` : "/api/cities",
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name_en: cleanedNameEn,
+            name_ar: cleanedNameAr || undefined,
+            name_fr: cleanedNameFr || undefined,
+            slug: cleanedSlug || undefined,
+          }),
+        },
+      );
 
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
         throw new Error(payload?.error || `Status ${response.status}`);
       }
 
-      const created = payload?.data as CityRow | undefined;
-      if (created) {
-        setCities((current) => [created, ...current]);
+      const savedCity = payload?.data as CityRow | undefined;
+      if (savedCity) {
+        setCities((current) =>
+          editingId
+            ? current.map((city) =>
+                city.id === savedCity.id ? savedCity : city,
+              )
+            : [savedCity, ...current],
+        );
       }
 
       setNameEn("");
       setNameAr("");
       setNameFr("");
       setSlug("");
-      toast.success(locale === "ar" ? "تم إنشاء المدينة." : "City created.");
+
+      if (isEditing) {
+        setEditingId(null);
+        toast.success(locale === "ar" ? "تم تحديث المدينة." : "City updated.");
+      } else {
+        toast.success(locale === "ar" ? "تم إنشاء المدينة." : "City created.");
+      }
     } catch (error) {
-      console.error("Failed to create city:", error);
+      console.error(
+        isEditing ? "Failed to update city:" : "Failed to create city:",
+        error,
+      );
       toast.error(
-        locale === "ar" ? "تعذر إنشاء المدينة." : "Could not create city.",
+        locale === "ar"
+          ? isEditing
+            ? "تعذر تحديث المدينة."
+            : "تعذر إنشاء المدينة."
+          : isEditing
+            ? "Could not update city."
+            : "Could not create city.",
       );
     } finally {
       setCreating(false);
+      setSaving(false);
     }
   };
 
   const startEdit = (city: CityRow) => {
     setEditingId(city.id);
-    setEditNameEn(city.name_en || city.name || "");
-    setEditNameAr(city.name_ar || "");
-    setEditNameFr(city.name_fr || "");
-    setEditSlug(city.slug || "");
+    setNameEn(city.name_en || city.name || "");
+    setNameAr(city.name_ar || "");
+    setNameFr(city.name_fr || "");
+    setSlug(city.slug || "");
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditNameEn("");
-    setEditNameAr("");
-    setEditNameFr("");
-    setEditSlug("");
-  };
-
-  const performEdit = async (id: string) => {
-    const cleanedNameEn = editNameEn.trim();
-    const cleanedNameAr = editNameAr.trim();
-    const cleanedNameFr = editNameFr.trim();
-    const cleanedSlug = editSlug.trim();
-
-    if (!cleanedNameEn) {
-      toast.error(
-        locale === "ar"
-          ? "اسم المدينة بالإنجليزية مطلوب."
-          : "English city name is required.",
-      );
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      const response = await fetch(`/api/cities/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name_en: cleanedNameEn,
-          name_ar: cleanedNameAr,
-          name_fr: cleanedNameFr,
-          slug: cleanedSlug,
-        }),
-      });
-
-      const payload = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error(payload?.error || `Status ${response.status}`);
-      }
-
-      const updated = payload?.data as CityRow | undefined;
-      if (updated) {
-        setCities((current) =>
-          current.map((c) => (c.id === updated.id ? updated : c)),
-        );
-      }
-
-      cancelEdit();
-      toast.success(locale === "ar" ? "تم تحديث المدينة." : "City updated.");
-    } catch (error) {
-      console.error("Failed to update city:", error);
-      toast.error(
-        locale === "ar" ? "تعذر تحديث المدينة." : "Could not update city.",
-      );
-    } finally {
-      setSaving(false);
-    }
+    setNameEn("");
+    setNameAr("");
+    setNameFr("");
+    setSlug("");
   };
 
   const performDelete = async (id: string) => {
@@ -204,7 +177,13 @@ export function AdminCitiesPanel({
       <Card className="border-border/70">
         <CardHeader>
           <CardTitle>
-            {locale === "ar" ? "إضافة مدينة" : "Add a city"}
+            {editingId
+              ? locale === "ar"
+                ? "تعديل المدينة"
+                : "Edit city"
+              : locale === "ar"
+                ? "إضافة مدينة"
+                : "Add a city"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -252,14 +231,39 @@ export function AdminCitiesPanel({
               />
             </div>
 
-            <Button type="submit" className="w-full gap-2" disabled={creating}>
-              {creating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-              {locale === "ar" ? "إضافة المدينة" : "Add city"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                className="flex-1 gap-2"
+                disabled={creating || saving}
+              >
+                {creating || saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : editingId ? (
+                  <Edit3 className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                {editingId
+                  ? locale === "ar"
+                    ? "حفظ التعديلات"
+                    : "Save changes"
+                  : locale === "ar"
+                    ? "إضافة المدينة"
+                    : "Add city"}
+              </Button>
+
+              {editingId ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={cancelEdit}
+                  disabled={saving}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              ) : null}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -279,30 +283,13 @@ export function AdminCitiesPanel({
             sortedCities.map((city) => (
               <div
                 key={city.id}
-                className="flex items-center justify-between rounded-2xl border border-border/70 px-4 py-3 text-sm"
+                className={`flex items-center justify-between rounded-2xl border border-border/70 px-4 py-3 text-sm ${editingId === city.id ? "bg-muted/40 ring-1 ring-violet-500/20" : ""}`}
               >
                 <div className="flex-1">
-                  {editingId === city.id ? (
-                    <div className="flex gap-2">
-                      <Input
-                        value={editNameEn}
-                        onChange={(e) => setEditNameEn(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        value={editSlug}
-                        onChange={(e) => setEditSlug(e.target.value)}
-                        className="w-48"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="font-medium">
-                        {(city as any)[`name_${locale}`] || city.name}
-                      </div>
-                      <div className="text-muted-foreground">{city.slug}</div>
-                    </>
-                  )}
+                  <div className="font-medium">
+                    {(city as any)[`name_${locale}`] || city.name}
+                  </div>
+                  <div className="text-muted-foreground">{city.slug}</div>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -311,50 +298,24 @@ export function AdminCitiesPanel({
                     {locale === "ar" ? "عقار" : "properties"}
                   </div>
 
-                  {editingId === city.id ? (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => performEdit(city.id)}
-                        disabled={saving}
-                      >
-                        {saving ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : locale === "ar" ? (
-                          "حفظ"
-                        ) : (
-                          "Save"
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={cancelEdit}
-                        disabled={saving}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => startEdit(city)}
-                      >
-                        <Edit3 className="h-4 w-4" />
-                        {locale === "ar" ? "تعديل" : "Edit"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setPendingDeleteId(city.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {locale === "ar" ? "حذف" : "Delete"}
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEdit(city)}
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      {locale === "ar" ? "تعديل" : "Edit"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setPendingDeleteId(city.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {locale === "ar" ? "حذف" : "Delete"}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))

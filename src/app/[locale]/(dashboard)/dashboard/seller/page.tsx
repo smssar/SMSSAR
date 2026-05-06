@@ -37,12 +37,12 @@ export default async function SellerOverviewPage({
     where: { sellerId: session.user.id },
   });
 
-  const user = await fetch(
-    `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/users/${session.user.id}`,
-  );
-  const userData = await user.json();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { planId: true },
+  });
 
-  const planId = userData?.data?.planId ?? userData?.planId ?? "free";
+  const planId = user?.planId ?? "free";
 
   const currentPlan = await prisma.plan.findUnique({
     where: { id: planId },

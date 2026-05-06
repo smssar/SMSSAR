@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 import { LogOut, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ButtonLink } from "@/components/ui/button";
@@ -18,17 +19,18 @@ const t = <T extends { en: string; ar: string; fr: string }>(
 export function SiteNavbar({
   locale,
   messages,
+  session,
 }: {
   locale: Locale;
   messages: Messages;
+  session?: Session | null;
 }) {
   const [open, setOpen] = useState(false);
-  const { data: session, status } = useSession();
   const role = session?.user?.role;
-  const showSellerLink = status !== "loading" && role === "SELLER";
-  const showAdminLink = status !== "loading" && role === "ADMIN";
-  const showUserProfileLink = status !== "loading" && role === "USER";
-  const showAuthActions = status !== "loading" && !session?.user?.id;
+  const showSellerLink = role === "SELLER";
+  const showAdminLink = role === "ADMIN";
+  const showUserProfileLink = role === "USER";
+  const showAuthActions = !session?.user?.id;
 
   const links: Array<{ key: keyof Messages["nav"]; href: string }> = [
     { key: "properties", href: `/${locale}/properties` },

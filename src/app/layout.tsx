@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { auth } from "@/auth";
 import { ThemeToggle } from "@/components/navigation/theme-toggle";
 import { getDirection, isLocale, type Locale } from "@/lib/locales";
 import type { ReactNode } from "react";
@@ -20,6 +21,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const session = await auth();
   const requestHeaders = await headers();
   const headerLocale = requestHeaders.get("x-locale");
   const locale: Locale =
@@ -35,7 +37,7 @@ export default async function RootLayout({
     >
       <head />
       <body className="min-h-screen bg-background text-foreground antialiased transition-colors duration-200">
-        <Providers>
+        <Providers session={session}>
           <ThemeToggle initialLocale={locale} />
           {children}
         </Providers>

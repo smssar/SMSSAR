@@ -1,13 +1,20 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
+import type { Session } from "next-auth";
 import { Toaster } from "sonner";
 import type { ReactNode } from "react";
 import { LocaleSync } from "./locale-sync";
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({
+  children,
+  session,
+}: {
+  children: ReactNode;
+  session?: Session | null;
+}) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <LocaleSync />
       {children}
       <Toaster

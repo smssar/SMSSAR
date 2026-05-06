@@ -59,7 +59,7 @@ export function LoginFormClient({
       return;
     }
 
-    router.replace(`/${locale}`);
+    router.replace(`/${locale}/dashboard`);
     router.refresh();
   };
 

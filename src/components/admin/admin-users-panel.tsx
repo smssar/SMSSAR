@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Edit3, ExternalLink, Loader2, Plus, Trash2, X } from "lucide-react";
+import {
+  Edit3,
+  ExternalLink,
+  Loader2,
+  Plus,
+  RotateCcw,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button";
@@ -52,8 +60,8 @@ export function AdminUsersPanel({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isRefreshing, startRefresh] = useTransition();
 
-  const [users, setUsers] = useState(initialUsers);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -106,6 +114,12 @@ export function AdminUsersPanel({
 
   const clearFilters = () => {
     router.push("?");
+  };
+
+  const reloadData = () => {
+    startRefresh(() => {
+      router.refresh();
+    });
   };
 
   const startEdit = (user: UserRow) => {
@@ -182,19 +196,9 @@ export function AdminUsersPanel({
         throw new Error(payload?.error || `Status ${response.status}`);
       }
 
-      const data = payload?.data as UserRow | undefined;
-      if (data) {
-        if (editingId) {
-          setUsers((current) =>
-            current.map((user) => (user.id === data.id ? data : user)),
-          );
-        } else {
-          setUsers((current) => [data, ...current]);
-        }
-      }
-
       cancelEdit();
       setPendingAction(null);
+      reloadData();
       toast.success(locale === "ar" ? "تم حفظ المستخدم." : "User saved.");
     } catch (error) {
       console.error("Failed to save user:", error);
@@ -208,7 +212,7 @@ export function AdminUsersPanel({
   };
 
   const handleDelete = (id: string) => {
-    const user = users.find((item) => item.id === id);
+    const user = initialUsers.find((item) => item.id === id);
     setPendingAction({ type: "delete", id, name: user?.name ?? "" });
   };
 
@@ -226,8 +230,8 @@ export function AdminUsersPanel({
         throw new Error(payload?.error || `Status ${response.status}`);
       }
 
-      setUsers((current) => current.filter((item) => item.id !== id));
       if (editingId === id) cancelEdit();
+      reloadData();
       toast.success(locale === "ar" ? "تم حذف المستخدم." : "User deleted.");
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -358,7 +362,8 @@ export function AdminUsersPanel({
             </div>
 
             {editingId &&
-            users.find((u) => u.id === editingId)?.role === "SELLER" ? (
+            initialUsers.find((u: UserRow) => u.id === editingId)?.role ===
+              "SELLER" ? (
               <div className="space-y-2">
                 <Label htmlFor="user-bio">
                   {locale === "ar" ? "نبذة" : "Bio"}
@@ -490,6 +495,22 @@ export function AdminUsersPanel({
             {locale === "ar" ? "المستخدمون الحاليون" : "Current users"}
           </CardTitle>
           <div className="flex w-full items-center gap-2 sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={reloadData}
+              disabled={isRefreshing || loading}
+              className="gap-2"
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RotateCcw className="h-4 w-4" />
+              )}
+              {locale === "ar" ? "إعادة تحميل" : "Reload"}
+            </Button>
+
             <Input
               id="user-search"
               className="flex-1"

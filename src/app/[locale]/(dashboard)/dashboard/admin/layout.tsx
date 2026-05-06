@@ -29,7 +29,11 @@ export default async function AdminDashboardLayout({
   }
 
   if (session.user.role !== "ADMIN") {
-    redirect(`/${locale}/login`);
+    if (session.user.role === "SELLER") {
+      redirect(`/${locale}/dashboard/seller`);
+    }
+
+    redirect(`/${locale}/dashboard/profile`);
   }
 
   const messages = getMessages(locale);

@@ -11,6 +11,7 @@ import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { PropertyCard } from "@/components/property";
 
 const t = <T extends { en: string; ar: string; fr?: string }>(
@@ -20,6 +21,7 @@ const t = <T extends { en: string; ar: string; fr?: string }>(
 
 export default async function LandingPage({ locale }: { locale: Locale }) {
   const messages = getMessages(locale);
+  const session = await auth();
   const [dbCategories, dbPlans] = await Promise.all([
     prisma.category.findMany({
       orderBy: { name: "asc" },
@@ -50,7 +52,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteNavbar locale={locale} messages={messages} />
+      <SiteNavbar locale={locale} messages={messages} session={session} />
       <main>
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_24%)]" />
