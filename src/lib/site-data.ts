@@ -9,6 +9,7 @@ export interface Property {
   title: LocalizedText;
   description: LocalizedText;
   imageUrl?: string;
+  vedioUrl?: string;
   city: LocalizedText;
   neighborhood?: string;
   area: number;
@@ -272,14 +273,15 @@ export const plans: Plan[] = [
     description: {
       en: "Perfect for new sellers testing the marketplace.",
       ar: "مناسب للبائعين الجدد الذين يختبرون المنصة.",
+      fr: "Parfait pour les nouveaux vendeurs qui testent la plateforme.",
     },
     price: 0,
     listings: 3,
     featured: false,
     features: [
-      { en: "Up to 3 listings", ar: "حتى 3 عقارات" },
-      { en: "Basic analytics", ar: "إحصاءات أساسية" },
-      { en: "Email support", ar: "دعم عبر البريد" },
+      { en: "Up to 3 listings", ar: "حتى 3 عقارات", fr: "Jusqu'à 3 annonces" },
+      { en: "Basic analytics", ar: "إحصاءات أساسية", fr: "Analyses de base" },
+      { en: "Email support", ar: "دعم عبر البريد", fr: "Support par e-mail" },
     ],
   },
   {
@@ -288,14 +290,23 @@ export const plans: Plan[] = [
     description: {
       en: "For growing sellers who need more visibility.",
       ar: "للبائعين المتنامين الذين يحتاجون إلى ظهور أكبر.",
+      fr: "Pour les vendeurs en pleine croissance qui ont besoin d'une meilleure visibilité.",
     },
     price: 49,
     listings: 10,
     featured: true,
     features: [
-      { en: "Up to 10 listings", ar: "حتى 10 عقارات" },
-      { en: "Boosted ranking", ar: "أولوية في الظهور" },
-      { en: "Priority support", ar: "دعم أسرع" },
+      {
+        en: "Up to 10 listings",
+        ar: "حتى 10 عقارات",
+        fr: "Jusqu'à 10 annonces",
+      },
+      {
+        en: "Boosted ranking",
+        ar: "أولوية في الظهور",
+        fr: "Classement renforcé",
+      },
+      { en: "Priority support", ar: "دعم أسرع", fr: "Support prioritaire" },
     ],
   },
   {
@@ -304,14 +315,23 @@ export const plans: Plan[] = [
     description: {
       en: "For agencies and power sellers with unlimited listings.",
       ar: "للبائعين المحترفين مع عدد غير محدود من العقارات.",
+      fr: "Pour les agences et les vendeurs puissants avec des annonces illimitées.",
     },
     price: 129,
     listings: "unlimited",
     featured: false,
     features: [
-      { en: "Unlimited listings", ar: "عقارات غير محدودة" },
-      { en: "Dedicated success manager", ar: "مدير نجاح مخصص" },
-      { en: "Advanced reporting", ar: "تقارير متقدمة" },
+      {
+        en: "Unlimited listings",
+        ar: "عقارات غير محدودة",
+        fr: "Annonces illimitées",
+      },
+      {
+        en: "Dedicated success manager",
+        ar: "مدير نجاح مخصص",
+        fr: "Gestionnaire de succès dédié",
+      },
+      { en: "Advanced reporting", ar: "تقارير متقدمة", fr: "Rapports avancés" },
     ],
   },
 ] as const;
@@ -323,8 +343,9 @@ export const testimonials: Testimonial[] = [
     quote: {
       en: "The Arabic experience feels polished, fast, and surprisingly premium.",
       ar: "التجربة بالعربية أنيقة وسريعة وتبدو فاخرة بشكل ملحوظ.",
+      fr: "L'expérience arabe semble soignée, rapide et surprenamment premium.",
     },
-    location: { en: "Dubai", ar: "دبي" },
+    location: { en: "Dubai", ar: "rabat", fr: "Rabat" },
   },
   {
     name: "Omar Al Farsi",
@@ -332,8 +353,9 @@ export const testimonials: Testimonial[] = [
     quote: {
       en: "I can manage listings, respond to leads, and upgrade plans in one place.",
       ar: "أستطيع إدارة العقارات والرد على الاستفسارات وترقية الباقة من مكان واحد.",
+      fr: "Je peux gérer les annonces, répondre aux prospects et améliorer mes forfaits en un seul endroit.",
     },
-    location: { en: "Muscat", ar: "مسقط" },
+    location: { en: "Muscat", ar: "مسقط", fr: "Masqat" },
   },
   {
     name: "Leila Haddad",
@@ -341,8 +363,9 @@ export const testimonials: Testimonial[] = [
     quote: {
       en: "The filters and property cards make comparing homes incredibly easy.",
       ar: "الفلاتر وبطاقات العقارات تجعل مقارنة المنازل سهلة جداً.",
+      fr: "Les filtres et les cartes immobilières rendent la comparaison des maisons incroyablement facile.",
     },
-    location: { en: "Abu Dhabi", ar: "أبوظبي" },
+    location: { en: "Tetouan", ar: "تطوان", fr: "Tétouan" },
   },
 ] as const;
 

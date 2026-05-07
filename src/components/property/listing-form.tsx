@@ -22,6 +22,10 @@ type UploadedAsset = {
   url: string;
 };
 
+function isVideoUrl(url: string) {
+  return url.includes("/video/upload/");
+}
+
 export function ListingForm({
   locale,
   title,
@@ -47,7 +51,9 @@ export function ListingForm({
   const router = useRouter();
   const [imageAssets, setImageAssets] = useState<UploadedAsset[]>([]);
   const [coverUrl, setCoverUrl] = useState<string | undefined>(
-    defaultListing?.imageUrl,
+    defaultListing?.imageUrl && !isVideoUrl(defaultListing.imageUrl)
+      ? defaultListing.imageUrl
+      : undefined,
   );
   const [existingMediaToDelete, setExistingMediaToDelete] = useState<
     Set<string>
@@ -104,6 +110,27 @@ export function ListingForm({
     imageAssets.length +
     existingMedia.filter((m) => !existingMediaToDelete.has(m.id)).length;
 
+  const getNextCoverUrl = ({
+    excludeImageIndex,
+    excludeExistingMediaId,
+  }: {
+    excludeImageIndex?: number;
+    excludeExistingMediaId?: string;
+  }) => {
+    const remainingExisting = existingMedia.filter(
+      (media) =>
+        !existingMediaToDelete.has(media.id) &&
+        media.id !== excludeExistingMediaId &&
+        media.type !== "video",
+    );
+    const remainingImages = imageAssets.filter(
+      (asset, index) =>
+        index !== excludeImageIndex && asset.resourceType !== "video",
+    );
+
+    return remainingExisting[0]?.url ?? remainingImages[0]?.url;
+  };
+
   async function cleanupUnsavedImages(keepalive = false) {
     await Promise.all(
       imageAssetsRef.current.map((asset) =>
@@ -125,23 +152,24 @@ export function ListingForm({
   }, [imageAssets]);
 
   useEffect(() => {
-    if (coverUrl) return;
+    if (coverUrl && !isVideoUrl(coverUrl)) return;
 
     const firstExisting = existingMedia.find(
-      (m) => !existingMediaToDelete.has(m.id),
+      (m) => !existingMediaToDelete.has(m.id) && m.type !== "video",
     );
-    const next =
-      defaultListing?.imageUrl ?? firstExisting?.url ?? imageAssets[0]?.url;
-    if (!next) return;
+    const firstUploadedImage = imageAssets.find(
+      (asset) => asset.resourceType !== "video",
+    );
+    const next = firstExisting?.url ?? firstUploadedImage?.url;
+    if (!next) {
+      if (coverUrl) {
+        Promise.resolve().then(() => setCoverUrl(undefined));
+      }
+      return;
+    }
 
     Promise.resolve().then(() => setCoverUrl(next));
-  }, [
-    defaultListing,
-    existingMedia,
-    imageAssets,
-    existingMediaToDelete,
-    coverUrl,
-  ]);
+  }, [existingMedia, imageAssets, existingMediaToDelete, coverUrl]);
 
   useEffect(() => {
     savedRef.current = saved;
@@ -252,9 +280,7 @@ export function ListingForm({
     setImageAssets((prev) => {
       const next = prev.filter((_, i) => i !== index);
       if (asset.url === coverUrl) {
-        const nextCover =
-          next[0]?.url ??
-          existingMedia.find((m) => !existingMediaToDelete.has(m.id))?.url;
+        const nextCover = getNextCoverUrl({ excludeImageIndex: index });
         setCoverUrl(nextCover);
       }
       return next;
@@ -399,18 +425,14 @@ export function ListingForm({
               return;
             }
 
-            const imagesForBody = imageAssets
-              .filter((a) => a.url !== coverUrl)
-              .map((a) => ({
-                url: a.url,
-                publicId: a.publicId,
-                type: a.resourceType === "video" ? "video" : "image",
-              }));
+            const imagesForBody = imageAssets.map((a) => ({
+              url: a.url,
+              publicId: a.publicId,
+              type: a.resourceType === "video" ? "video" : "image",
+            }));
 
             const existingMediaForBody = existingMedia
-              .filter(
-                (m) => !existingMediaToDelete.has(m.id) && m.url !== coverUrl,
-              )
+              .filter((m) => !existingMediaToDelete.has(m.id))
               .map((m) => ({ id: m.id, url: m.url, type: m.type }));
 
             const body = {
@@ -428,7 +450,8 @@ export function ListingForm({
               categoryId: category,
               featured: false,
               priceType,
-              imageUrl: coverUrl ?? undefined,
+              imageUrl: coverUrl ?? null,
+              vedioUrl: null,
               images: imagesForBody,
               existingMedia: existingMediaForBody,
               deleteMediaIds: Array.from(existingMediaToDelete),
@@ -765,9 +788,18 @@ export function ListingForm({
                                 return next;
                               });
                             } else {
-                              setExistingMediaToDelete((prev) =>
-                                new Set(prev).add(media.id),
-                              );
+                              setExistingMediaToDelete((prev) => {
+                                const next = new Set(prev);
+                                next.add(media.id);
+                                if (coverUrl === media.url) {
+                                  setCoverUrl(
+                                    getNextCoverUrl({
+                                      excludeExistingMediaId: media.id,
+                                    }),
+                                  );
+                                }
+                                return next;
+                              });
                             }
                           }}
                           className={`absolute top-1 ${locale === "ar" ? "left-1" : "right-1"} ${
@@ -797,13 +829,18 @@ export function ListingForm({
                         <button
                           type="button"
                           onClick={() => {
+                            if (isVideo) return;
                             // mark this existing media as cover
                             if (coverUrl === media.url) return;
                             setCoverUrl(media.url);
                           }}
                           className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} bg-black/60 text-white rounded-full px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition z-10`}
                         >
-                          {coverUrl === media.url ? (
+                          {isVideo ? (
+                            <span className="flex items-center gap-1">
+                              Video cannot be cover
+                            </span>
+                          ) : coverUrl === media.url ? (
                             <span className="flex items-center gap-1">
                               <Star className="h-4 w-4 text-yellow-300" />
                               Cover
@@ -916,12 +953,17 @@ export function ListingForm({
                         <button
                           type="button"
                           onClick={() => {
+                            if (isVideo) return;
                             if (coverUrl === asset.url) return;
                             setCoverUrl(asset.url);
                           }}
                           className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} bg-black/60 text-white rounded-full px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition z-10`}
                         >
-                          {coverUrl === asset.url ? (
+                          {isVideo ? (
+                            <span className="flex items-center gap-1">
+                              Video cannot be cover
+                            </span>
+                          ) : coverUrl === asset.url ? (
                             <span className="flex items-center gap-1">
                               <Star className="h-4 w-4 text-yellow-300" />
                               Cover

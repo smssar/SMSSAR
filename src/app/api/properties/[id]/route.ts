@@ -23,11 +23,38 @@ type UpdatePropertyBody = {
   sellerId?: string;
   featured?: boolean;
   imageUrl?: string | null;
+  vedioUrl?: string | null;
   images?: Array<{ url: string; publicId: string; type: string }>;
   existingMedia?: Array<{ id: string; url: string; type: string }>;
   deleteMediaIds?: string[];
   priceType?: string;
 };
+
+function getCloudinaryPublicIdFromUrl(url: string): string | null {
+  try {
+    const pathname = new URL(url).pathname;
+    const uploadIndex = pathname.indexOf("/upload/");
+    if (uploadIndex === -1) return null;
+
+    const parts = pathname
+      .slice(uploadIndex + "/upload/".length)
+      .split("/")
+      .filter(Boolean);
+
+    const versionIndex = parts.findIndex((part) => /^v\d+$/.test(part));
+    const publicIdParts =
+      versionIndex >= 0 ? parts.slice(versionIndex + 1) : parts;
+
+    const withoutExtension = publicIdParts.join("/").replace(/\.[^.]+$/, "");
+    return withoutExtension ? decodeURIComponent(withoutExtension) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getCloudinaryResourceTypeFromUrl(url: string): "image" | "video" {
+  return url.includes("/video/upload/") ? "video" : "image";
+}
 
 export async function GET(_: Request, context: RouteContext) {
   const { id } = await context.params;
@@ -83,6 +110,30 @@ export async function PATCH(request: Request, context: RouteContext) {
     return jsonError("Invalid JSON body.");
   }
 
+  const imageUrl = body.imageUrl?.trim();
+  const vedioUrl = body.vedioUrl?.trim();
+  if (vedioUrl) {
+    return jsonError("Video cannot be used as cover.", 400);
+  }
+  if (imageUrl && imageUrl.includes("/video/upload/")) {
+    return jsonError("Cover must be an image.", 400);
+  }
+
+  const existingProperty = await prisma.property.findUnique({
+    where: { id },
+    select: {
+      imageUrl: true,
+      vedioUrl: true,
+      media: {
+        select: { id: true, url: true, publicId: true, type: true },
+      },
+    },
+  });
+
+  if (!existingProperty) {
+    return jsonError("Property not found.", 404);
+  }
+
   const data: {
     title?: string;
     description?: string;
@@ -96,6 +147,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     categoryId?: string;
     featured?: boolean;
     imageUrl?: string | null;
+    vedioUrl?: string | null;
   } = {};
 
   if (typeof body.title === "string") {
@@ -130,10 +182,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
   if (typeof body.imageUrl === "string" || body.imageUrl === null) {
     data.imageUrl = body.imageUrl;
+  }
+  if (typeof body.vedioUrl === "string" || body.vedioUrl === null) {
+    data.vedioUrl = body.vedioUrl;
+  }
 
-    if (typeof body.priceType === "string") {
-      data.priceType = body.priceType.trim();
-    }
+  if (typeof body.priceType === "string") {
+    data.priceType = body.priceType.trim();
   }
 
   if (data.title !== undefined && data.title.length === 0) {
@@ -159,9 +214,28 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
-    if (Array.isArray(body.deleteMediaIds) && body.deleteMediaIds.length > 0) {
+    const retainedExistingMediaIds = new Set(
+      Array.isArray(body.existingMedia)
+        ? body.existingMedia.map((media) => media.id)
+        : [],
+    );
+
+    const explicitDeleteMediaIds = new Set(
+      Array.isArray(body.deleteMediaIds) ? body.deleteMediaIds : [],
+    );
+
+    for (const media of existingProperty.media) {
+      if (!retainedExistingMediaIds.has(media.id)) {
+        explicitDeleteMediaIds.add(media.id);
+      }
+    }
+
+    if (explicitDeleteMediaIds.size > 0) {
       const mediaToDelete = await prisma.media.findMany({
-        where: { id: { in: body.deleteMediaIds }, propertyId: id },
+        where: {
+          id: { in: Array.from(explicitDeleteMediaIds) },
+          propertyId: id,
+        },
         select: { publicId: true, type: true },
       });
 
@@ -185,7 +259,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
       await prisma.media.deleteMany({
         where: {
-          id: { in: body.deleteMediaIds },
+          id: { in: Array.from(explicitDeleteMediaIds) },
           propertyId: id,
         },
       });
@@ -205,6 +279,87 @@ export async function PATCH(request: Request, context: RouteContext) {
           }),
         ),
       );
+    }
+
+    const selectedCoverUrl =
+      typeof body.imageUrl === "string" && body.imageUrl.trim().length > 0
+        ? body.imageUrl.trim()
+        : null;
+
+    if (selectedCoverUrl) {
+      const selectedCoverAlreadyExists = await prisma.media.findFirst({
+        where: {
+          propertyId: id,
+          url: selectedCoverUrl,
+        },
+        select: { id: true },
+      });
+
+      if (!selectedCoverAlreadyExists) {
+        const publicId = getCloudinaryPublicIdFromUrl(selectedCoverUrl);
+        if (publicId) {
+          await prisma.media.create({
+            data: {
+              url: selectedCoverUrl,
+              publicId,
+              type: getCloudinaryResourceTypeFromUrl(selectedCoverUrl),
+              propertyId: id,
+            },
+          });
+        }
+      }
+    }
+
+    if (
+      existingProperty.imageUrl &&
+      typeof body.imageUrl === "string" &&
+      body.imageUrl.trim() &&
+      body.imageUrl.trim() !== existingProperty.imageUrl
+    ) {
+      const oldCoverUrl = existingProperty.imageUrl;
+      const oldCoverExistsInMedia = existingProperty.media.some(
+        (media) => media.url === oldCoverUrl,
+      );
+
+      if (!oldCoverExistsInMedia) {
+        const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
+        if (publicId) {
+          await prisma.media.create({
+            data: {
+              url: oldCoverUrl,
+              publicId,
+              type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
+              propertyId: id,
+            },
+          });
+        }
+      }
+    }
+
+    if (
+      existingProperty.vedioUrl &&
+      typeof body.vedioUrl === "string" &&
+      body.vedioUrl.trim() &&
+      body.vedioUrl.trim() !== existingProperty.vedioUrl
+    ) {
+      const oldCoverUrl = existingProperty.vedioUrl;
+      const oldCoverExistsInMedia = existingProperty.media.some(
+        (media) => media.url === oldCoverUrl,
+      );
+
+      if (!oldCoverExistsInMedia) {
+        const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
+        if (publicId) {
+          await prisma.media.create({
+            data: {
+              url: oldCoverUrl,
+              publicId,
+              type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
+              propertyId: id,
+            },
+          });
+        }
+      }
     }
 
     const include = {

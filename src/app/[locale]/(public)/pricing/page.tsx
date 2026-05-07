@@ -77,7 +77,7 @@ export default async function PricingPage({
                 <div className="text-4xl font-semibold">
                   {plan.price === 0
                     ? t(locale, { en: "Free", ar: "مجاني", fr: "Gratuit" })
-                    : `$${plan.price}`}
+                    : `${plan.price} DH`}
                 </div>
                 <div className="space-y-3">
                   {(featureSet?.features ?? []).map((feature, index) => (

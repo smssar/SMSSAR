@@ -117,7 +117,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                     <div className="text-sm text-muted-foreground">
                       {messages.common.city}
                     </div>
-                    <div className="mt-2 text-xl font-semibold">Tetoan</div>
+                    <div className="mt-2 text-xl font-semibold">Tetouan</div>
                   </div>
                   <div className="rounded-3xl bg-muted/40 p-5">
                     <div className="text-sm text-muted-foreground">
@@ -283,7 +283,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                   <div className="text-4xl font-semibold">
                     {plan.price === 0
                       ? t(locale, { en: "Free", ar: "مجاني", fr: "Gratuit" })
-                      : `$${plan.price}`}
+                      : `${plan.price} DH`}
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">

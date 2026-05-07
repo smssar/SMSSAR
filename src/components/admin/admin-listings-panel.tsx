@@ -78,6 +78,8 @@ export function AdminListingsPanel({
   currentPage: number;
   totalPages: number;
 }) {
+  const isVideoUrl = (url: string) => url.includes("/video/upload/");
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -160,7 +162,9 @@ export function AdminListingsPanel({
   const startEdit = (item: PropertyRow) => {
     setEditingId(item.id);
     setEditingMedia(item.media ?? []);
-    setCoverUrl(item.imageUrl ?? item.media?.[0]?.url ?? undefined);
+    setCoverUrl(
+      item.imageUrl ?? item.media?.find((media) => media.type !== "video")?.url,
+    );
     setTitle(item.title);
     setDescription(item.description ?? "");
     setCity(item.city);
@@ -287,8 +291,10 @@ export function AdminListingsPanel({
       const next = prev.filter((_, i) => i !== index);
       if (asset.url === coverUrl) {
         const nextCover =
-          next[0]?.url ??
-          editingMedia?.find((m) => !existingMediaToDelete.has(m.id))?.url;
+          next.find((m) => m.resourceType !== "video")?.url ??
+          editingMedia?.find(
+            (m) => !existingMediaToDelete.has(m.id) && m.type !== "video",
+          )?.url;
         setCoverUrl(nextCover);
       }
       return next;
@@ -395,7 +401,9 @@ export function AdminListingsPanel({
         area?: number;
         bathrooms?: number;
         imageUrl?: string | null;
+        vedioUrl?: string | null;
         images?: Array<{ url: string; publicId: string; type: string }>;
+        existingMedia?: Array<{ id: string; url: string; type: string }>;
         deleteMediaIds?: string[];
         priceType?: string;
       } = {
@@ -413,17 +421,28 @@ export function AdminListingsPanel({
       if (area.trim()) body.area = Number(area);
       if (bathrooms.trim()) body.bathrooms = Number(bathrooms);
 
-      body.imageUrl = coverUrl ?? null;
+      body.imageUrl = coverUrl && !isVideoUrl(coverUrl) ? coverUrl : null;
+      body.vedioUrl = null;
 
       // Add new images
       if (newImages.length > 0) {
-        body.images = newImages
-          .filter((asset) => asset.url !== coverUrl)
-          .map((asset) => ({
-            url: asset.url,
-            publicId: asset.publicId,
-            type: asset.resourceType === "video" ? "video" : "image",
-          }));
+        body.images = newImages.map((asset) => ({
+          url: asset.url,
+          publicId: asset.publicId,
+          type: asset.resourceType === "video" ? "video" : "image",
+        }));
+      }
+
+      const remainingExistingMedia = (editingMedia ?? []).filter(
+        (media) => !existingMediaToDelete.has(media.id),
+      );
+
+      if (remainingExistingMedia.length > 0) {
+        body.existingMedia = remainingExistingMedia.map((media) => ({
+          id: media.id,
+          url: media.url,
+          type: media.type,
+        }));
       }
 
       // Add media to delete
@@ -872,6 +891,7 @@ export function AdminListingsPanel({
                             <button
                               type="button"
                               onClick={() => {
+                                if (isVideo) return;
                                 if (isDeleted) {
                                   setExistingMediaToDelete((prev) => {
                                     const next = new Set(prev);
@@ -884,11 +904,15 @@ export function AdminListingsPanel({
                                     next.add(media.id);
                                     if (coverUrl === media.url) {
                                       const nextCover =
-                                        newImages[0]?.url ??
+                                        newImages.find(
+                                          (asset) =>
+                                            asset.resourceType !== "video",
+                                        )?.url ??
                                         editingMedia.find(
                                           (m) =>
                                             m.id !== media.id &&
-                                            !next.has(m.id),
+                                            !next.has(m.id) &&
+                                            m.type !== "video",
                                         )?.url;
                                       setCoverUrl(nextCover);
                                     }
@@ -922,10 +946,15 @@ export function AdminListingsPanel({
                             </button>
                             <button
                               type="button"
-                              onClick={() => setCoverUrl(media.url)}
+                              onClick={() => {
+                                if (isVideo) return;
+                                setCoverUrl(media.url);
+                              }}
                               className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium text-white opacity-0 transition group-hover:opacity-100`}
                             >
-                              {coverUrl === media.url ? (
+                              {isVideo ? (
+                                <span>Video can&apos;t be cover</span>
+                              ) : coverUrl === media.url ? (
                                 <span className="inline-flex items-center gap-1">
                                   <Star className="h-3 w-3 text-yellow-300" />
                                   Cover
@@ -1027,10 +1056,15 @@ export function AdminListingsPanel({
                             </button>
                             <button
                               type="button"
-                              onClick={() => setCoverUrl(asset.url)}
+                              onClick={() => {
+                                if (isVideo) return;
+                                setCoverUrl(asset.url);
+                              }}
                               className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium text-white opacity-0 transition group-hover:opacity-100`}
                             >
-                              {coverUrl === asset.url ? (
+                              {isVideo ? (
+                                <span>Video can&apos;t be cover</span>
+                              ) : coverUrl === asset.url ? (
                                 <span className="inline-flex items-center gap-1">
                                   <Star className="h-3 w-3 text-yellow-300" />
                                   Cover

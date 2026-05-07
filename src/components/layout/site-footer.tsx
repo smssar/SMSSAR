@@ -26,7 +26,7 @@ export function SiteFooter({
               <Phone className="h-4 w-4" /> +971 50 000 0000
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> Dubai, UAE
+              <MapPin className="h-4 w-4" /> Morocco
             </div>
           </div>
         </div>
@@ -71,7 +71,8 @@ export function SiteFooter({
         </div>
       </div>
       <div className="border-t border-border/60 px-4 py-6 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
-        © 2026 House Rental Platform. {messages.footer.rights}
+        © {new Date().getFullYear()} House Rental Platform.{" "}
+        {messages.footer.rights}
       </div>
     </footer>
   );

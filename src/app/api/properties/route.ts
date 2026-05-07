@@ -15,6 +15,7 @@ type CreatePropertyBody = {
   categoryId?: string;
   featured?: boolean;
   imageUrl?: string | null;
+  vedioUrl?: string | null;
   images?: Array<{ url: string; publicId: string; type: string }>;
   priceType?: string;
 };
@@ -78,11 +79,20 @@ export async function POST(request: Request) {
   const city = body.city?.trim();
   const neighborhood = body.neighborhood?.trim();
   const categoryId = body.categoryId?.trim();
+  const imageUrl = body.imageUrl?.trim();
+  const vedioUrl = body.vedioUrl?.trim();
 
   if (!title || !city || !neighborhood || !categoryId) {
     return jsonError(
       "Fields 'title', 'city', 'neighborhood', and 'categoryId' are required.",
     );
+  }
+
+  if (vedioUrl) {
+    return jsonError("Video cannot be used as cover.", 400);
+  }
+  if (imageUrl && imageUrl.includes("/video/upload/")) {
+    return jsonError("Cover must be an image.", 400);
   }
 
   // Verify category exists (Category.name is used as the FK)
@@ -117,11 +127,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Use first uploaded image as main image (if provided)
     const imageUrlFromBody =
-      body.images && body.images.length > 0
-        ? body.images[0].url
-        : (body.imageUrl ?? null);
+      typeof body.imageUrl === "string" && body.imageUrl.trim().length > 0
+        ? body.imageUrl.trim()
+        : null;
 
     const property = await prisma.property.create({
       data: {
@@ -137,6 +146,7 @@ export async function POST(request: Request) {
         sellerId: session.user.id,
         featured: body.featured ?? false,
         imageUrl: imageUrlFromBody,
+        vedioUrl: null,
         priceType: body.priceType ?? "MONTHLY",
       },
       include: {
