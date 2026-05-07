@@ -147,7 +147,7 @@ export function DashboardShell({
 
         <div className="flex min-w-0 flex-col">
           <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -163,7 +163,7 @@ export function DashboardShell({
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <LanguageSwitcher currentLocale={locale} />
                 <Link
                   href={`/${locale}`}

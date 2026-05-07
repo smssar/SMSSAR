@@ -65,13 +65,13 @@ export function SellerPropertyCard({
   return (
     <Card
       className={cn(
-        "group overflow-hidden border-border/70 bg-card transition hover:-translate-y-1 hover:shadow-2xl lg:w-100 xl:w-150",
+        "group w-full overflow-hidden border-border/70 bg-card transition hover:-translate-y-1 hover:shadow-2xl",
         className,
       )}
     >
       <div
         className={cn(
-          "relative h-56 overflow-hidden bg-linear-to-br",
+          "relative h-48 overflow-hidden bg-linear-to-br sm:h-56",
           property.palette?.[0],
           property.palette?.[1],
         )}
@@ -104,20 +104,20 @@ export function SellerPropertyCard({
               <MapPin className="h-4 w-4" />
               <span>{cityText}</span>
             </div>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+            <h3 className="mt-2 text-lg font-semibold tracking-tight sm:text-2xl">
               {titleText}
             </h3>
           </div>
-          <div className="rounded-full bg-white/15 p-3 backdrop-blur">
+          <div className="rounded-full bg-white/15 p-2.5 backdrop-blur sm:p-3">
             <Building2 className="h-5 w-5" />
           </div>
         </div>
       </div>
 
-      <CardContent className="space-y-5 p-3">
+      <CardContent className="space-y-5 p-4 sm:p-6">
         <p className="text-sm leading-6 text-muted-foreground">{descText}</p>
 
-        <div className="grid grid-cols-3 gap-3 text-sm">
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
           <Meta
             icon={<BedDouble className="h-4 w-4" />}
             label={String(property.rooms)}
@@ -169,10 +169,10 @@ export function SellerPropertyCard({
         </div>
       </CardContent>
 
-      <CardFooter className="flex items-center gap-3 p-6 pt-0">
+      <CardFooter className="flex flex-col gap-3 p-4 pt-0 sm:flex-row sm:p-6 sm:pt-0">
         <Link
           href={`/${locale}/properties/${property.id}`}
-          className="inline-flex items-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:w-auto"
           rel="noopener noreferrer"
         >
           <Eye className="h-4 w-4" />
@@ -181,7 +181,7 @@ export function SellerPropertyCard({
 
         <Link
           href={`/${locale}/dashboard/seller/listings/${property.id}/edit`}
-          className="inline-flex items-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:w-auto"
         >
           <Pencil className="h-4 w-4" />
           {t(locale, { en: "Edit", ar: "تعديل", fr: "Modifier" })}
@@ -197,7 +197,7 @@ export function SellerPropertyCard({
                 : property.title[locale],
             )
           }
-          className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 sm:w-auto"
         >
           <Trash2 className="h-4 w-4" />
           {t(locale, { en: "Delete", ar: "حذف", fr: "Supprimer" })}
@@ -217,7 +217,7 @@ function Meta({
   caption: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-background p-3">
+    <div className="rounded-2xl border border-border/70 bg-background p-3 text-center sm:text-left">
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-lg font-semibold text-foreground">{label}</span>
