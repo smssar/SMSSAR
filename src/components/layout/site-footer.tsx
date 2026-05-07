@@ -12,13 +12,13 @@ export function SiteFooter({
 }) {
   return (
     <footer className="border-t border-border/60 bg-card/40">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr] lg:px-8">
-        <div>
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 text-center sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr] lg:px-8 lg:text-left">
+        <div className="flex flex-col items-center lg:items-start">
           <div className="text-xl font-semibold">House Rental Platform</div>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
+          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground lg:mt-4 lg:max-w-xl lg:text-left">
             {messages.footer.tagline}
           </p>
-          <div className="mt-6 flex flex-col gap-3 text-sm text-muted-foreground">
+          <div className="mt-6 flex flex-col items-center gap-3 text-sm text-muted-foreground lg:items-start">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4" /> support@houserental.example
             </div>
@@ -30,11 +30,11 @@ export function SiteFooter({
             </div>
           </div>
         </div>
-        <div>
+        <div className="flex flex-col items-center lg:items-start">
           <div className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {messages.footer.quickLinks}
           </div>
-          <div className="mt-4 grid gap-3 text-sm">
+          <div className="mt-4 flex flex-col items-center gap-3 text-sm lg:items-start">
             <Link
               href={`/${locale}`}
               className="text-foreground/80 transition hover:text-foreground"
@@ -55,11 +55,11 @@ export function SiteFooter({
             </Link>
           </div>
         </div>
-        <div>
+        <div className="flex flex-col items-center lg:items-start">
           <div className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {messages.footer.support}
           </div>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">
+          <p className="mt-4 text-sm leading-7 text-muted-foreground lg:text-left">
             {messages.home.contactNote}
           </p>
           <Link

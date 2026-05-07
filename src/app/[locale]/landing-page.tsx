@@ -24,6 +24,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
   const session = await auth();
   const [dbCategories, dbPlans] = await Promise.all([
     prisma.category.findMany({
+      take: 3,
       orderBy: { name: "asc" },
       include: {
         _count: {
@@ -57,8 +58,8 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_24%)]" />
           <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:py-24">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm">
+            <div className="space-y-8 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start">
                 <BadgeCheck className="h-4 w-4 text-violet-800" />
                 {t(locale, {
                   en: "Verified, multilingual rental marketplace",
@@ -74,7 +75,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                   {messages.home.heroDescription}
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3 ">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 <ButtonLink
                   href={`/${locale}/properties`}
                   variant="accent"
@@ -113,13 +114,13 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-3xl bg-muted/40 p-5">
+                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
                     <div className="text-sm text-muted-foreground">
                       {messages.common.city}
                     </div>
                     <div className="mt-2 text-xl font-semibold">Tetouan</div>
                   </div>
-                  <div className="rounded-3xl bg-muted/40 p-5">
+                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
                     <div className="text-sm text-muted-foreground">
                       {messages.common.price}
                     </div>
@@ -127,13 +128,13 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                       {formatCurrency(15000, locale)}
                     </div>
                   </div>
-                  <div className="rounded-3xl bg-muted/40 p-5">
+                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
                     <div className="text-sm text-muted-foreground">
                       {messages.common.rooms}
                     </div>
                     <div className="mt-2 text-xl font-semibold">4</div>
                   </div>
-                  <div className="rounded-3xl bg-muted/40 p-5">
+                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
                     <div className="text-sm text-muted-foreground">
                       {messages.common.verified}
                     </div>
@@ -152,7 +153,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <section className="section-anchor mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="section-anchor mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Top picks",
@@ -178,7 +179,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Explore by category",
@@ -193,20 +194,20 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
             })}
           />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {dbCategories.slice(0, 3).map((category) => (
+            {dbCategories.map((category) => (
               <Card
                 key={category.id}
                 className="group border-border/70 transition hover:-translate-y-1 hover:shadow-xl"
               >
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className="flex items-center gap-3 mx-auto lg:mx-0">
                     {locale === "ar"
                       ? category.name_ar || category.name
                       : locale === "fr"
                         ? category.name_fr || category.name
                         : category.name}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mx-auto lg:mx-0">
                     {locale === "ar"
                       ? `${category._count.properties} عقار`
                       : locale === "fr"
@@ -240,7 +241,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
           </Link>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, { en: "Plans", ar: "الخطط", fr: "Forfaits" })}
             title={messages.home.plansTitle}
@@ -257,7 +258,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                 }
               >
                 <CardHeader>
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-center lg:justify-between gap-3 ">
                     <CardTitle>
                       {locale === "ar"
                         ? plan.title_ar || plan.title
@@ -301,7 +302,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Testimonials",
@@ -338,7 +339,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <Card className="overflow-hidden border-violet-500/20 bg-linear-to-r from-violet-500 to-fuchsia-600 text-white shadow-2xl shadow-violet-500/20">
             <CardContent className="grid gap-8 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
-              <div>
+              <div className="text-center lg:text-left">
                 <div className="text-sm uppercase tracking-[0.3em] text-white/75">
                   {messages.home.contactTitle}
                 </div>
