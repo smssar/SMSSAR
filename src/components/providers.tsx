@@ -5,6 +5,7 @@ import type { Session } from "next-auth";
 import { Toaster } from "sonner";
 import type { ReactNode } from "react";
 import { LocaleSync } from "./locale-sync";
+import { SafePerformance } from "@/components/perf/safe-performance";
 
 export function Providers({
   children,
@@ -15,6 +16,7 @@ export function Providers({
 }) {
   return (
     <SessionProvider session={session}>
+      <SafePerformance />
       <LocaleSync />
       {children}
       <Toaster

@@ -50,8 +50,8 @@ export function DashboardShell({
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside
           className={cn(
-            "border-border/60 bg-card/90 backdrop-blur-xl lg:border-r",
-            open ? "fixed inset-y-0 z-40 w-70 lg:static" : "hidden lg:block",
+            "border-border/60 bg-card/90 backdrop-blur-xl lg:border-r lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto",
+            open ? "fixed inset-y-0 z-40 w-70" : "hidden lg:block",
           )}
         >
           <div className="flex h-full flex-col">

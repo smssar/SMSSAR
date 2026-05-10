@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminUsersPanel } from "@/components/admin/admin-users-panel";
 import type { Locale } from "@/lib/locales";
+import type { Prisma } from "@/generated/prisma/client";
 
 function toPositiveInteger(
   value: string | null | undefined,
@@ -54,13 +55,22 @@ export default async function AdminUsersPage({
   const search = (resolvedSearchParams.search as string) ?? "";
   const roleParam = (resolvedSearchParams.role as string) ?? "";
   const statusParam = (resolvedSearchParams.status as string) ?? "";
+  const validRoles = ["USER", "SELLER", "ADMIN"] as const;
+  const validStatuses = ["ACTIVE", "PENDING", "FLAGGED"] as const;
+
+  const isValidRole = (value: string): value is (typeof validRoles)[number] =>
+    validRoles.includes(value as (typeof validRoles)[number]);
+
+  const isValidStatus = (
+    value: string,
+  ): value is (typeof validStatuses)[number] =>
+    validStatuses.includes(value as (typeof validStatuses)[number]);
 
   const plans = await prisma.plan.findMany({ orderBy: { price: "asc" } });
 
   const q = search.trim().toLowerCase();
 
-  // Build where conditions
-  const whereConditions = [];
+  const whereConditions: Prisma.UserWhereInput[] = [];
 
   if (q) {
     whereConditions.push({
@@ -71,16 +81,16 @@ export default async function AdminUsersPage({
     });
   }
 
-  if (roleParam && ["USER", "SELLER", "ADMIN"].includes(roleParam)) {
+  if (roleParam && isValidRole(roleParam)) {
     whereConditions.push({ role: roleParam });
   }
 
-  if (statusParam && ["ACTIVE", "PENDING", "FLAGGED"].includes(statusParam)) {
+  if (statusParam && isValidStatus(statusParam)) {
     whereConditions.push({ status: statusParam });
   }
 
-  const where =
-    whereConditions.length > 0 ? { AND: whereConditions as any } : {};
+  const where: Prisma.UserWhereInput =
+    whereConditions.length > 0 ? { AND: whereConditions } : {};
 
   const [totalCount, users] = await Promise.all([
     prisma.user.count({ where }),

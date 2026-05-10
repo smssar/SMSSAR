@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { Edit3, Loader2, Mail, Save, UserRound, X } from "lucide-react";
+import { Edit3, Loader2, Mail, Save, Shield, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +25,7 @@ type SellerProfile = {
   city?: string | null;
   bio?: string | null;
   createdAt: Date | string;
+  hasPassword: boolean;
 };
 
 export function SellerProfilePanel({
@@ -37,6 +40,9 @@ export function SellerProfilePanel({
   const [phone, setPhone] = useState(initialSeller.phone ?? "");
   const [city, setCity] = useState(initialSeller.city ?? "");
   const [bio, setBio] = useState(initialSeller.bio ?? "");
+  const [hasPassword, setHasPassword] = useState(initialSeller.hasPassword);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ label: string } | null>(
     null,
@@ -44,6 +50,18 @@ export function SellerProfilePanel({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (hasPassword && newPassword && !currentPassword) {
+      toast.error(
+        locale === "ar"
+          ? "يرجى إدخال كلمة المرور الحالية لتغييرها."
+          : locale === "fr"
+            ? "Veuillez entrer votre mot de passe actuel pour le modifier."
+            : "Please enter your current password to change it.",
+      );
+      return;
+    }
+
     setPendingAction({
       label: t(locale, {
         en: "seller profile",
@@ -59,7 +77,15 @@ export function SellerProfilePanel({
       const response = await fetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, city, bio }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          city,
+          bio,
+          currentPassword: currentPassword || undefined,
+          newPassword: newPassword || undefined,
+        }),
       });
 
       const payload = await response.json().catch(() => null);
@@ -74,7 +100,10 @@ export function SellerProfilePanel({
         setPhone(updated.phone ?? "");
         setCity(updated.city ?? "");
         setBio(updated.bio ?? "");
+        setHasPassword(Boolean(updated.hasPassword));
       }
+      setCurrentPassword("");
+      setNewPassword("");
       setPendingAction(null);
 
       toast.success(
@@ -216,6 +245,96 @@ export function SellerProfilePanel({
                 }
                 className="min-h-28 resize-none"
               />
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {hasPassword ? (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="seller-current-password"
+                    className="flex items-center gap-2"
+                  >
+                    <Shield className="h-4 w-4 text-violet-500" />
+                    {t(locale, {
+                      en: "Current password",
+                      ar: "كلمة المرور الحالية",
+                      fr: "Mot de passe actuel",
+                    })}
+                  </Label>
+                  <PasswordInput
+                    id="seller-current-password"
+                    value={currentPassword}
+                    onChange={(event) => setCurrentPassword(event.target.value)}
+                    placeholder={t(locale, {
+                      en: "Enter your current password",
+                      ar: "أدخل كلمة المرور الحالية",
+                      fr: "Entrez votre mot de passe actuel",
+                    })}
+                  />
+                  <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                    <span>
+                      {t(locale, {
+                        en: "Required only when changing password.",
+                        ar: "مطلوب فقط عند تغيير كلمة المرور.",
+                        fr: "Requis uniquement lors du changement de mot de passe.",
+                      })}
+                    </span>
+                    <Link
+                      href={`/${locale}/forgot-password`}
+                      className="font-medium text-violet-600 hover:underline dark:text-violet-300"
+                    >
+                      {t(locale, {
+                        en: "Forgot password?",
+                        ar: "هل نسيت كلمة المرور؟",
+                        fr: "Mot de passe oublié ?",
+                      })}
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="seller-password"
+                  className="flex items-center gap-2"
+                >
+                  <Shield className="h-4 w-4 text-violet-500" />
+                  {t(locale, {
+                    en: hasPassword
+                      ? "New password (optional)"
+                      : "Create password",
+                    ar: hasPassword
+                      ? "كلمة المرور الجديدة (اختياري)"
+                      : "إنشاء كلمة مرور",
+                    fr: hasPassword
+                      ? "Nouveau mot de passe (facultatif)"
+                      : "Créer un mot de passe",
+                  })}
+                </Label>
+                <PasswordInput
+                  id="seller-password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder={t(locale, {
+                    en: "8+ characters",
+                    ar: "8 أحرف أو أكثر",
+                    fr: "8 caractères ou plus",
+                  })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t(locale, {
+                    en: hasPassword
+                      ? "Leave empty if you don't want to change your password."
+                      : "Set a password to enable email/password sign-in.",
+                    ar: hasPassword
+                      ? "اتركه فارغاً إذا لم ترغب في تغيير كلمة المرور."
+                      : "قم بتعيين كلمة مرور لتفعيل تسجيل الدخول بالبريد الإلكتروني وكلمة المرور.",
+                    fr: hasPassword
+                      ? "Laissez vide si vous ne souhaitez pas modifier votre mot de passe."
+                      : "Définissez un mot de passe pour activer la connexion par e-mail et mot de passe.",
+                  })}
+                </p>
+              </div>
             </div>
 
             <Button type="submit" className="h-11 gap-2" disabled={loading}>

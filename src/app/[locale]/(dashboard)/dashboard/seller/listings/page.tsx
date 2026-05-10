@@ -25,7 +25,7 @@ export default async function SellerListingsPage({
   const properties = await prisma.property.findMany({
     where: { sellerId: session.user.id },
     include: {
-      category: {
+      propertyType: {
         select: { id: true, name: true, slug: true },
       },
     },

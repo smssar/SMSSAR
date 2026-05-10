@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Mail, ArrowRight } from "lucide-react";
-import { ButtonLink } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,9 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { getMessages } from "@/lib/messages";
+import { ForgotPasswordForm } from "./form";
 import type { Locale } from "@/lib/locales";
 
 export default async function ForgotPasswordPage({
@@ -21,42 +18,63 @@ export default async function ForgotPasswordPage({
   const { locale } = await params;
   const messages = getMessages(locale);
 
+  const title =
+    locale === "ar"
+      ? "إعادة تعيين كلمة المرور"
+      : locale === "fr"
+        ? "Réinitialiser votre mot de passe"
+        : messages.auth.forgotTitle;
+
+  const description =
+    locale === "ar"
+      ? "سنرسل رابط إعادة التعيين إلى بريدك الإلكتروني."
+      : locale === "fr"
+        ? "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation."
+        : messages.auth.forgotDescription;
+
+  const emailLabel = locale === "fr" ? "Adresse e-mail" : messages.auth.email;
+
+  const resetLabel =
+    locale === "ar"
+      ? "إرسال رابط إعادة التعيين"
+      : locale === "fr"
+        ? "Envoyer le lien de réinitialisation"
+        : messages.auth.resetLink;
+
+  const haveAccount =
+    locale === "ar"
+      ? "لديك حساب بالفعل؟"
+      : locale === "fr"
+        ? "Vous avez déjà un compte ?"
+        : messages.auth.haveAccount;
+
   return (
     <div className="mx-auto w-full max-w-lg">
       <Card className="glass border-border/70">
         <CardHeader>
-          <CardTitle>{messages.auth.forgotTitle}</CardTitle>
-          <CardDescription>{messages.auth.forgotDescription}</CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="email">{messages.auth.email}</Label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                className="pl-11 rtl:pr-11 rtl:pl-4"
-              />
-            </div>
-          </div>
-          <ButtonLink
-            href={`/${locale}/login`}
-            variant="accent"
-            className="w-full"
-          >
-            {messages.auth.resetLink}
-            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-          </ButtonLink>
-          <p className="text-center text-sm text-muted-foreground">
+          <ForgotPasswordForm
+            locale={locale}
+            emailLabel={emailLabel}
+            resetLabel={resetLabel}
+          />
+
+          <div className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
+            <span>{haveAccount}</span>
             <Link
               href={`/${locale}/login`}
-              className="font-medium text-violet-600 hover:underline dark:text-violet-300"
+              className="font-medium text-violet-600 hover:underline dark:text-violet-400"
             >
-              {messages.auth.haveAccount}
+              {locale === "ar"
+                ? "تسجيل الدخول"
+                : locale === "fr"
+                  ? "Se connecter"
+                  : "Sign In"}
             </Link>
-          </p>
+          </div>
         </CardContent>
       </Card>
     </div>

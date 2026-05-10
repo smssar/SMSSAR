@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -26,11 +27,6 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { Locale } from "@/lib/locales";
 
-type CategoryOption = {
-  id: string;
-  name: string;
-};
-
 type PropertyRow = {
   id: string;
   title: string;
@@ -41,20 +37,26 @@ type PropertyRow = {
   rooms: number;
   bathrooms: number | null;
   price: number;
-  categoryId: string;
+  propertyTypeId?: string | null;
   featured: boolean;
   priceType?: string;
+  propertyType?:
+    | string
+    | null
+    | {
+        id: string;
+        name?: string;
+        name_ar?: string | null;
+        slug?: string | null;
+        name_fr?: string | null;
+      };
+  forSale?: boolean;
   imageUrl: string | null;
   createdAt: Date | string;
-  category: {
-    id: string;
-    name: string;
-    slug: string | null;
-  };
   seller: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
   };
   media?: Array<{
     id: string;
@@ -66,15 +68,34 @@ type PropertyRow = {
 export function AdminListingsPanel({
   locale,
   initialListings,
-  categories,
   cities = [],
+  neighborhoods = [],
+  propertyTypes = [],
   currentPage,
   totalPages,
 }: {
   locale: Locale;
   initialListings: PropertyRow[];
-  categories: CategoryOption[];
-  cities?: string[];
+  propertyTypes?: Array<{
+    id: string;
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+  }>;
+  cities?: Array<{
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+  }>;
+  neighborhoods?: Array<{
+    id: string;
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+    city: {
+      name: string;
+    };
+  }>;
   currentPage: number;
   totalPages: number;
 }) {
@@ -101,7 +122,8 @@ export function AdminListingsPanel({
   const [bathrooms, setBathrooms] = useState("");
   const [price, setPrice] = useState("0");
   const [priceType, setPriceType] = useState<"MONTHLY" | "DAILY">("MONTHLY");
-  const [categoryId, setCategoryId] = useState("");
+  const [propertyType, setPropertyType] = useState<string>("");
+  const [forSale, setForSale] = useState<boolean>(false);
   const [featured, setFeatured] = useState(false);
   const [newImages, setNewImages] = useState<
     Array<{ url: string; publicId: string; resourceType: string }>
@@ -115,6 +137,21 @@ export function AdminListingsPanel({
 
   const currentSearch = (searchParams.get("search") as string) ?? "";
   const currentPageSize = (searchParams.get("pageSize") as string) ?? "10";
+
+  const getLocalizedLabel = (item: {
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+  }) => {
+    if (locale === "ar") return item.name_ar || item.name;
+    if (locale === "fr") return item.name_fr || item.name;
+    return item.name;
+  };
+
+  const availableNeighborhoods = useMemo(
+    () => neighborhoods.filter((item) => item.city.name === city),
+    [neighborhoods, city],
+  );
 
   const setPageParam = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -139,6 +176,11 @@ export function AdminListingsPanel({
     if (newSearch) params.set("search", newSearch);
     if (currentPageSize !== "10") params.set("pageSize", currentPageSize);
     router.push(`?${params.toString()}`);
+  };
+
+  const handleCityChange = (value: string) => {
+    setCity(value);
+    setNeighborhood("");
   };
 
   const heroMedia = useMemo(() => {
@@ -173,9 +215,15 @@ export function AdminListingsPanel({
     setRooms(String(item.rooms));
     setBathrooms(item.bathrooms === null ? "" : String(item.bathrooms));
     setPrice(String(item.price));
-    setCategoryId(item.categoryId);
     setFeatured(item.featured);
     setPriceType((item.priceType as "MONTHLY" | "DAILY") ?? "MONTHLY");
+    const pt =
+      (item as any).propertyTypeId ??
+      (typeof item.propertyType === "string"
+        ? item.propertyType
+        : ((item.propertyType as any)?.id ?? ""));
+    setPropertyType(pt ?? "");
+    setForSale(Boolean(item.forSale));
   };
 
   const requestEdit = (item: PropertyRow) => {
@@ -199,7 +247,6 @@ export function AdminListingsPanel({
     setRooms("1");
     setBathrooms("");
     setPrice("0");
-    setCategoryId("");
     setFeatured(false);
     setNewImages([]);
     setExistingMediaToDelete(new Set());
@@ -363,9 +410,11 @@ export function AdminListingsPanel({
       return;
     }
 
-    if (!categoryId.trim()) {
+    if (!propertyType.trim()) {
       toast.error(
-        locale === "ar" ? "يرجى اختيار الفئة" : "Please select a category",
+        locale === "ar"
+          ? "يرجى اختيار نوع العقار"
+          : "Please select a property type",
       );
       return;
     }
@@ -396,23 +445,23 @@ export function AdminListingsPanel({
         neighborhood?: string | null;
         rooms: number;
         price: number;
-        categoryId: string;
         featured: boolean;
         area?: number;
         bathrooms?: number;
         imageUrl?: string | null;
-        vedioUrl?: string | null;
+        videoUrl?: string | null;
         images?: Array<{ url: string; publicId: string; type: string }>;
         existingMedia?: Array<{ id: string; url: string; type: string }>;
         deleteMediaIds?: string[];
         priceType?: string;
+        propertyTypeId?: string | null;
+        forSale?: boolean;
       } = {
         title: title.trim(),
         description: description.trim(),
         city: city.trim(),
         rooms: Number(rooms),
         price: Number(price),
-        categoryId: categoryId.trim(),
         featured,
         priceType,
       };
@@ -420,9 +469,11 @@ export function AdminListingsPanel({
       if (neighborhood.trim()) body.neighborhood = neighborhood.trim();
       if (area.trim()) body.area = Number(area);
       if (bathrooms.trim()) body.bathrooms = Number(bathrooms);
+      if (propertyType.trim()) body.propertyTypeId = propertyType.trim();
+      body.forSale = forSale;
 
       body.imageUrl = coverUrl && !isVideoUrl(coverUrl) ? coverUrl : null;
-      body.vedioUrl = null;
+      body.videoUrl = null;
 
       // Add new images
       if (newImages.length > 0) {
@@ -635,7 +686,7 @@ export function AdminListingsPanel({
                     <td className="py-4">{item.city}</td>
                     <td className="py-4">{item.neighborhood || "-"}</td>
                     <td className="py-4">{item.price}</td>
-                    <td className="py-4">{item.seller.name}</td>
+                    <td className="py-4">{item.seller.name || "-"}</td>
                     <td className="py-4">
                       <Badge variant={item.featured ? "accent" : "secondary"}>
                         {item.featured
@@ -1120,15 +1171,15 @@ export function AdminListingsPanel({
                     <Select
                       id="edit-city"
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => handleCityChange(e.target.value)}
                       required
                     >
                       <option value="">
                         {locale === "ar" ? "اختر مدينة" : "Select a city"}
                       </option>
                       {cities.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
+                        <option key={c.name} value={c.name}>
+                          {getLocalizedLabel(c)}
                         </option>
                       ))}
                     </Select>
@@ -1138,33 +1189,61 @@ export function AdminListingsPanel({
                       {locale === "ar" ? "الحي" : "Neighborhood"}
                       <span className="ml-1 text-red-500">*</span>
                     </Label>
-                    <Input
+                    <Select
                       id="edit-neighborhood"
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
                       required
-                    />
+                    >
+                      <option value="">
+                        {!city
+                          ? locale === "ar"
+                            ? "اختر المدينة أولاً"
+                            : "Select a city first"
+                          : availableNeighborhoods.length === 0
+                            ? locale === "ar"
+                              ? "لا توجد أحياء لهذه المدينة"
+                              : "No neighborhoods for this city"
+                            : locale === "ar"
+                              ? "اختر الحي"
+                              : "Select a neighborhood"}
+                      </option>
+                      {availableNeighborhoods.map((item) => (
+                        <option key={item.id} value={item.name}>
+                          {getLocalizedLabel(item)}
+                        </option>
+                      ))}
+                    </Select>
+                    {city && availableNeighborhoods.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        {locale === "ar"
+                          ? "أضف الأحياء لهذه المدينة أولاً من لوحة الإدارة."
+                          : "Add neighborhoods for this city from the admin dashboard first."}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-category">
-                      {locale === "ar" ? "الفئة" : "Category"}
+                    <Label htmlFor="edit-property-type">
+                      {locale === "ar" ? "نوع العقار" : "Property type"}
                       <span className="ml-1 text-red-500">*</span>
                     </Label>
                     <Select
-                      id="edit-category"
-                      value={categoryId}
-                      onChange={(e) => setCategoryId(e.target.value)}
+                      id="edit-property-type"
+                      value={propertyType}
+                      onChange={(e) => setPropertyType(e.target.value)}
                       required
                     >
                       <option value="">
-                        {locale === "ar" ? "اختر الفئة" : "Select category"}
+                        {locale === "ar"
+                          ? "اختر النوع"
+                          : "Select property type"}
                       </option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.name}>
-                          {`${(category as unknown as Record<string, unknown>)[`name_${locale}`] || category.name}`}
+                      {propertyTypes.map((pt) => (
+                        <option key={pt.id} value={pt.id}>
+                          {getLocalizedLabel(pt)}
                         </option>
                       ))}
                     </Select>
@@ -1179,32 +1258,40 @@ export function AdminListingsPanel({
                         <span className="ml-1 text-red-500">*</span>
                       </Label>
                       <div className="flex flex-wrap items-center gap-6">
-                        <label className="flex cursor-pointer items-center gap-3">
-                          <input
-                            type="radio"
-                            name="priceType"
-                            value="MONTHLY"
-                            checked={priceType === "MONTHLY"}
-                            onChange={() => setPriceType("MONTHLY")}
-                            className="h-4 w-4 accent-violet-600"
-                          />
-                          <span className="text-sm font-medium">
-                            {locale === "ar" ? "شهري" : "Monthly"}
-                          </span>
-                        </label>
-                        <label className="flex cursor-pointer items-center gap-3">
-                          <input
-                            type="radio"
-                            name="priceType"
-                            value="DAILY"
-                            checked={priceType === "DAILY"}
-                            onChange={() => setPriceType("DAILY")}
-                            className="h-4 w-4 accent-violet-600"
-                          />
-                          <span className="text-sm font-medium">
-                            {locale === "ar" ? "يومي" : "Daily"}
-                          </span>
-                        </label>
+                        {!forSale ? (
+                          <>
+                            <label className="flex cursor-pointer items-center gap-3">
+                              <input
+                                type="radio"
+                                name="priceType"
+                                value="MONTHLY"
+                                checked={priceType === "MONTHLY"}
+                                onChange={() => setPriceType("MONTHLY")}
+                                className="h-4 w-4 accent-violet-600"
+                              />
+                              <span className="text-sm font-medium">
+                                {locale === "ar" ? "شهري" : "Monthly"}
+                              </span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3">
+                              <input
+                                type="radio"
+                                name="priceType"
+                                value="DAILY"
+                                checked={priceType === "DAILY"}
+                                onChange={() => setPriceType("DAILY")}
+                                className="h-4 w-4 accent-violet-600"
+                              />
+                              <span className="text-sm font-medium">
+                                {locale === "ar" ? "يومي" : "Daily"}
+                              </span>
+                            </label>
+                          </>
+                        ) : (
+                          <div className="text-sm font-medium text-muted-foreground">
+                            {locale === "ar" ? "سعر البيع" : "Sale price"}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1213,13 +1300,17 @@ export function AdminListingsPanel({
                         htmlFor="edit-price-input"
                         className="mb-2 block font-medium"
                       >
-                        {priceType === "MONTHLY"
+                        {forSale
                           ? locale === "ar"
-                            ? "السعر الشهري (د.م / MAD)"
-                            : "Monthly Price (MAD)"
-                          : locale === "ar"
-                            ? "السعر اليومي (د.م / MAD)"
-                            : "Daily Price (MAD)"}
+                            ? "سعر البيع (د.م / MAD)"
+                            : "Sale Price (MAD)"
+                          : priceType === "MONTHLY"
+                            ? locale === "ar"
+                              ? "السعر الشهري (د.م / MAD)"
+                              : "Monthly Price (MAD)"
+                            : locale === "ar"
+                              ? "السعر اليومي (د.م / MAD)"
+                              : "Daily Price (MAD)"}
                         <span className="ml-1 text-red-500">*</span>
                       </Label>
                       <div className="flex items-center gap-2">
@@ -1231,15 +1322,17 @@ export function AdminListingsPanel({
                           onChange={(e) => setPrice(e.target.value)}
                           required
                         />
-                        <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">
-                          {priceType === "MONTHLY"
-                            ? locale === "ar"
-                              ? "/الشهر"
-                              : "/month"
-                            : locale === "ar"
-                              ? "/اليوم"
-                              : "/day"}
-                        </span>
+                        {!forSale && (
+                          <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">
+                            {priceType === "MONTHLY"
+                              ? locale === "ar"
+                                ? "/الشهر"
+                                : "/month"
+                              : locale === "ar"
+                                ? "/اليوم"
+                                : "/day"}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1270,13 +1363,23 @@ export function AdminListingsPanel({
                     <Label htmlFor="edit-area">
                       {locale === "ar" ? "المساحة" : "Area"}
                     </Label>
-                    <Input
-                      id="edit-area"
-                      type="number"
-                      min={0}
-                      value={area}
-                      onChange={(e) => setArea(e.target.value)}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="edit-area"
+                        type="number"
+                        min={0}
+                        value={area}
+                        onChange={(e) => setArea(e.target.value)}
+                        className="pr-12"
+                      />
+                      <span
+                        className={`absolute top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground ${
+                          locale === "ar" ? "left-3" : "right-3"
+                        }`}
+                      >
+                        m²
+                      </span>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="edit-bathrooms">
@@ -1289,6 +1392,44 @@ export function AdminListingsPanel({
                       value={bathrooms}
                       onChange={(e) => setBathrooms(e.target.value)}
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2 flex items-end">
+                    <div>
+                      <Label className="mb-2 block font-medium">
+                        {locale === "ar" ? "نوع العرض" : "Listing type"}
+                      </Label>
+                      <div className="flex items-center gap-4">
+                        <label className="flex cursor-pointer items-center gap-3">
+                          <input
+                            type="radio"
+                            name="listingType"
+                            value="SALE"
+                            checked={forSale === true}
+                            onChange={() => setForSale(true)}
+                            className="h-4 w-4 accent-violet-600"
+                          />
+                          <span className="text-sm font-medium">
+                            {locale === "ar" ? "للبيع" : "Buy"}
+                          </span>
+                        </label>
+                        <label className="flex cursor-pointer items-center gap-3">
+                          <input
+                            type="radio"
+                            name="listingType"
+                            value="RENT"
+                            checked={forSale === false}
+                            onChange={() => setForSale(false)}
+                            className="h-4 w-4 accent-violet-600"
+                          />
+                          <span className="text-sm font-medium">
+                            {locale === "ar" ? "للايجار" : "Rent"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

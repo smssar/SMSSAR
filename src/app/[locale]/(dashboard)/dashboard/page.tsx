@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import type { Locale } from "@/lib/locales";
 
-export default async function DashboardRootPage({
+export default async function DashboardPageEntry({
   params,
 }: {
   params: Promise<{ locale: Locale }>;

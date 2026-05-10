@@ -18,7 +18,7 @@ type Property = {
   price: number;
   featured: boolean;
   imageUrl?: string | null;
-  category?: {
+  propertyType?: {
     id: string;
     name: string;
     slug?: string | null;
@@ -105,7 +105,7 @@ export function SellerListingsPanel({
               price: property.price,
               featured: property.featured,
               imageUrl: property.imageUrl ?? null,
-              category: property.category?.name ?? "villas",
+              propertyType: property.propertyType?.name ?? "other",
               amenities: property.amenities ?? [],
               seller: property.seller?.name ?? "",
               rating: property.rating ?? 0,

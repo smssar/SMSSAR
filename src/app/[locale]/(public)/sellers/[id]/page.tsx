@@ -48,7 +48,7 @@ export default async function SellerProfilePage({
           bathrooms: true,
           price: true,
           featured: true,
-          category: {
+          propertyType: {
             select: { name: true },
           },
           media: {
@@ -78,9 +78,9 @@ export default async function SellerProfilePage({
       rooms: property.rooms,
       bathrooms: property.bathrooms ?? 0,
       price: property.price,
-      category: property.category?.name || "villas",
+      propertyType: property.propertyType?.name || "Other",
       featured: property.featured,
-      seller: seller.name,
+      seller: seller.name ?? "",
       rating: 4.8,
       inquiries: 0,
       media: property.media || [],

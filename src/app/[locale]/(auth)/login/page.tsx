@@ -15,27 +15,43 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; verified?: string }>;
 }) {
   const { locale } = await params;
-  const { error } = await searchParams;
+  const { error, verified } = await searchParams;
   const messages = getMessages(locale);
+  const verifiedMessage =
+    verified === "1"
+      ? locale === "ar"
+        ? "تم التحقق من بريدك الإلكتروني بنجاح. يمكنك تسجيل الدخول الآن."
+        : locale === "fr"
+          ? "Votre e-mail a été vérifié avec succès. Vous pouvez vous connecter maintenant."
+          : "Your email has been verified successfully. You can sign in now."
+      : null;
   const errorText =
     error === "missing_fields"
       ? locale === "ar"
         ? "يرجى إدخال البريد الإلكتروني وكلمة المرور."
-        : "Please enter both email and password."
+        : locale === "fr"
+          ? "Veuillez saisir votre e-mail et votre mot de passe."
+          : "Please enter both email and password."
       : error === "invalid_credentials"
         ? locale === "ar"
           ? "بيانات تسجيل الدخول غير صحيحة."
-          : "Invalid email or password."
+          : locale === "fr"
+            ? "E-mail ou mot de passe invalide."
+            : "Invalid email or password."
         : null;
 
   return (
     <div className="grid w-full gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
       <div className="max-w-xl space-y-6">
         <div className="inline-flex rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm">
-          {locale === "ar" ? "تسجيل الدخول الآمن" : "Secure sign in"}
+          {locale === "ar"
+            ? "تسجيل الدخول الآمن"
+            : locale === "fr"
+              ? "Connexion sécurisée"
+              : "Secure sign in"}
         </div>
         <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
           {messages.auth.loginTitle}
@@ -51,6 +67,11 @@ export default async function LoginPage({
           <CardDescription>{messages.auth.loginDescription}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
+          {verifiedMessage ? (
+            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+              {verifiedMessage}
+            </div>
+          ) : null}
           <LoginFormClient
             locale={locale}
             messages={messages}

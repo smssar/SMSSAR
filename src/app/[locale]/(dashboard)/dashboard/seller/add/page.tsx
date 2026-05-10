@@ -11,18 +11,37 @@ export default async function SellerAddPage({
   const { locale } = await params;
   const messages = getMessages(locale);
 
-  const [categories, cities] = await Promise.all([
-    prisma.category.findMany({
+  const [propertyTypes, cities] = await Promise.all([
+    prisma.propertyType.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, slug: true },
+      select: {
+        id: true,
+        name: true,
+        name_ar: true,
+        name_fr: true,
+        slug: true,
+      },
     }),
     prisma.city.findMany({
-      select: { name: true },
+      select: { name: true, name_ar: true, name_fr: true },
       orderBy: { name: "asc" },
     }),
   ]);
 
-  const uniqueCities = cities.map((city) => city.name);
+  const neighborhoods = await prisma.neighborhood.findMany({
+    include: {
+      city: {
+        select: {
+          id: true,
+          name: true,
+          name_ar: true,
+          name_fr: true,
+          slug: true,
+        },
+      },
+    },
+    orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
+  });
 
   return (
     <div className="space-y-6">
@@ -39,8 +58,9 @@ export default async function SellerAddPage({
       <ListingForm
         locale={locale}
         title={messages.dashboard.seller.addHouse}
-        categories={categories}
-        cities={uniqueCities}
+        propertyTypes={propertyTypes}
+        cities={cities}
+        neighborhoods={neighborhoods}
       />
     </div>
   );

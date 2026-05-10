@@ -17,7 +17,8 @@ export interface Property {
   bathrooms: number;
   price: number;
   priceType?: "MONTHLY" | "DAILY";
-  category: string;
+  propertyType: string;
+  forSale?: boolean;
   featured: boolean;
   seller: string;
   rating: number;
@@ -26,7 +27,7 @@ export interface Property {
   amenities: LocalizedText[];
 }
 
-export interface Category {
+export interface PropertyTypeSummary {
   id: string;
   title: LocalizedText;
   description: LocalizedText;
@@ -74,7 +75,7 @@ export const stats = [
   { label: { en: "Cities covered", ar: "مدن مشمولة" }, value: 18 },
 ] as const;
 
-export const categories: Category[] = [
+export const propertyTypes: PropertyTypeSummary[] = [
   {
     id: "villas",
     title: { en: "Villas", ar: "فلل" },
@@ -122,7 +123,7 @@ export const properties: Property[] = [
     rooms: 4,
     bathrooms: 4,
     price: 18500,
-    category: "villas",
+    propertyType: "villas",
     featured: true,
     seller: "Noura Estates",
     rating: 4.9,
@@ -148,7 +149,7 @@ export const properties: Property[] = [
     rooms: 2,
     bathrooms: 2,
     price: 9200,
-    category: "apartments",
+    propertyType: "apartments",
     featured: true,
     seller: "Pearl Living",
     rating: 4.8,
@@ -174,7 +175,7 @@ export const properties: Property[] = [
     rooms: 3,
     bathrooms: 3,
     price: 6800,
-    category: "family",
+    propertyType: "family",
     featured: false,
     seller: "Palm Nest",
     rating: 4.7,
@@ -200,7 +201,7 @@ export const properties: Property[] = [
     rooms: 4,
     bathrooms: 3,
     price: 14500,
-    category: "luxury",
+    propertyType: "luxury",
     featured: true,
     seller: "Breeze Partners",
     rating: 4.95,
@@ -226,7 +227,7 @@ export const properties: Property[] = [
     rooms: 4,
     bathrooms: 4,
     price: 11100,
-    category: "family",
+    propertyType: "family",
     featured: false,
     seller: "Noble Homes",
     rating: 4.86,
@@ -252,7 +253,7 @@ export const properties: Property[] = [
     rooms: 2,
     bathrooms: 2,
     price: 5700,
-    category: "apartments",
+    propertyType: "apartments",
     featured: false,
     seller: "Harbor Bay",
     rating: 4.75,

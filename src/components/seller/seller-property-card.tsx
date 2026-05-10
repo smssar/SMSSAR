@@ -33,7 +33,7 @@ type Property = {
   price: number;
   featured: boolean;
   imageUrl?: string | null;
-  category: string;
+  propertyType?: string;
   amenities?: Array<Record<string, string>>;
   seller?: string;
   rating?: number;
@@ -95,7 +95,7 @@ export function SellerPropertyCard({
             </Badge>
           ) : null}
           <Badge variant="secondary" className="bg-background/90 backdrop-blur">
-            {property.category}
+            {property.propertyType}
           </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">

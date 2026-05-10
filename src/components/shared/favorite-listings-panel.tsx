@@ -18,7 +18,7 @@ type FavoriteProperty = {
   rooms: number;
   bathrooms: number;
   price: number;
-  category: string;
+  propertyType: string;
   featured: boolean;
   seller: string;
   rating: number;
@@ -48,7 +48,7 @@ export async function FavoriteListingsPanel({ locale }: { locale: Locale }) {
     include: {
       property: {
         include: {
-          category: { select: { name: true } },
+          propertyType: { select: { name: true } },
           seller: { select: { name: true } },
           media: {
             select: { id: true, url: true, publicId: true, type: true },
@@ -70,7 +70,7 @@ export async function FavoriteListingsPanel({ locale }: { locale: Locale }) {
     rooms: item.property.rooms || 0,
     bathrooms: item.property.bathrooms || 0,
     price: item.property.price || 0,
-    category: item.property.category?.name || "",
+    propertyType: item.property.propertyType?.name || "",
     featured: item.property.featured,
     seller: item.property.seller?.name || "Unknown",
     rating: 4.8,

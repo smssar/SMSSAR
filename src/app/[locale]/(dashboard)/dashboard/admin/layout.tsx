@@ -8,6 +8,7 @@ import {
   Tags,
   Users,
   Settings2,
+  UserCircle2,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { getMessages } from "@/lib/messages";
@@ -56,8 +57,13 @@ export default async function AdminDashboardLayout({
       icon: <ListChecks className="h-4 w-4" />,
     },
     {
-      label: messages.dashboard.admin.categories,
-      href: `/${locale}/dashboard/admin/categories`,
+      label:
+        locale === "ar"
+          ? "أنواع العقارات"
+          : locale === "fr"
+            ? "Types de propriétés"
+            : "Property Types",
+      href: `/${locale}/dashboard/admin/property-types`,
       icon: <Tags className="h-4 w-4" />,
     },
     {
@@ -79,6 +85,16 @@ export default async function AdminDashboardLayout({
       label: messages.nav.favorites,
       href: `/${locale}/dashboard/admin/favorites`,
       icon: <Heart className="h-4 w-4" />,
+    },
+    {
+      label:
+        locale === "ar"
+          ? "الملف الشخصي"
+          : locale === "fr"
+            ? "Profil"
+            : "Profile",
+      href: `/${locale}/dashboard/admin/profile`,
+      icon: <UserCircle2 className="h-4 w-4" />,
     },
   ];
 

@@ -12,19 +12,21 @@ type CreatePropertyBody = {
   rooms?: number;
   bathrooms?: number;
   price?: number;
-  categoryId?: string;
+  propertyTypeId?: string;
   featured?: boolean;
   imageUrl?: string | null;
+  videoUrl?: string | null;
   vedioUrl?: string | null;
   images?: Array<{ url: string; publicId: string; type: string }>;
   priceType?: string;
+  forSale?: boolean;
 };
 
 export async function GET() {
   const properties = await prisma.property.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      category: {
+      propertyType: {
         select: { id: true, name: true, slug: true },
       },
       seller: {
@@ -78,31 +80,46 @@ export async function POST(request: Request) {
   const description = body.description?.trim();
   const city = body.city?.trim();
   const neighborhood = body.neighborhood?.trim();
-  const categoryId = body.categoryId?.trim();
+  const propertyTypeId = body.propertyTypeId?.trim();
   const imageUrl = body.imageUrl?.trim();
-  const vedioUrl = body.vedioUrl?.trim();
+  const videoUrl = body.videoUrl?.trim() ?? body.vedioUrl?.trim();
 
-  if (!title || !city || !neighborhood || !categoryId) {
+  if (!title || !city || !neighborhood || !propertyTypeId) {
     return jsonError(
-      "Fields 'title', 'city', 'neighborhood', and 'categoryId' are required.",
+      "Fields 'title', 'city', 'neighborhood', and 'propertyTypeId' are required.",
     );
   }
 
-  if (vedioUrl) {
+  const neighborhoodExists = await prisma.neighborhood.findFirst({
+    where: {
+      city: { name: city },
+      name: neighborhood,
+    },
+    select: { id: true },
+  });
+
+  if (!neighborhoodExists) {
+    return jsonError(
+      `Neighborhood '${neighborhood}' is not available for city '${city}'.`,
+      400,
+    );
+  }
+
+  if (videoUrl) {
     return jsonError("Video cannot be used as cover.", 400);
   }
   if (imageUrl && imageUrl.includes("/video/upload/")) {
     return jsonError("Cover must be an image.", 400);
   }
 
-  // Verify category exists (Category.name is used as the FK)
-  const categoryExists = await prisma.category.findUnique({
-    where: { name: categoryId },
-    select: { name: true },
+  // Verify propertyType exists
+  const propertyTypeExists = await prisma.propertyType.findUnique({
+    where: { id: propertyTypeId },
+    select: { id: true },
   });
 
-  if (!categoryExists) {
-    return jsonError(`Invalid categoryId: ${categoryId}`, 400);
+  if (!propertyTypeExists) {
+    return jsonError(`Invalid propertyTypeId: ${propertyTypeId}`, 400);
   }
 
   // Verify seller exists
@@ -142,15 +159,16 @@ export async function POST(request: Request) {
         rooms: body.rooms,
         bathrooms: body.bathrooms,
         price: body.price,
-        categoryId,
+        propertyTypeId,
         sellerId: session.user.id,
         featured: body.featured ?? false,
         imageUrl: imageUrlFromBody,
-        vedioUrl: null,
+        videoUrl: null,
         priceType: body.priceType ?? "MONTHLY",
+        forSale: typeof body.forSale === "boolean" ? body.forSale : false,
       },
       include: {
-        category: {
+        propertyType: {
           select: { id: true, name: true, slug: true },
         },
         seller: {
@@ -182,7 +200,7 @@ export async function POST(request: Request) {
       const propertyWithMedia = await prisma.property.findUnique({
         where: { id: property.id },
         include: {
-          category: {
+          propertyType: {
             select: { id: true, name: true, slug: true },
           },
           seller: {
@@ -206,8 +224,15 @@ export async function POST(request: Request) {
       "code" in error &&
       error.code === "P2003"
     ) {
-      return jsonError("Invalid 'categoryId' or 'sellerId'.", 400);
+      return jsonError("Invalid 'propertyTypeId' or 'sellerId'.", 400);
     }
+
+    console.error("Failed to create property:", error);
+
+    if (process.env.NODE_ENV !== "production" && error instanceof Error) {
+      return jsonError(`Failed to create property: ${error.message}`, 500);
+    }
+
     return jsonError("Failed to create property.", 500);
   }
 }

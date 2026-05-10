@@ -23,7 +23,7 @@ function isProtectedRoute(pathname: string, locale: Locale): boolean {
 }
 
 function isAuthRoute(pathname: string, locale: Locale): boolean {
-  const authRoutes = ["/login", "/register", "/forgot-password"];
+  const authRoutes = ["/login", "/register"];
   return authRoutes.some((route) => pathname.includes(`/${locale}${route}`));
 }
 

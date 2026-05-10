@@ -3,9 +3,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
 import { UserProfilePanel } from "@/components/shared/user-profile-panel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PropertyCard } from "@/components/property";
-import { getMessages } from "@/lib/messages";
 
 export default async function UserProfilePage({
   params,
@@ -14,7 +11,6 @@ export default async function UserProfilePage({
 }) {
   const { locale } = await params;
   const session = await auth();
-  const messages = getMessages(locale);
 
   if (!session?.user?.id) {
     redirect(`/${locale}/login`);
@@ -38,59 +34,13 @@ export default async function UserProfilePage({
       role: true,
       status: true,
       createdAt: true,
+      passwordHash: true,
     },
   });
 
   if (!user) {
     redirect(`/${locale}/login`);
   }
-
-  const favoriteRows = await prisma.favorite.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    include: {
-      property: {
-        include: {
-          category: {
-            select: { name: true },
-          },
-          seller: {
-            select: { name: true },
-          },
-          media: {
-            select: { id: true, url: true, publicId: true, type: true },
-            orderBy: { createdAt: "asc" },
-          },
-        },
-      },
-    },
-  });
-
-  const favoriteProperties = favoriteRows.map((item) => ({
-    id: item.property.id,
-    title: item.property.title,
-    description: item.property.description || "",
-    imageUrl: item.property.imageUrl || undefined,
-    city: item.property.city,
-    neighborhood: item.property.neighborhood || undefined,
-    area: item.property.area || 0,
-    rooms: item.property.rooms || 0,
-    bathrooms: item.property.bathrooms || 0,
-    price: item.property.price || 0,
-    category: item.property.category?.name || "",
-    featured: item.property.featured,
-    seller: item.property.seller?.name || "Unknown",
-    rating: 4.8,
-    inquiries: 0,
-    media: item.property.media.map((media) => ({
-      id: media.id,
-      url: media.url,
-      publicId: media.publicId,
-      type: media.type,
-    })),
-    isFavorite: true,
-    favoriteEnabled: true,
-  }));
 
   return (
     <div className="space-y-6">
@@ -110,33 +60,18 @@ export default async function UserProfilePage({
         </div>
       </div>
 
-      <UserProfilePanel locale={locale} initialUser={user} />
-
-      <Card className="border-border/70 bg-card/70 backdrop-blur-sm">
-        <CardHeader className="border-b border-border/60 pb-5">
-          <CardTitle>{messages.dashboard.profile.favorites}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {messages.dashboard.profile.favoritesDescription}
-          </p>
-        </CardHeader>
-        <CardContent className="p-6">
-          {favoriteProperties.length > 0 ? (
-            <div className="grid gap-6 lg:grid-cols-2">
-              {favoriteProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  locale={locale}
-                  property={property}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-3xl border border-dashed border-border/70 p-8 text-center text-sm text-muted-foreground">
-              {messages.dashboard.profile.favoritesEmpty}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <UserProfilePanel
+        locale={locale}
+        initialUser={{
+          id: user.id,
+          name: user.name ?? "",
+          email: user.email ?? "",
+          role: user.role,
+          status: user.status,
+          createdAt: user.createdAt,
+          hasPassword: Boolean(user.passwordHash),
+        }}
+      />
     </div>
   );
 }

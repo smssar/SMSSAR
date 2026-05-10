@@ -3,7 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ImagePlus, Save, Video, X, Loader, Star } from "lucide-react";
+import {
+  BadgeDollarSign,
+  ImagePlus,
+  KeyRound,
+  Loader,
+  Save,
+  Star,
+  Video,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,8 +41,9 @@ export function ListingForm({
   defaultListing,
   propertyId,
   existingMedia = [],
-  categories,
+  propertyTypes,
   cities = [],
+  neighborhoods = [],
 }: {
   locale: Locale;
   title: string;
@@ -45,8 +55,27 @@ export function ListingForm({
     publicId: string;
     type: string;
   }>;
-  categories: Array<{ id: string; name: string; slug: string | null }>;
-  cities?: string[];
+  propertyTypes: Array<{
+    id: string;
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+    slug: string | null;
+  }>;
+  cities?: Array<{
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+  }>;
+  neighborhoods?: Array<{
+    id: string;
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+    city: {
+      name: string;
+    };
+  }>;
 }) {
   const router = useRouter();
   const [imageAssets, setImageAssets] = useState<UploadedAsset[]>([]);
@@ -78,6 +107,13 @@ export function ListingForm({
     (defaultListing?.priceType as "MONTHLY" | "DAILY") ?? "MONTHLY",
   );
 
+  const [listingType, setListingType] = useState<"BUY" | "RENT">(
+    (defaultListing?.forSale as boolean) ? "BUY" : "RENT",
+  );
+  const [propertyType, setPropertyType] = useState<string>(
+    (defaultListing?.propertyType as string) ?? propertyTypes[0]?.id ?? "",
+  );
+
   const initialValues = useMemo(
     () => ({
       title: defaultListing?.title[locale] ?? "",
@@ -99,12 +135,38 @@ export function ListingForm({
   const [rooms, setRooms] = useState(initialValues.rooms);
   const [bathrooms, setBathrooms] = useState(initialValues.bathrooms);
   const [area, setArea] = useState(initialValues.area);
-  const [category, setCategory] = useState<string>(
-    defaultListing?.category ?? categories[0]?.name ?? "",
-  );
   const [formDescription, setFormDescription] = useState(
     initialValues.description,
   );
+
+  const getLocalizedLabel = (item: {
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+  }) => {
+    if (locale === "ar") return item.name_ar || item.name;
+    if (locale === "fr") return item.name_fr || item.name;
+    return item.name;
+  };
+
+  const availableNeighborhoods = useMemo(
+    () => neighborhoods.filter((item) => item.city.name === city),
+    [neighborhoods, city],
+  );
+
+  useEffect(() => {
+    if (
+      city &&
+      neighborhood &&
+      availableNeighborhoods.length > 0 &&
+      !availableNeighborhoods.some((item) => item.name === neighborhood)
+    ) {
+      setNeighborhood("");
+    }
+    if (!city) {
+      setNeighborhood("");
+    }
+  }, [availableNeighborhoods, city, neighborhood]);
 
   const totalMediaCount =
     imageAssets.length +
@@ -447,11 +509,13 @@ export function ListingForm({
               rooms: Number(rooms),
               bathrooms: Number(bathrooms),
               price: Number(price),
-              categoryId: category,
+              propertyTypeId: propertyType,
               featured: false,
               priceType,
+              propertyType: propertyType || undefined,
+              forSale: listingType === "BUY",
               imageUrl: coverUrl ?? null,
-              vedioUrl: null,
+              videoUrl: null,
               images: imagesForBody,
               existingMedia: existingMediaForBody,
               deleteMediaIds: Array.from(existingMediaToDelete),
@@ -559,8 +623,8 @@ export function ListingForm({
                 {locale === "ar" ? "اختر مدينة" : "Select a city"}
               </option>
               {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+                <option key={c.name} value={c.name}>
+                  {getLocalizedLabel(c)}
                 </option>
               ))}
             </Select>
@@ -571,70 +635,224 @@ export function ListingForm({
             )}
           </Field>
           <Field label={locale === "ar" ? "الحي" : "Neighborhood"} required>
-            <Input
+            <Select
               value={neighborhood}
               onChange={(e) => {
                 setNeighborhood(e.target.value);
                 setNeighborhoodError(null);
               }}
               className={neighborhoodError ? "border-red-500" : ""}
-            />
+              required
+            >
+              <option value="">
+                {!city
+                  ? locale === "ar"
+                    ? "اختر المدينة أولاً"
+                    : "Select a city first"
+                  : availableNeighborhoods.length === 0
+                    ? locale === "ar"
+                      ? "لا توجد أحياء لهذه المدينة"
+                      : "No neighborhoods for this city"
+                    : locale === "ar"
+                      ? "اختر الحي"
+                      : "Select a neighborhood"}
+              </option>
+              {availableNeighborhoods.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {getLocalizedLabel(item)}
+                </option>
+              ))}
+            </Select>
             {neighborhoodError && (
               <div className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {neighborhoodError}
               </div>
             )}
+            {city && availableNeighborhoods.length === 0 ? (
+              <div className="mt-1 text-xs text-muted-foreground">
+                {locale === "ar"
+                  ? "أضف الأحياء لهذه المدينة من لوحة الإدارة أولاً."
+                  : "Add neighborhoods for this city from the admin dashboard first."}
+              </div>
+            ) : null}
           </Field>
-          <div className="md:col-span-2 space-y-4 rounded-3xl border border-border/70 bg-card/50 p-5">
-            <div>
-              <Label className="mb-3 block font-medium">
-                {locale === "ar" ? "نوع السعر" : "Price Type"}
-                <span className="ml-1 text-red-500">*</span>
-              </Label>
-              <div className="flex flex-wrap items-center gap-6">
-                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
-                  <input
-                    type="radio"
-                    name="priceType"
-                    value="MONTHLY"
-                    checked={priceType === "MONTHLY"}
-                    onChange={() => setPriceType("MONTHLY")}
-                    className="h-4 w-4 accent-violet-600"
+
+          <Field
+            label={locale === "ar" ? "نوع الإعلان" : "Listing type"}
+            required
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label
+                className={`group flex cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all ${
+                  listingType === "BUY"
+                    ? "border-violet-500 bg-violet-500/5 shadow-sm ring-1 ring-violet-500/20"
+                    : "border-border/70 bg-card/50 hover:border-violet-500/60 hover:bg-muted/40"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="listingType"
+                  value="BUY"
+                  checked={listingType === "BUY"}
+                  onChange={() => setListingType("BUY")}
+                  className="mt-1 h-4 w-4 accent-violet-600"
+                />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-base font-semibold text-foreground">
+                        {locale === "ar" ? "للبيع" : "Buy"}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {locale === "ar"
+                          ? "اعرض العقار كسعر شراء نهائي للمستخدمين."
+                          : "Show this property as a purchase listing."}
+                      </p>
+                    </div>
+                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                      <BadgeDollarSign className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              </label>
+
+              <label
+                className={`group flex cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all ${
+                  listingType === "RENT"
+                    ? "border-violet-500 bg-violet-500/5 shadow-sm ring-1 ring-violet-500/20"
+                    : "border-border/70 bg-card/50 hover:border-violet-500/60 hover:bg-muted/40"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="listingType"
+                  value="RENT"
+                  checked={listingType === "RENT"}
+                  onChange={() => setListingType("RENT")}
+                  className="mt-1 h-4 w-4 accent-violet-600"
+                />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-base font-semibold text-foreground">
+                        {locale === "ar" ? "للإيجار" : "Rent"}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {locale === "ar"
+                          ? "اعرض العقار كخيار إيجار شهري أو يومي."
+                          : "Show this property as a monthly or daily rental."}
+                      </p>
+                    </div>
+                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                      <KeyRound className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              </label>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {locale === "ar"
+                ? "اختر خياراً واحداً فقط، وسيُحفظ على أنه بيع أو إيجار."
+                : "Choose one option only. It will be saved as either buy or rent."}
+            </p>
+          </Field>
+
+          {listingType === "RENT" && (
+            <div className="md:col-span-2 space-y-4 rounded-3xl border border-border/70 bg-card/50 p-5">
+              <div>
+                <Label className="mb-3 block font-medium">
+                  {locale === "ar" ? "نوع السعر" : "Price Type"}
+                  <span className="ml-1 text-red-500">*</span>
+                </Label>
+                <div className="flex flex-wrap items-center gap-6">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
+                    <input
+                      type="radio"
+                      name="priceType"
+                      value="MONTHLY"
+                      checked={priceType === "MONTHLY"}
+                      onChange={() => setPriceType("MONTHLY")}
+                      className="h-4 w-4 accent-violet-600"
+                    />
+                    <span className="text-sm font-medium">
+                      {locale === "ar" ? "شهري" : "Monthly"}
+                    </span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
+                    <input
+                      type="radio"
+                      name="priceType"
+                      value="DAILY"
+                      checked={priceType === "DAILY"}
+                      onChange={() => setPriceType("DAILY")}
+                      className="h-4 w-4 accent-violet-600"
+                    />
+                    <span className="text-sm font-medium">
+                      {locale === "ar" ? "يومي" : "Daily"}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="price-input" className="mb-2 block font-medium">
+                  {priceType === "MONTHLY"
+                    ? locale === "ar"
+                      ? "السعر الشهري (د.م / MAD)"
+                      : "Monthly price (MAD)"
+                    : locale === "ar"
+                      ? "السعر اليومي (د.م / MAD)"
+                      : "Daily price (MAD)"}
+                  <span className="ml-1 text-red-500">*</span>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="price-input"
+                    value={price}
+                    onChange={(e) => {
+                      setPrice(e.target.value);
+                      setPriceError(null);
+                    }}
+                    inputMode="numeric"
+                    placeholder={locale === "ar" ? "أدخل السعر" : "Enter price"}
+                    className={priceError ? "border-red-500" : ""}
                   />
-                  <span className="text-sm font-medium">
-                    {locale === "ar" ? "شهري" : "Monthly"}
+                  <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">
+                    {priceType === "MONTHLY"
+                      ? locale === "ar"
+                        ? "/الشهر"
+                        : "/month"
+                      : locale === "ar"
+                        ? "/اليوم"
+                        : "/day"}
                   </span>
-                </label>
-                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
-                  <input
-                    type="radio"
-                    name="priceType"
-                    value="DAILY"
-                    checked={priceType === "DAILY"}
-                    onChange={() => setPriceType("DAILY")}
-                    className="h-4 w-4 accent-violet-600"
-                  />
-                  <span className="text-sm font-medium">
-                    {locale === "ar" ? "يومي" : "Daily"}
-                  </span>
-                </label>
+                </div>
+                {priceError && (
+                  <div className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {priceError}
+                  </div>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {locale === "ar"
+                    ? "اختر نوع السعر أولاً ثم أدخل القيمة المناسبة."
+                    : "Choose Monthly or Daily first, then enter the matching price."}
+                </p>
               </div>
             </div>
+          )}
 
-            <div>
-              <Label htmlFor="price-input" className="mb-2 block font-medium">
-                {priceType === "MONTHLY"
-                  ? locale === "ar"
-                    ? "السعر الشهري (د.م / MAD)"
-                    : "Monthly price (MAD)"
-                  : locale === "ar"
-                    ? "السعر اليومي (د.م / MAD)"
-                    : "Daily price (MAD)"}
+          {listingType === "BUY" && (
+            <div className="md:col-span-2 rounded-3xl border border-border/70 bg-card/50 p-5">
+              <Label
+                htmlFor="buy-price-input"
+                className="mb-2 block font-medium"
+              >
+                {locale === "ar" ? "السعر" : "Price"}
                 <span className="ml-1 text-red-500">*</span>
               </Label>
               <div className="flex items-center gap-2">
                 <Input
-                  id="price-input"
+                  id="buy-price-input"
                   value={price}
                   onChange={(e) => {
                     setPrice(e.target.value);
@@ -645,13 +863,7 @@ export function ListingForm({
                   className={priceError ? "border-red-500" : ""}
                 />
                 <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">
-                  {priceType === "MONTHLY"
-                    ? locale === "ar"
-                      ? "/الشهر"
-                      : "/month"
-                    : locale === "ar"
-                      ? "/اليوم"
-                      : "/day"}
+                  {locale === "ar" ? "درهم" : "MAD"}
                 </span>
               </div>
               {priceError && (
@@ -661,11 +873,12 @@ export function ListingForm({
               )}
               <p className="mt-2 text-xs text-muted-foreground">
                 {locale === "ar"
-                  ? "اختر نوع السعر أولاً ثم أدخل القيمة المناسبة."
-                  : "Choose Monthly or Daily first, then enter the matching price."}
+                  ? "أدخل سعر البيع النهائي للعقار."
+                  : "Enter the final sale price for this property."}
               </p>
             </div>
-          </div>
+          )}
+
           <Field label={locale === "ar" ? "عدد الغرف" : "Rooms"}>
             <Select value={rooms} onChange={(e) => setRooms(e.target.value)}>
               {[1, 2, 3, 4, 5].map((room) => (
@@ -676,33 +889,51 @@ export function ListingForm({
             </Select>
           </Field>
           <Field label={locale === "ar" ? "المساحة" : "Area"}>
-            <Input
-              value={area}
-              onChange={(e) => {
-                setArea(e.target.value);
-                setAreaError(null);
-              }}
-              inputMode="numeric"
-              className={areaError ? "border-red-500" : ""}
-            />
-            {areaError && (
-              <div className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {areaError}
+            <div className="group rounded-3xl border border-border/70 bg-card/50 p-1.5 shadow-sm transition focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500/20">
+              <div className="flex items-center gap-2 rounded-2xl bg-background px-4 py-3">
+                <Input
+                  value={area}
+                  onChange={(e) => {
+                    setArea(e.target.value);
+                    setAreaError(null);
+                  }}
+                  inputMode="numeric"
+                  placeholder={locale === "ar" ? "مثال: 120" : "e.g. 120"}
+                  className={`border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 ${areaError ? "text-red-600 placeholder:text-red-300" : ""}`}
+                />
+                <div className="flex h-10 items-center rounded-2xl border border-border/70 bg-muted/60 px-3 text-sm font-medium text-muted-foreground">
+                  m²
+                </div>
               </div>
-            )}
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>
+                {locale === "ar"
+                  ? "أدخل المساحة بالمتر المربع."
+                  : "Enter the area in square meters."}
+              </span>
+              {areaError ? (
+                <span className="text-red-600 dark:text-red-400">
+                  {areaError}
+                </span>
+              ) : null}
+            </div>
           </Field>
-          <Field label={locale === "ar" ? "الفئة" : "Category"} required>
+          <Field
+            label={locale === "ar" ? "نوع العقار" : "Property type"}
+            required
+          >
             <Select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={propertyType}
+              onChange={(e) => setPropertyType(e.target.value)}
               required
             >
               <option value="" disabled>
-                {locale === "ar" ? "اختر الفئة" : "Select a category"}
+                {locale === "ar" ? "اختر نوع العقار" : "Select a property type"}
               </option>
-              {categories.map((item) => (
-                <option key={item.id} value={item.name}>
-                  {`${(item as unknown as Record<string, unknown>)[`name_${locale}`] || item.name}`}
+              {propertyTypes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {getLocalizedLabel(item)}
                 </option>
               ))}
             </Select>
@@ -769,7 +1000,8 @@ export function ListingForm({
                           src={previewUrl}
                           alt="Property media"
                           fill
-                          quality={90}
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          quality={75}
                           priority={false}
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -934,7 +1166,8 @@ export function ListingForm({
                           src={previewUrl}
                           alt={`Property ${isVideo ? "video" : "image"} ${index + 1}`}
                           fill
-                          quality={90}
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                          quality={75}
                           priority={index === 0}
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />

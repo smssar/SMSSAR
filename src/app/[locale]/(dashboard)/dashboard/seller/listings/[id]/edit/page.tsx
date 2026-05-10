@@ -25,8 +25,14 @@ export default async function EditListingPage({
   const property = await prisma.property.findUnique({
     where: { id },
     include: {
-      category: {
-        select: { id: true, name: true, slug: true },
+      propertyType: {
+        select: {
+          id: true,
+          name: true,
+          name_ar: true,
+          name_fr: true,
+          slug: true,
+        },
       },
       media: {
         select: { id: true, url: true, publicId: true, type: true },
@@ -39,18 +45,37 @@ export default async function EditListingPage({
     notFound();
   }
 
-  const [categories, allCities] = await Promise.all([
-    prisma.category.findMany({
+  const [propertyTypes, allCities] = await Promise.all([
+    prisma.propertyType.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, slug: true },
+      select: {
+        id: true,
+        name: true,
+        name_ar: true,
+        name_fr: true,
+        slug: true,
+      },
     }),
     prisma.city.findMany({
-      select: { name: true },
+      select: { name: true, name_ar: true, name_fr: true },
       orderBy: { name: "asc" },
     }),
   ]);
 
-  const uniqueCities = allCities.map((city) => city.name);
+  const neighborhoods = await prisma.neighborhood.findMany({
+    include: {
+      city: {
+        select: {
+          id: true,
+          name: true,
+          name_ar: true,
+          name_fr: true,
+          slug: true,
+        },
+      },
+    },
+    orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
+  });
 
   // Convert database property to ListingForm compatible format
   const priceType =
@@ -73,7 +98,7 @@ export default async function EditListingPage({
     bathrooms: property.bathrooms || 1,
     area: property.area || 0,
     featured: property.featured,
-    category: property.category?.name || "villas",
+    propertyType: property.propertyType?.id || "",
   };
 
   return (
@@ -121,8 +146,9 @@ export default async function EditListingPage({
         defaultListing={formProperty as Property}
         propertyId={id}
         existingMedia={property.media}
-        categories={categories}
-        cities={uniqueCities}
+        propertyTypes={propertyTypes}
+        cities={allCities}
+        neighborhoods={neighborhoods}
       />
     </div>
   );

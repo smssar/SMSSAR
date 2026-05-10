@@ -19,15 +19,17 @@ type UpdatePropertyBody = {
   rooms?: number;
   bathrooms?: number;
   price?: number;
-  categoryId?: string;
+  propertyTypeId?: string;
   sellerId?: string;
   featured?: boolean;
   imageUrl?: string | null;
+  videoUrl?: string | null;
   vedioUrl?: string | null;
   images?: Array<{ url: string; publicId: string; type: string }>;
   existingMedia?: Array<{ id: string; url: string; type: string }>;
   deleteMediaIds?: string[];
   priceType?: string;
+  forSale?: boolean;
 };
 
 function getCloudinaryPublicIdFromUrl(url: string): string | null {
@@ -62,7 +64,7 @@ export async function GET(_: Request, context: RouteContext) {
   const property = await prisma.property.findUnique({
     where: { id },
     include: {
-      category: {
+      propertyType: {
         select: { id: true, name: true, slug: true },
       },
       seller: {
@@ -111,8 +113,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const imageUrl = body.imageUrl?.trim();
-  const vedioUrl = body.vedioUrl?.trim();
-  if (vedioUrl) {
+  const videoUrl = body.videoUrl?.trim() ?? body.vedioUrl?.trim();
+  if (videoUrl) {
     return jsonError("Video cannot be used as cover.", 400);
   }
   if (imageUrl && imageUrl.includes("/video/upload/")) {
@@ -122,8 +124,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   const existingProperty = await prisma.property.findUnique({
     where: { id },
     select: {
+      city: true,
+      neighborhood: true,
       imageUrl: true,
-      vedioUrl: true,
+      videoUrl: true,
       media: {
         select: { id: true, url: true, publicId: true, type: true },
       },
@@ -144,10 +148,11 @@ export async function PATCH(request: Request, context: RouteContext) {
     rooms?: number;
     bathrooms?: number;
     price?: number;
-    categoryId?: string;
+    propertyTypeId?: string | null;
     featured?: boolean;
     imageUrl?: string | null;
-    vedioUrl?: string | null;
+    videoUrl?: string | null;
+    forSale?: boolean;
   } = {};
 
   if (typeof body.title === "string") {
@@ -174,8 +179,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (typeof body.price === "number") {
     data.price = body.price;
   }
-  if (typeof body.categoryId === "string") {
-    data.categoryId = body.categoryId.trim();
+  if (typeof body.propertyTypeId === "string") {
+    data.propertyTypeId = body.propertyTypeId.trim();
+  }
+  if (body.propertyTypeId === null) {
+    data.propertyTypeId = null;
   }
   if (typeof body.featured === "boolean") {
     data.featured = body.featured;
@@ -183,8 +191,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (typeof body.imageUrl === "string" || body.imageUrl === null) {
     data.imageUrl = body.imageUrl;
   }
-  if (typeof body.vedioUrl === "string" || body.vedioUrl === null) {
-    data.vedioUrl = body.vedioUrl;
+  if (typeof body.videoUrl === "string" || body.videoUrl === null) {
+    data.videoUrl = body.videoUrl;
+  } else if (typeof body.vedioUrl === "string" || body.vedioUrl === null) {
+    data.videoUrl = body.vedioUrl;
+  }
+  if (typeof body.forSale === "boolean") {
+    data.forSale = body.forSale;
   }
 
   if (typeof body.priceType === "string") {
@@ -200,8 +213,32 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (!data.neighborhood || data.neighborhood.length === 0) {
     return jsonError("Neighborhood is required.", 400);
   }
-  if (data.categoryId !== undefined && data.categoryId.length === 0) {
-    return jsonError("Category is required.", 400);
+  if (
+    data.propertyTypeId !== undefined &&
+    data.propertyTypeId !== null &&
+    data.propertyTypeId.length === 0
+  ) {
+    return jsonError("Property type is required.", 400);
+  }
+
+  const nextCity = data.city ?? existingProperty.city;
+  const nextNeighborhood = data.neighborhood ?? existingProperty.neighborhood;
+
+  if (nextCity && nextNeighborhood) {
+    const neighborhoodExists = await prisma.neighborhood.findFirst({
+      where: {
+        city: { name: nextCity },
+        name: nextNeighborhood,
+      },
+      select: { id: true },
+    });
+
+    if (!neighborhoodExists) {
+      return jsonError(
+        `Neighborhood '${nextNeighborhood}' is not available for city '${nextCity}'.`,
+        400,
+      );
+    }
   }
 
   const hasFieldUpdates = Object.keys(data).length > 0;
@@ -241,7 +278,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
       // attempt to destroy assets in Cloudinary (best-effort)
       await Promise.all(
-        mediaToDelete.map(async (m) => {
+        mediaToDelete.map(async (m: { publicId: string; type: string }) => {
           try {
             await cloudinary.uploader.destroy(m.publicId, {
               resource_type: m.type === "video" ? "video" : "image",
@@ -318,7 +355,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     ) {
       const oldCoverUrl = existingProperty.imageUrl;
       const oldCoverExistsInMedia = existingProperty.media.some(
-        (media) => media.url === oldCoverUrl,
+        (media: { url: string }) => media.url === oldCoverUrl,
       );
 
       if (!oldCoverExistsInMedia) {
@@ -337,14 +374,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     if (
-      existingProperty.vedioUrl &&
-      typeof body.vedioUrl === "string" &&
-      body.vedioUrl.trim() &&
-      body.vedioUrl.trim() !== existingProperty.vedioUrl
+      existingProperty.videoUrl &&
+      typeof (body.videoUrl ?? body.vedioUrl) === "string" &&
+      (body.videoUrl ?? body.vedioUrl)?.trim() &&
+      (body.videoUrl ?? body.vedioUrl)?.trim() !== existingProperty.videoUrl
     ) {
-      const oldCoverUrl = existingProperty.vedioUrl;
+      const oldCoverUrl = existingProperty.videoUrl;
       const oldCoverExistsInMedia = existingProperty.media.some(
-        (media) => media.url === oldCoverUrl,
+        (media: { url: string }) => media.url === oldCoverUrl,
       );
 
       if (!oldCoverExistsInMedia) {
@@ -363,7 +400,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const include = {
-      category: {
+      propertyType: {
         select: { id: true, name: true, slug: true },
       },
       seller: {
@@ -408,7 +445,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       error.code === "P2003"
     ) {
       return jsonError(
-        "Invalid relation reference for category or seller.",
+        "Invalid relation reference for property type or seller.",
         400,
       );
     }

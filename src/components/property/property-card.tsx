@@ -33,7 +33,7 @@ export interface PropertyCardProps {
   rooms: number;
   bathrooms: number;
   price: number;
-  category: string;
+  propertyType: string;
   featured: boolean;
   seller: string;
   rating: number;
@@ -100,7 +100,7 @@ export function PropertyCard({
             </Badge>
           ) : null}
           <Badge variant="secondary" className="bg-background/90 backdrop-blur">
-            {property.category}
+            {property.propertyType}
           </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">

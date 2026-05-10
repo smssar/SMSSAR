@@ -1,7 +1,0 @@
--- AlterTable
-ALTER TABLE "Category" ALTER COLUMN "name_ar" DROP NOT NULL,
-ALTER COLUMN "name_fr" DROP NOT NULL;
-
--- AlterTable
-ALTER TABLE "City" ALTER COLUMN "name_ar" DROP NOT NULL,
-ALTER COLUMN "name_fr" DROP NOT NULL;

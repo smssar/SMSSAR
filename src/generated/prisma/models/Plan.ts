@@ -516,9 +516,9 @@ export type PlanSumOrderByAggregateInput = {
   listings?: Prisma.SortOrder
 }
 
-export type PlanScalarRelationFilter = {
-  is?: Prisma.PlanWhereInput
-  isNot?: Prisma.PlanWhereInput
+export type PlanNullableScalarRelationFilter = {
+  is?: Prisma.PlanWhereInput | null
+  isNot?: Prisma.PlanWhereInput | null
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -547,10 +547,12 @@ export type PlanCreateNestedOneWithoutUsersInput = {
   connect?: Prisma.PlanWhereUniqueInput
 }
 
-export type PlanUpdateOneRequiredWithoutUsersNestedInput = {
+export type PlanUpdateOneWithoutUsersNestedInput = {
   create?: Prisma.XOR<Prisma.PlanCreateWithoutUsersInput, Prisma.PlanUncheckedCreateWithoutUsersInput>
   connectOrCreate?: Prisma.PlanCreateOrConnectWithoutUsersInput
   upsert?: Prisma.PlanUpsertWithoutUsersInput
+  disconnect?: Prisma.PlanWhereInput | boolean
+  delete?: Prisma.PlanWhereInput | boolean
   connect?: Prisma.PlanWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.PlanUpdateToOneWithWhereWithoutUsersInput, Prisma.PlanUpdateWithoutUsersInput>, Prisma.PlanUncheckedUpdateWithoutUsersInput>
 }

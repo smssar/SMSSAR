@@ -17,19 +17,20 @@ import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import type { Locale } from "@/lib/locales";
 
 type UserRow = {
   id: string;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   phone?: string | null;
   bio?: string | null;
   role: "USER" | "SELLER" | "ADMIN";
   status: "ACTIVE" | "PENDING" | "FLAGGED";
-  planId?: string;
+  planId?: string | null;
   createdAt: Date | string;
 };
 
@@ -124,8 +125,8 @@ export function AdminUsersPanel({
 
   const startEdit = (user: UserRow) => {
     setEditingId(user.id);
-    setName(user.name);
-    setEmail(user.email);
+    setName(user.name ?? "");
+    setEmail(user.email ?? "");
     setPhone(user.phone ?? "");
     setBio(user.bio ?? "");
     setPassword("");
@@ -332,9 +333,8 @@ export function AdminUsersPanel({
               <Label htmlFor="user-password">
                 {locale === "ar" ? "كلمة المرور" : "Password"}
               </Label>
-              <Input
+              <PasswordInput
                 id="user-password"
-                type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder={
@@ -630,8 +630,8 @@ export function AdminUsersPanel({
                     key={user.id}
                     className="border-b border-border/50 last:border-0"
                   >
-                    <td className="py-4 font-medium">{user.name}</td>
-                    <td className="py-4">{user.email}</td>
+                    <td className="py-4 font-medium">{user.name || "-"}</td>
+                    <td className="py-4">{user.email || "-"}</td>
                     <td className="py-4">
                       <Badge variant={getRoleBadgeColor(user.role)}>
                         {user.role}

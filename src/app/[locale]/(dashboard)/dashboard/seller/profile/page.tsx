@@ -27,6 +27,7 @@ export default async function SellerProfilePage({
       city: true,
       bio: true,
       createdAt: true,
+      passwordHash: true,
     },
   });
 
@@ -46,7 +47,19 @@ export default async function SellerProfilePage({
             : "Update seller profile and public contact details."}
         </p>
       </div>
-      <SellerProfilePanel locale={locale} initialSeller={sellerRecord} />
+      <SellerProfilePanel
+        locale={locale}
+        initialSeller={{
+          id: sellerRecord.id,
+          name: sellerRecord.name ?? "",
+          email: sellerRecord.email ?? "",
+          phone: sellerRecord.phone ?? "",
+          city: sellerRecord.city ?? "",
+          bio: sellerRecord.bio ?? "",
+          createdAt: sellerRecord.createdAt,
+          hasPassword: Boolean(sellerRecord.passwordHash),
+        }}
+      />
     </div>
   );
 }

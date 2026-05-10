@@ -39,9 +39,9 @@ export default async function PropertiesPage({
   const rooms = Array.isArray(resolvedSearchParams.rooms)
     ? resolvedSearchParams.rooms[0] || "all"
     : resolvedSearchParams.rooms || "all";
-  const category = Array.isArray(resolvedSearchParams.category)
-    ? resolvedSearchParams.category[0] || "all"
-    : resolvedSearchParams.category || "all";
+  const propertyType = Array.isArray(resolvedSearchParams.propertyType)
+    ? resolvedSearchParams.propertyType[0] || "all"
+    : (resolvedSearchParams.propertyType as string | undefined) || "all";
   const maxPrice = Array.isArray(resolvedSearchParams.maxPrice)
     ? resolvedSearchParams.maxPrice[0] || ""
     : resolvedSearchParams.maxPrice || "";
@@ -63,7 +63,7 @@ export default async function PropertiesPage({
     ...(city !== "all" ? { city } : {}),
     ...(neighborhood !== "all" ? { neighborhood } : {}),
     ...(numericRooms ? { rooms: numericRooms } : {}),
-    ...(category !== "all" ? { categoryId: category } : {}),
+    ...(propertyType !== "all" ? { propertyTypeId: propertyType } : {}),
     ...(numericMaxPrice !== null ? { price: { lte: numericMaxPrice } } : {}),
     ...(searchable
       ? {
@@ -111,7 +111,10 @@ export default async function PropertiesPage({
         rooms: true,
         bathrooms: true,
         price: true,
-        categoryId: true,
+        propertyTypeId: true,
+        propertyType: {
+          select: { id: true, name: true },
+        },
         featured: true,
         imageUrl: true,
         sellerId: true,
@@ -143,17 +146,37 @@ export default async function PropertiesPage({
   const cities = await prisma.city.findMany({
     select: {
       name: true,
+      name_ar: true,
+      name_fr: true,
     },
     orderBy: { name: "asc" },
   });
 
-  const categories = await prisma.category.findMany({
+  const propertyTypes = await prisma.propertyType.findMany({
     select: {
       id: true,
       name: true,
+      name_ar: true,
+      name_fr: true,
       slug: true,
     },
     orderBy: { name: "asc" },
+  });
+
+  const neighborhoods = await prisma.neighborhood.findMany({
+    select: {
+      name: true,
+      name_ar: true,
+      name_fr: true,
+      city: {
+        select: {
+          name: true,
+          name_ar: true,
+          name_fr: true,
+        },
+      },
+    },
+    orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
   });
 
   // Fetch seller information for all properties
@@ -175,7 +198,7 @@ export default async function PropertiesPage({
     rooms: property.rooms || 0,
     bathrooms: property.bathrooms || 0,
     price: property.price || 0,
-    category: property.categoryId,
+    propertyType: property.propertyType?.name || "Other",
     featured: property.featured,
     imageUrl: property.imageUrl || undefined,
     seller: sellerMap.get(property.sellerId) || "Unknown",
@@ -195,8 +218,9 @@ export default async function PropertiesPage({
       <PropertyExplorer
         locale={locale}
         properties={transformedProperties}
-        cities={cities.map((item) => item.name)}
-        categories={categories}
+        cities={cities}
+        neighborhoods={neighborhoods}
+        propertyTypes={propertyTypes}
         title={messages.properties.title}
         subtitle={messages.properties.subtitle}
         noResults={messages.properties.noResults}

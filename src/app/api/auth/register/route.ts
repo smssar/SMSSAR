@@ -2,6 +2,11 @@ import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import {
+  generateVerificationCode,
+  hashVerificationCode,
+  sendVerificationCodeEmail,
+} from "@/lib/email-verification";
 
 export const runtime = "nodejs";
 
@@ -11,6 +16,7 @@ type RegisterBody = {
   password?: string;
   confirmPassword?: string;
   role?: string;
+  locale?: string;
 };
 
 export async function POST(request: Request) {
@@ -25,6 +31,7 @@ export async function POST(request: Request) {
   const password = body.password;
   const confirmPassword = body.confirmPassword;
   const roleValue = body.role?.trim().toLowerCase();
+  const locale = body.locale?.trim() || "en";
 
   if (!name || !email || !password || !confirmPassword || !roleValue) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
@@ -64,6 +71,18 @@ export async function POST(request: Request) {
       },
     });
 
+    const code = generateVerificationCode();
+
+    await prisma.verificationToken.create({
+      data: {
+        identifier: email,
+        token: hashVerificationCode(code),
+        expires: new Date(Date.now() + 1000 * 60 * 15),
+      },
+    });
+
+    await sendVerificationCodeEmail(locale, email, code);
+
     return NextResponse.json({ data: user }, { status: 201 });
   } catch (error: unknown) {
     if (
@@ -73,6 +92,17 @@ export async function POST(request: Request) {
       error.code === "P2002"
     ) {
       return NextResponse.json({ error: "email_exists" }, { status: 409 });
+    }
+
+    try {
+      if (email) {
+        await prisma.verificationToken.deleteMany({
+          where: { identifier: email },
+        });
+        await prisma.user.deleteMany({ where: { email } });
+      }
+    } catch {
+      // ignore rollback errors
     }
 
     return jsonError("Failed to register account.", 500);

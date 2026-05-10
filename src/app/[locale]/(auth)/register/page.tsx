@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Lock, UserRound } from "lucide-react";
+import { Mail, UserRound } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,12 +8,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { registerAction } from "./actions";
 import { RegisterSubmitButton } from "./register-submit-button";
+import { GoogleSignInButton } from "@/components/auth/google-signin-button";
 
 export default async function RegisterPage({
   params,
@@ -29,23 +32,33 @@ export default async function RegisterPage({
     error === "missing_fields"
       ? locale === "ar"
         ? "يرجى تعبئة جميع الحقول المطلوبة."
-        : "Please complete all required fields."
+        : locale === "fr"
+          ? "Veuillez remplir tous les champs requis."
+          : "Please complete all required fields."
       : error === "weak_password"
         ? locale === "ar"
           ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل."
-          : "Password must be at least 8 characters long."
+          : locale === "fr"
+            ? "Le mot de passe doit comporter au moins 8 caractères."
+            : "Password must be at least 8 characters long."
         : error === "password_mismatch"
           ? locale === "ar"
             ? "كلمتا المرور غير متطابقتين."
-            : "Password and confirmation do not match."
+            : locale === "fr"
+              ? "Les mots de passe ne correspondent pas."
+              : "Password and confirmation do not match."
           : error === "email_exists"
             ? locale === "ar"
               ? "هذا البريد الإلكتروني مستخدم بالفعل."
-              : "This email is already registered."
+              : locale === "fr"
+                ? "Cette adresse e-mail est déjà utilisée."
+                : "This email is already registered."
             : error === "server_error"
               ? locale === "ar"
                 ? "حدث خطأ غير متوقع. حاول مرة أخرى."
-                : "Something went wrong. Please try again."
+                : locale === "fr"
+                  ? "Une erreur inattendue s'est produite. Veuillez réessayer."
+                  : "Something went wrong. Please try again."
               : null;
 
   return (
@@ -54,7 +67,9 @@ export default async function RegisterPage({
         <div className="inline-flex rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm">
           {locale === "ar"
             ? "ابدأ خلال دقيقة"
-            : "Get started in under a minute"}
+            : locale === "fr"
+              ? "Commencez en une minute"
+              : "Get started in under a minute"}
         </div>
         <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
           {messages.auth.registerTitle}
@@ -113,43 +128,62 @@ export default async function RegisterPage({
               <Label htmlFor="role">{messages.auth.accountType}</Label>
               <Select id="role" name="role" defaultValue="user">
                 <option value="user">
-                  {locale === "ar" ? "مستأجر" : "Renter"}
+                  {locale === "ar"
+                    ? "مستأجر"
+                    : locale === "fr"
+                      ? "Locataire"
+                      : "Renter"}
                 </option>
                 <option value="seller">
-                  {locale === "ar" ? "بائع" : "Seller"}
+                  {locale === "ar"
+                    ? "بائع"
+                    : locale === "fr"
+                      ? "Vendeur"
+                      : "Seller"}
                 </option>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{messages.auth.password}</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  className="pl-11 rtl:pr-11 rtl:pl-4"
-                  minLength={8}
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="password"
+                name="password"
+                minLength={8}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm">{messages.auth.confirmPassword}</Label>
-              <Input
-                id="confirm"
-                name="confirmPassword"
-                type="password"
-                required
-              />
+              <PasswordInput id="confirm" name="confirmPassword" required />
             </div>
             <RegisterSubmitButton
               label={messages.nav.register}
               loadingLabel={
-                locale === "ar" ? "جاري إنشاء الحساب..." : "Creating account..."
+                locale === "ar"
+                  ? "جاري إنشاء الحساب..."
+                  : locale === "fr"
+                    ? "Création du compte..."
+                    : "Creating account..."
               }
             />
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border/50" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-card px-2 text-muted-foreground">
+                {locale === "ar" ? "أو" : locale === "fr" ? "ou" : "or"}
+              </span>
+            </div>
+          </div>
+
+          <GoogleSignInButton
+            locale={locale}
+            callbackUrl={`/${locale}/dashboard/profile`}
+          />
+
           <p className="text-center text-sm text-muted-foreground">
             {messages.auth.haveAccount}{" "}
             <Link

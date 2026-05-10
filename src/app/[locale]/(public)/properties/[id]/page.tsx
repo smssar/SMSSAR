@@ -57,7 +57,7 @@ export default async function PropertyDetailPage({
     const dbProperty = await prisma.property.findUnique({
       where: { id },
       include: {
-        category: {
+        propertyType: {
           select: { id: true, name: true, slug: true },
         },
         seller: {
@@ -100,7 +100,7 @@ export default async function PropertyDetailPage({
       rooms: dbProperty.rooms,
       bathrooms: dbProperty.bathrooms ?? 0,
       price: dbProperty.price,
-      category: dbProperty.category?.name || "villas",
+      propertyType: dbProperty.propertyType?.name || "Other",
       featured: dbProperty.featured,
       seller: dbProperty.seller?.name || "Seller",
       sellerId: dbProperty.seller?.id,
@@ -356,7 +356,7 @@ export default async function PropertyDetailPage({
               />
               <InfoRow
                 label={locale === "ar" ? "نوع العقار" : "Property type"}
-                value={property.category}
+                value={property.propertyType}
               />
             </CardContent>
           </Card>

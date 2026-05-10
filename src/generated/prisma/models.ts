@@ -9,9 +9,13 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/City'
-export type * from './models/Category'
+export type * from './models/Neighborhood'
+export type * from './models/PropertyType'
 export type * from './models/Plan'
 export type * from './models/User'
+export type * from './models/Account'
+export type * from './models/Session'
+export type * from './models/VerificationToken'
 export type * from './models/Property'
 export type * from './models/Favorite'
 export type * from './models/Media'

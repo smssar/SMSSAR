@@ -5,7 +5,7 @@ import { jsonError, readJson, toSlug } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 
-type CreateCategoryBody = {
+type CreatePropertyTypeBody = {
   name_en?: string;
   name_ar?: string;
   name_fr?: string;
@@ -13,7 +13,7 @@ type CreateCategoryBody = {
 };
 
 export async function GET() {
-  const categories = await prisma.category.findMany({
+  const propertyTypes = await prisma.propertyType.findMany({
     orderBy: { name: "asc" },
     include: {
       _count: {
@@ -22,7 +22,7 @@ export async function GET() {
     },
   });
 
-  return NextResponse.json({ data: categories });
+  return NextResponse.json({ data: propertyTypes });
 }
 
 export async function POST(request: Request) {
@@ -33,10 +33,10 @@ export async function POST(request: Request) {
   }
 
   if (session.user.role !== "ADMIN") {
-    return jsonError("Only admins can create categories.", 403);
+    return jsonError("Only admins can create property types.", 403);
   }
 
-  const body = await readJson<CreateCategoryBody>(request);
+  const body = await readJson<CreatePropertyTypeBody>(request);
   if (!body) {
     return jsonError("Invalid JSON body.");
   }
@@ -65,8 +65,8 @@ export async function POST(request: Request) {
       }),
     );
 
-    const category = await prisma.category.create({ data: payload });
-    return NextResponse.json({ data: category }, { status: 201 });
+    const propertyType = await prisma.propertyType.create({ data: payload });
+    return NextResponse.json({ data: propertyType }, { status: 201 });
   } catch (error: unknown) {
     if (
       typeof error === "object" &&
@@ -74,8 +74,8 @@ export async function POST(request: Request) {
       "code" in error &&
       error.code === "P2002"
     ) {
-      return jsonError("Category slug already exists.", 409);
+      return jsonError("Property type slug already exists.", 409);
     }
-    return jsonError("Failed to create category.", 500);
+    return jsonError("Failed to create property type.", 500);
   }
 }

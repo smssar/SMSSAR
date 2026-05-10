@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
-import { LogOut, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  X,
+} from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ButtonLink } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,6 +40,21 @@ export function SiteNavbar({
   const showAdminLink = role === "ADMIN";
   const showUserProfileLink = role === "USER";
   const showAuthActions = !session?.user?.id;
+  const manageHref =
+    role === "SELLER"
+      ? `/${locale}/dashboard/seller/profile`
+      : role === "ADMIN"
+        ? `/${locale}/dashboard/admin`
+        : `/${locale}/dashboard/profile`;
+  const manageLabel =
+    role === "SELLER"
+      ? messages.nav.seller
+      : role === "ADMIN"
+        ? messages.nav.admin
+        : messages.nav.profile;
+  const userName =
+    session?.user?.name?.trim() || session?.user?.email || "User";
+  const userEmail = session?.user?.email?.trim();
 
   const links: Array<{ key: keyof Messages["nav"]; href: string }> = [
     { key: "properties", href: `/${locale}/properties` },
@@ -91,14 +115,6 @@ export function SiteNavbar({
 
         <div className="hidden items-center gap-3 xl:flex">
           <LanguageSwitcher currentLocale={locale} />
-          <ButtonLink
-            href={`/${locale}/properties`}
-            variant="outline"
-            size="sm"
-          >
-            <Search className="h-4 w-4" />
-            {messages.nav.properties}
-          </ButtonLink>
           {showAuthActions ? (
             <>
               <ButtonLink
@@ -118,18 +134,91 @@ export function SiteNavbar({
               </ButtonLink>
             </>
           ) : (
-            <ButtonLink
-              href={`/${locale}`}
-              variant="secondary"
-              size="sm"
-              onClick={(event) => {
-                event.preventDefault();
-                void signOut({ callbackUrl: `/${locale}` });
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              {messages.nav.logout}
-            </ButtonLink>
+            <details className="group relative">
+              <summary className="list-none flex h-11 cursor-pointer items-center gap-3 rounded-full border border-border/70 bg-card px-3 pr-4 text-left shadow-sm transition hover:bg-muted/60">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                  {session?.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={userName}
+                      width={32}
+                      height={32}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <UserRound className="h-4 w-4" />
+                  )}
+                </span>
+                <span className="hidden min-w-0 flex-col sm:flex">
+                  <span className="max-w-32 truncate text-sm font-medium text-foreground">
+                    {userName}
+                  </span>
+                  <span className="max-w-32 truncate text-xs text-muted-foreground">
+                    {role === "SELLER"
+                      ? messages.nav.seller
+                      : role === "ADMIN"
+                        ? messages.nav.admin
+                        : messages.nav.profile}
+                  </span>
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition group-open:rotate-180" />
+              </summary>
+
+              <div className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-80 rounded-3xl border border-border/70 bg-background p-4 shadow-2xl shadow-black/10 rtl:right-auto rtl:left-0">
+                <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                    {session?.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={userName}
+                        width={48}
+                        height={48}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserRound className="h-5 w-5" />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-foreground">
+                      {userName}
+                    </div>
+                    {userEmail ? (
+                      <div className="truncate text-xs text-muted-foreground">
+                        {userEmail}
+                      </div>
+                    ) : null}
+                    <div className="mt-1 text-xs font-medium text-violet-600 dark:text-violet-300">
+                      {role === "SELLER"
+                        ? messages.nav.seller
+                        : role === "ADMIN"
+                          ? messages.nav.admin
+                          : messages.nav.profile}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-2">
+                  <ButtonLink href={manageHref} variant="accent" size="sm">
+                    {manageLabel}
+                  </ButtonLink>
+                  <ButtonLink
+                    href={`/${locale}`}
+                    variant="secondary"
+                    size="sm"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      void signOut({ callbackUrl: `/${locale}` });
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {messages.nav.logout}
+                  </ButtonLink>
+                </div>
+              </div>
+            </details>
           )}
         </div>
 
@@ -187,18 +276,50 @@ export function SiteNavbar({
                 </ButtonLink>
               </>
             ) : (
-              <ButtonLink
-                href={`/${locale}`}
-                variant="secondary"
-                size="md"
-                onClick={(event) => {
-                  event.preventDefault();
-                  void signOut({ callbackUrl: `/${locale}` });
-                }}
-              >
-                <LogOut className="h-4 w-4" />
-                {messages.nav.logout}
-              </ButtonLink>
+              <div className="space-y-3 sm:col-span-2">
+                <div className="flex items-center gap-3 rounded-3xl border border-border/70 bg-card p-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                    {session?.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={userName}
+                        width={48}
+                        height={48}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserRound className="h-5 w-5" />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold">
+                      {userName}
+                    </div>
+                    {userEmail ? (
+                      <div className="truncate text-xs text-muted-foreground">
+                        {userEmail}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <ButtonLink href={manageHref} variant="accent" size="md">
+                  {manageLabel}
+                </ButtonLink>
+                <ButtonLink
+                  href={`/${locale}`}
+                  variant="secondary"
+                  size="md"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void signOut({ callbackUrl: `/${locale}` });
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {messages.nav.logout}
+                </ButtonLink>
+              </div>
             )}
           </div>
         </div>

@@ -1,9 +1,7 @@
 "use server";
 
-import { AuthError } from "next-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { signIn } from "@/auth";
 
 export async function registerAction(formData: FormData, locale: string) {
   const name = formData.get("name")?.toString().trim();
@@ -43,6 +41,7 @@ export async function registerAction(formData: FormData, locale: string) {
         password,
         confirmPassword,
         role: roleValue,
+        locale,
       }),
     });
 
@@ -64,16 +63,5 @@ export async function registerAction(formData: FormData, locale: string) {
     redirect(`/${locale}/register?error=server_error`);
   }
 
-  try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: `/${locale}/dashboard`,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      redirect(`/${locale}/login?error=invalid_credentials`);
-    }
-    throw error;
-  }
+  redirect(`/${locale}/verify-email?email=${encodeURIComponent(email)}`);
 }

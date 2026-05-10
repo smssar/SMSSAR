@@ -36,8 +36,9 @@ export default async function AdminListingsPage({
   const search = (resolvedSearchParams.search as string) ?? "";
 
   let listings = [];
-  let categories = [];
-  let cities: string[] = [];
+  let propertyTypes = [];
+  let cities = [];
+  let neighborhoods = [];
   let totalCount = 0;
 
   try {
@@ -48,53 +49,73 @@ export default async function AdminListingsPage({
         }
       : {};
 
-    const [countResult, listingsResult, categoriesResult, citiesResult] =
-      await Promise.all([
-        prisma.property.count({ where }),
-        prisma.property.findMany({
-          where,
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            city: true,
-            neighborhood: true,
-            area: true,
-            rooms: true,
-            bathrooms: true,
-            price: true,
-            categoryId: true,
-            featured: true,
-            imageUrl: true,
-            createdAt: true,
-            category: {
-              select: { id: true, name: true, slug: true },
-            },
-            seller: {
-              select: { id: true, name: true, email: true },
-            },
-            media: {
-              select: { id: true, url: true, type: true, publicId: true },
+    const [
+      countResult,
+      listingsResult,
+      propertyTypesResult,
+      citiesResult,
+      neighborhoodsResult,
+    ] = await Promise.all([
+      prisma.property.count({ where }),
+      prisma.property.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          city: true,
+          neighborhood: true,
+          area: true,
+          rooms: true,
+          bathrooms: true,
+          price: true,
+          propertyTypeId: true,
+          featured: true,
+          imageUrl: true,
+          createdAt: true,
+          propertyType: {
+            select: { id: true, name: true, slug: true, name_ar: true },
+          },
+          seller: {
+            select: { id: true, name: true, email: true },
+          },
+          media: {
+            select: { id: true, url: true, type: true, publicId: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: PAGE_SIZE,
+        skip: (currentPage - 1) * PAGE_SIZE,
+      }),
+      prisma.propertyType.findMany({
+        select: { id: true, name: true, name_ar: true, name_fr: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.city.findMany({
+        select: { name: true, name_ar: true, name_fr: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.neighborhood.findMany({
+        include: {
+          city: {
+            select: {
+              id: true,
+              name: true,
+              name_ar: true,
+              name_fr: true,
+              slug: true,
             },
           },
-          orderBy: { createdAt: "desc" },
-          take: PAGE_SIZE,
-          skip: (currentPage - 1) * PAGE_SIZE,
-        }),
-        prisma.category.findMany({
-          select: { id: true, name: true },
-          orderBy: { name: "asc" },
-        }),
-        prisma.city.findMany({
-          select: { name: true },
-          orderBy: { name: "asc" },
-        }),
-      ]);
+        },
+        orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
+      }),
+    ]);
 
     totalCount = countResult;
     listings = listingsResult;
-    categories = categoriesResult;
-    cities = citiesResult.map((city) => city.name);
+    propertyTypes = propertyTypesResult;
+    cities = citiesResult;
+    neighborhoods = neighborhoodsResult;
   } catch (err) {
     console.error("Prisma query failed in AdminListingsPage:", err);
     throw err;
@@ -117,8 +138,9 @@ export default async function AdminListingsPage({
       <AdminListingsPanel
         locale={locale}
         initialListings={listings}
-        categories={categories}
+        propertyTypes={propertyTypes}
         cities={cities}
+        neighborhoods={neighborhoods}
         currentPage={currentPage}
         totalPages={totalPages}
       />

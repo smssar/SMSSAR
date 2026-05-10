@@ -18,14 +18,14 @@ export default async function AdminOverviewPage({
   const [
     totalUsers,
     activeListings,
-    totalCategories,
+    totalPropertyTypes,
     totalCities,
     recentUsers,
     recentListings,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.property.count(),
-    prisma.category.count(),
+    prisma.propertyType.count(),
     prisma.city.count(),
     prisma.user.findMany({
       select: {
@@ -71,8 +71,12 @@ export default async function AdminOverviewPage({
       value: activeListings,
     },
     {
-      label: { en: "Categories", ar: "الفئات", fr: "Catégories" },
-      value: totalCategories,
+      label: {
+        en: "Property types",
+        ar: "أنواع العقارات",
+        fr: "Types de biens",
+      },
+      value: totalPropertyTypes,
     },
     { label: { en: "Cities", ar: "المدن", fr: "Villes" }, value: totalCities },
   ] as const;

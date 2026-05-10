@@ -6,12 +6,16 @@ import { SectionHeading } from "@/components/section-heading";
 import { StatGrid } from "@/components/dashboard/stat-grid";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteNavbar } from "@/components/layout/site-navbar";
-import { properties, stats, testimonials } from "@/lib/site-data";
+import {
+  properties,
+  stats,
+  testimonials,
+  plans as fallbackPlans,
+} from "@/lib/site-data";
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+// prisma and auth are server-only; import dynamically inside the server component
 import { PropertyCard } from "@/components/property";
 
 const t = <T extends { en: string; ar: string; fr?: string }>(
@@ -21,9 +25,14 @@ const t = <T extends { en: string; ar: string; fr?: string }>(
 
 export default async function LandingPage({ locale }: { locale: Locale }) {
   const messages = getMessages(locale);
+  const [{ prisma }, { auth }] = await Promise.all([
+    import("@/lib/prisma"),
+    import("@/auth"),
+  ]);
+
   const session = await auth();
-  const [dbCategories, dbPlans] = await Promise.all([
-    prisma.category.findMany({
+  const [propertyTypesResult, plansResult] = await Promise.allSettled([
+    prisma.propertyType.findMany({
       take: 3,
       orderBy: { name: "asc" },
       include: {
@@ -37,6 +46,38 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
     }),
   ]);
 
+  const dbPropertyTypes =
+    propertyTypesResult.status === "fulfilled" ? propertyTypesResult.value : [];
+
+  if (propertyTypesResult.status === "rejected") {
+    console.error("Failed to load property types for landing page", {
+      error: propertyTypesResult.reason,
+    });
+  }
+
+  const dbPlans =
+    plansResult.status === "fulfilled" && plansResult.value.length > 0
+      ? plansResult.value
+      : fallbackPlans.map((plan) => ({
+          id: plan.id,
+          title: plan.title.en,
+          title_ar: plan.title.ar,
+          title_fr: plan.title.fr ?? plan.title.en,
+          description: plan.description.en,
+          description_ar: plan.description.ar,
+          description_fr: plan.description.fr ?? plan.description.en,
+          price: plan.price,
+          listings:
+            plan.listings === "unlimited" ? null : Number(plan.listings),
+          featured: plan.featured,
+        }));
+
+  if (plansResult.status === "rejected") {
+    console.error("Failed to load plans for landing page, using fallback", {
+      error: plansResult.reason,
+    });
+  }
+
   const featuredProperties = properties
     .filter((property) => property.featured)
     .slice(0, 3)
@@ -49,6 +90,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
       ] ?? property.description.en) as string,
       city: (property.city[locale as keyof typeof property.city] ??
         property.city.en) as string,
+      propertyType: property.propertyType || "Other",
     }));
 
   return (
@@ -82,6 +124,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                   size="lg"
                   className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
                 >
+                  <Search className="h-4 w-4" />
                   {messages.home.heroCta}
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                 </ButtonLink>
@@ -146,6 +189,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                   variant="default"
                   className="w-full"
                 >
+                  <Search className="h-4 w-4" />
                   {messages.common.search}
                 </ButtonLink>
               </CardContent>
@@ -182,42 +226,42 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
-              en: "Explore by category",
-              ar: "استكشف الفئات",
-              fr: "Explorer par catégorie",
+              en: "Explore by type",
+              ar: "استكشف الأنواع",
+              fr: "Explorer par type",
             })}
             title={messages.home.categoriesTitle}
             description={t(locale, {
-              en: "Start with the category that fits your lifestyle.",
-              ar: "ابدأ بالفئة التي تناسب احتياجك.",
-              fr: "Commencez par la catégorie qui correspond à votre style de vie.",
+              en: "Start with the type that fits your lifestyle.",
+              ar: "ابدأ بالنوع الذي يناسب احتياجك.",
+              fr: "Commencez par le type qui correspond à votre style de vie.",
             })}
           />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {dbCategories.map((category) => (
+            {dbPropertyTypes.map((type) => (
               <Card
-                key={category.id}
+                key={type.id}
                 className="group border-border/70 transition hover:-translate-y-1 hover:shadow-xl"
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 mx-auto lg:mx-0">
                     {locale === "ar"
-                      ? category.name_ar || category.name
+                      ? type.name_ar || type.name
                       : locale === "fr"
-                        ? category.name_fr || category.name
-                        : category.name}
+                        ? type.name_fr || type.name
+                        : type.name}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mx-auto lg:mx-0">
                     {locale === "ar"
-                      ? `${category._count.properties} عقار`
+                      ? `${type._count.properties} عقار`
                       : locale === "fr"
-                        ? `${category._count.properties} biens`
-                        : `${category._count.properties} properties`}
+                        ? `${type._count.properties} biens`
+                        : `${type._count.properties} properties`}
                   </p>
                 </CardHeader>
                 <CardContent className="flex items-end justify-between">
                   <div className="text-3xl font-semibold">
-                    {category._count.properties}
+                    {type._count.properties}
                   </div>
                   <Link
                     href={`/${locale}/properties`}
@@ -234,9 +278,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
             className="mt-6 flex items-center justify-center gap-3 text-sm font-medium text-violet-600 hover:underline dark:text-violet-300"
           >
             {t(locale, {
-              en: "View all categories",
-              ar: "عرض جميع الفئات",
-              fr: "Voir toutes les catégories",
+              en: "View all property types",
+              ar: "عرض جميع أنواع العقارات",
+              fr: "Voir tous les types de propriete",
             })}
           </Link>
         </section>

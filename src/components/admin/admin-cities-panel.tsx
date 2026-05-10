@@ -43,6 +43,23 @@ export function AdminCitiesPanel({
       [...cities].sort((a, b) => (a.name || "").localeCompare(b.name || "")),
     [cities],
   );
+  const [cityQuery, setCityQuery] = useState("");
+
+  const filteredCities = useMemo(() => {
+    const q = cityQuery.trim().toLowerCase();
+    if (!q) return sortedCities;
+    return sortedCities.filter((c) => {
+      const names = [
+        c.name || "",
+        c.name_en || "",
+        c.name_ar || "",
+        c.name_fr || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return names.includes(q) || (c.slug || "").toLowerCase().includes(q);
+    });
+  }, [sortedCities, cityQuery]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -111,7 +128,10 @@ export function AdminCitiesPanel({
         toast.success(locale === "ar" ? "تم إنشاء المدينة." : "City created.");
       }
     } catch (error) {
-      console.error(isEditing ? "Failed to update city:" : "Failed to create city:", error);
+      console.error(
+        isEditing ? "Failed to update city:" : "Failed to create city:",
+        error,
+      );
       toast.error(
         locale === "ar"
           ? isEditing
@@ -229,7 +249,11 @@ export function AdminCitiesPanel({
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" className="flex-1 gap-2" disabled={creating || saving}>
+              <Button
+                type="submit"
+                className="flex-1 gap-2"
+                disabled={creating || saving}
+              >
                 {creating || saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : editingId ? (
@@ -268,12 +292,19 @@ export function AdminCitiesPanel({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {sortedCities.length === 0 ? (
+          <div className="mb-3">
+            <Input
+              placeholder={locale === "ar" ? "ابحث في المدن" : "Search cities"}
+              value={cityQuery}
+              onChange={(e) => setCityQuery(e.target.value)}
+            />
+          </div>
+          {filteredCities.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {locale === "ar" ? "لا توجد مدن بعد." : "No cities yet."}
+              {locale === "ar" ? "لا توجد مدن متطابقة." : "No matching cities."}
             </p>
           ) : (
-            sortedCities.map((city) => (
+            filteredCities.map((city) => (
               <div
                 key={city.id}
                 className={`flex items-center justify-between rounded-2xl border border-border/70 px-4 py-3 text-sm ${editingId === city.id ? "bg-muted/40 ring-1 ring-violet-500/20" : ""}`}
@@ -347,7 +378,7 @@ export function AdminCitiesPanel({
                 type="button"
                 variant="accent"
                 onClick={() => performDelete(pendingDeleteId!)}
-                className="gap-2"
+                className="bg-red-600 text-white hover:bg-red-700"
                 disabled={deleting}
               >
                 {deleting ? (

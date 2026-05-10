@@ -1,5 +1,6 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { compare } from "bcryptjs";
 import { AuthError } from "@auth/core/errors";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +9,7 @@ declare module "next-auth" {
   interface User {
     role: "USER" | "SELLER" | "ADMIN";
     planId: string;
+    image?: string | null;
   }
 
   interface Session {
@@ -24,6 +26,7 @@ declare module "@auth/core/jwt" {
     id?: string;
     role?: "USER" | "SELLER" | "ADMIN";
     planId?: string;
+    picture?: string | null;
   }
 }
 
@@ -63,7 +66,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) {
           return null;
         }
-
+        if (!user.emailVerified) {
+          return null;
+        }
+        if (!user.passwordHash) {
+          return null;
+        }
         const valid = await compare(password, user.passwordHash);
         if (!valid) {
           return null;
@@ -74,17 +82,139 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
-          planId: user.planId,
+          planId: user.planId ?? "plan_free",
+          image: user.avatar,
         };
       },
     }),
+    Google({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      const email = user.email?.trim().toLowerCase();
+      if (!email) {
+        return false;
+      }
+
+      let dbUser = await prisma.user.findUnique({ where: { email } });
+
+      if (!dbUser) {
+        dbUser = await prisma.user.create({
+          data: {
+            name: user.name,
+            email,
+            avatar: user.image,
+            role: "USER",
+            status: "ACTIVE",
+            planId: "plan_free",
+            emailVerified: new Date(),
+          },
+        });
+      } else if (!dbUser.emailVerified) {
+        dbUser = await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { emailVerified: new Date() },
+        });
+      }
+
+      if (account.providerAccountId) {
+        await prisma.account.upsert({
+          where: {
+            provider_providerAccountId: {
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+            },
+          },
+          update: {
+            userId: dbUser.id,
+            access_token:
+              typeof account.access_token === "string"
+                ? account.access_token
+                : null,
+            refresh_token:
+              typeof account.refresh_token === "string"
+                ? account.refresh_token
+                : null,
+            token_type:
+              typeof account.token_type === "string"
+                ? account.token_type
+                : null,
+            scope: typeof account.scope === "string" ? account.scope : null,
+            id_token:
+              typeof account.id_token === "string" ? account.id_token : null,
+            session_state:
+              typeof account.session_state === "string"
+                ? account.session_state
+                : null,
+            expires_at:
+              typeof account.expires_at === "number"
+                ? account.expires_at
+                : null,
+          },
+          create: {
+            userId: dbUser.id,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            access_token:
+              typeof account.access_token === "string"
+                ? account.access_token
+                : null,
+            refresh_token:
+              typeof account.refresh_token === "string"
+                ? account.refresh_token
+                : null,
+            token_type:
+              typeof account.token_type === "string"
+                ? account.token_type
+                : null,
+            scope: typeof account.scope === "string" ? account.scope : null,
+            id_token:
+              typeof account.id_token === "string" ? account.id_token : null,
+            session_state:
+              typeof account.session_state === "string"
+                ? account.session_state
+                : null,
+            expires_at:
+              typeof account.expires_at === "number"
+                ? account.expires_at
+                : null,
+          },
+        });
+      }
+
+      return true;
+    },
+
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.planId = user.planId;
+      if (user?.email) {
+        const email = user.email.trim().toLowerCase();
+        const dbUser = await prisma.user.findUnique({ where: { email } });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.planId = dbUser.planId ?? "plan_free";
+          token.picture = dbUser.avatar;
+        }
+      } else if (token.email && (!token.id || !token.role || !token.planId)) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.planId = dbUser.planId ?? "plan_free";
+          token.picture = dbUser.avatar;
+        }
       }
       return token;
     },
@@ -97,7 +227,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           | "SELLER"
           | "ADMIN";
         session.user.planId =
-          typeof token.planId === "string" ? token.planId : "free";
+          typeof token.planId === "string" ? token.planId : "plan_free";
+        session.user.image =
+          typeof token.picture === "string"
+            ? token.picture
+            : session.user.image;
       }
       return session;
     },

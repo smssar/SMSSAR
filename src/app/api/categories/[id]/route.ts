@@ -8,7 +8,7 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-type UpdateCategoryBody = {
+type UpdatePropertyTypeBody = {
   name_en?: string;
   name_ar?: string;
   name_fr?: string;
@@ -18,7 +18,7 @@ type UpdateCategoryBody = {
 export async function GET(_: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  const category = await prisma.category.findUnique({
+  const propertyType = await prisma.propertyType.findUnique({
     where: { id },
     include: {
       _count: {
@@ -27,16 +27,16 @@ export async function GET(_: Request, context: RouteContext) {
     },
   });
 
-  if (!category) {
-    return jsonError("Category not found.", 404);
+  if (!propertyType) {
+    return jsonError("Property type not found.", 404);
   }
 
-  return NextResponse.json({ data: category });
+  return NextResponse.json({ data: propertyType });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const body = await readJson<UpdateCategoryBody>(request);
+  const body = await readJson<UpdatePropertyTypeBody>(request);
 
   if (!body) {
     return jsonError("Invalid JSON body.");
@@ -78,11 +78,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - Prisma client needs regeneration after schema change; payload shape is correct
-    const category = await prisma.category.update({
+    const propertyType = await prisma.propertyType.update({
       where: { id },
       data,
     });
-    return NextResponse.json({ data: category });
+    return NextResponse.json({ data: propertyType });
   } catch (error: unknown) {
     if (
       typeof error === "object" &&
@@ -90,7 +90,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       "code" in error &&
       error.code === "P2025"
     ) {
-      return jsonError("Category not found.", 404);
+      return jsonError("Property type not found.", 404);
     }
     if (
       typeof error === "object" &&
@@ -98,9 +98,9 @@ export async function PATCH(request: Request, context: RouteContext) {
       "code" in error &&
       error.code === "P2002"
     ) {
-      return jsonError("Category slug already exists.", 409);
+      return jsonError("Property type slug already exists.", 409);
     }
-    return jsonError("Failed to update category.", 500);
+    return jsonError("Failed to update property type.", 500);
   }
 }
 
@@ -108,7 +108,7 @@ export async function DELETE(_: Request, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    await prisma.category.delete({ where: { id } });
+    await prisma.propertyType.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     if (
@@ -117,7 +117,7 @@ export async function DELETE(_: Request, context: RouteContext) {
       "code" in error &&
       error.code === "P2025"
     ) {
-      return jsonError("Category not found.", 404);
+      return jsonError("Property type not found.", 404);
     }
     if (
       typeof error === "object" &&
@@ -126,10 +126,10 @@ export async function DELETE(_: Request, context: RouteContext) {
       error.code === "P2003"
     ) {
       return jsonError(
-        "Cannot delete category because properties still reference it.",
+        "Cannot delete property type because properties still reference it.",
         409,
       );
     }
-    return jsonError("Failed to delete category.", 500);
+    return jsonError("Failed to delete property type.", 500);
   }
 }

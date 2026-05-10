@@ -373,7 +373,7 @@ export function AdminPlansPanel({
                       ? locale === "ar"
                         ? "مجاني"
                         : "Free"
-                      : `$${plan.price}`}
+                      : `${plan.price} DH`}
                   </div>
                   <div className="text-muted-foreground">
                     {plan.description}

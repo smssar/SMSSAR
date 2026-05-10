@@ -47,10 +47,15 @@ export { Prisma }
  */
 export type City = Prisma.CityModel
 /**
- * Model Category
+ * Model Neighborhood
  * 
  */
-export type Category = Prisma.CategoryModel
+export type Neighborhood = Prisma.NeighborhoodModel
+/**
+ * Model PropertyType
+ * 
+ */
+export type PropertyType = Prisma.PropertyTypeModel
 /**
  * Model Plan
  * 
@@ -61,6 +66,21 @@ export type Plan = Prisma.PlanModel
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model VerificationToken
+ * 
+ */
+export type VerificationToken = Prisma.VerificationTokenModel
 /**
  * Model Property
  * 

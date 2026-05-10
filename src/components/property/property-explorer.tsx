@@ -26,7 +26,7 @@ export interface SimpleProperty {
   rooms: number;
   bathrooms: number;
   price: number;
-  category: string;
+  propertyType: string;
   featured: boolean;
   seller: string;
   rating: number;
@@ -34,11 +34,24 @@ export interface SimpleProperty {
   media?: Array<{ id: string; url: string; type: string; publicId: string }>;
 }
 
+type LocalizedLabel = {
+  name: string;
+  name_ar?: string | null;
+  name_fr?: string | null;
+};
+
+function getLocalizedLabel(locale: Locale, item: LocalizedLabel) {
+  if (locale === "ar") return item.name_ar || item.name;
+  if (locale === "fr") return item.name_fr || item.name;
+  return item.name;
+}
+
 export function PropertyExplorer({
   locale,
   properties,
   cities,
-  categories,
+  neighborhoods: allNeighborhoods,
+  propertyTypes,
   title,
   subtitle,
   noResults,
@@ -47,8 +60,14 @@ export function PropertyExplorer({
 }: {
   locale: Locale;
   properties: SimpleProperty[];
-  cities: string[];
-  categories: Array<{ id: string; name: string; slug: string | null }>;
+  cities: Array<LocalizedLabel>;
+  neighborhoods: Array<{
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+    city: LocalizedLabel;
+  }>;
+  propertyTypes: Array<LocalizedLabel & { id: string; slug: string | null }>;
   title: string;
   subtitle: string;
   noResults: string;
@@ -64,27 +83,48 @@ export function PropertyExplorer({
     city: "all",
     neighborhood: "all",
     rooms: "all",
-    category: "all",
+    propertyType: "all",
     maxPrice: "",
   });
 
   const [pendingFilters, setPendingFilters] = useState(activeFilters);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Reset neighborhood when city changes in pending filters
+  useEffect(() => {
+    if (pendingFilters.city !== activeFilters.city) {
+      setPendingFilters((prev) => ({
+        ...prev,
+        neighborhood: "all",
+      }));
+    }
+  }, [pendingFilters.city, activeFilters.city]);
+
   useEffect(() => {
     const urlQuery = searchParams.get("query") || "";
     const urlCity = searchParams.get("city") || "all";
     const urlNeighborhood = searchParams.get("neighborhood") || "all";
     const urlRooms = searchParams.get("rooms") || "all";
-    const urlCategory = searchParams.get("category") || "all";
+    const urlPropertyType = searchParams.get("propertyType") || "all";
     const urlMaxPrice = searchParams.get("maxPrice") || "";
+
+    // Reset neighborhood if city changed and selected neighborhood is not available
+    let finalNeighborhood = urlNeighborhood;
+    if (urlNeighborhood !== "all") {
+      const isNeighborhoodValid = allNeighborhoods.some(
+        (n) => n.name === urlNeighborhood && n.city.name === urlCity,
+      );
+      if (!isNeighborhoodValid) {
+        finalNeighborhood = "all";
+      }
+    }
 
     const filters = {
       query: urlQuery,
       city: urlCity,
-      neighborhood: urlNeighborhood,
+      neighborhood: finalNeighborhood,
       rooms: urlRooms,
-      category: urlCategory,
+      propertyType: urlPropertyType,
       maxPrice: urlMaxPrice,
     };
 
@@ -97,7 +137,7 @@ export function PropertyExplorer({
 
     setActiveFilters(filters);
     setPendingFilters(filters);
-  }, [searchParams]);
+  }, [searchParams, allNeighborhoods]);
 
   const setPageParam = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -123,8 +163,8 @@ export function PropertyExplorer({
       }
       if (pendingFilters.rooms !== "all")
         params.set("rooms", pendingFilters.rooms);
-      if (pendingFilters.category !== "all")
-        params.set("category", pendingFilters.category);
+      if (pendingFilters.propertyType !== "all")
+        params.set("propertyType", pendingFilters.propertyType);
       if (pendingFilters.maxPrice)
         params.set("maxPrice", pendingFilters.maxPrice);
       params.set("page", "1");
@@ -141,7 +181,7 @@ export function PropertyExplorer({
       city: "all",
       neighborhood: "all",
       rooms: "all",
-      category: "all",
+      propertyType: "all",
       maxPrice: "",
     };
     setActiveFilters(emptyFilters);
@@ -149,14 +189,16 @@ export function PropertyExplorer({
     router.push("?");
   };
 
-  const neighborhoods = [
-    "all",
-    ...new Set(
-      properties
-        .filter((p) => p.neighborhood)
-        .map((property) => property.neighborhood),
-    ),
-  ];
+  const getAvailableNeighborhoods = () => {
+    const selectedCity =
+      pendingFilters.city !== "all" ? pendingFilters.city : null;
+    if (!selectedCity) {
+      return allNeighborhoods;
+    }
+    return allNeighborhoods.filter((n) => n.city.name === selectedCity);
+  };
+
+  const availableNeighborhoods = getAvailableNeighborhoods();
 
   return (
     <div className="space-y-8">
@@ -207,8 +249,8 @@ export function PropertyExplorer({
                 {t(locale, { en: "All", ar: "الكل", fr: "Tous" })}
               </option>
               {cities.map((item) => (
-                <option key={item} value={item}>
-                  {item}
+                <option key={item.name} value={item.name}>
+                  {getLocalizedLabel(locale, item)}
                 </option>
               ))}
             </Select>
@@ -227,11 +269,12 @@ export function PropertyExplorer({
                 }))
               }
             >
-              {neighborhoods.map((item) => (
-                <option key={item || "all"} value={item || "all"}>
-                  {item === "all" || !item
-                    ? t(locale, { en: "All", ar: "الكل", fr: "Tous" })
-                    : item}
+              <option value="all">
+                {t(locale, { en: "All", ar: "الكل", fr: "Tous" })}
+              </option>
+              {availableNeighborhoods.map((item) => (
+                <option key={item.name} value={item.name}>
+                  {getLocalizedLabel(locale, item)}
                 </option>
               ))}
             </Select>
@@ -263,23 +306,27 @@ export function PropertyExplorer({
 
           <div>
             <label className="mb-2 block text-sm font-medium">
-              {t(locale, { en: "Category", ar: "النوع", fr: "Categorie" })}
+              {t(locale, {
+                en: "Property type",
+                ar: "نوع العقار",
+                fr: "Type de propriete",
+              })}
             </label>
             <Select
-              value={pendingFilters.category}
+              value={pendingFilters.propertyType}
               onChange={(event) =>
                 setPendingFilters((prev) => ({
                   ...prev,
-                  category: event.target.value,
+                  propertyType: event.target.value,
                 }))
               }
             >
               <option value="all">
                 {t(locale, { en: "All", ar: "الكل", fr: "Tous" })}
               </option>
-              {categories.map((item) => (
-                <option key={item.id} value={item.name}>
-                  {item.name}
+              {propertyTypes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {getLocalizedLabel(locale, item)}
                 </option>
               ))}
             </Select>
