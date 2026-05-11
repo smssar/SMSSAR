@@ -37,7 +37,6 @@ export const messages = {
       description: "Description",
       overview: "Overview",
       statistics: "Statistics",
-      inquiries: "Inquiries",
       listingCount: "Listing count",
     },
     home: {
@@ -174,7 +173,6 @@ export const messages = {
       description: "الوصف",
       overview: "نظرة عامة",
       statistics: "الإحصاءات",
-      inquiries: "الاستفسارات",
       listingCount: "عدد العقارات",
     },
     home: {
@@ -309,7 +307,6 @@ export const messages = {
       description: "Description",
       overview: "Aperçu",
       statistics: "Statistiques",
-      inquiries: "Demandes",
       listingCount: "Nombre d'annonces",
     },
     home: {

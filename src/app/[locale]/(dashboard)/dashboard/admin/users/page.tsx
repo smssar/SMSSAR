@@ -100,6 +100,7 @@ export default async function AdminUsersPage({
         id: true,
         name: true,
         email: true,
+        emailVerified: true,
         phone: true,
         bio: true,
         role: true,

@@ -203,7 +203,6 @@ export default async function PropertiesPage({
     imageUrl: property.imageUrl || undefined,
     seller: sellerMap.get(property.sellerId) || "Unknown",
     rating: 4.8, // Default rating
-    inquiries: 0, // Default inquiries
     media: property.media.map((m) => ({
       id: m.id,
       url: m.url,

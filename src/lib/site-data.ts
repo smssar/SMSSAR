@@ -22,7 +22,6 @@ export interface Property {
   featured: boolean;
   seller: string;
   rating: number;
-  inquiries: number;
   palette: [string, string];
   amenities: LocalizedText[];
 }
@@ -127,7 +126,6 @@ export const properties: Property[] = [
     featured: true,
     seller: "Noura Estates",
     rating: 4.9,
-    inquiries: 18,
     palette: ["from-sky-500", "to-indigo-600"],
     amenities: [
       { en: "Private pool", ar: "مسبح خاص" },
@@ -153,7 +151,6 @@ export const properties: Property[] = [
     featured: true,
     seller: "Pearl Living",
     rating: 4.8,
-    inquiries: 12,
     palette: ["from-fuchsia-500", "to-violet-600"],
     amenities: [
       { en: "Concierge", ar: "كونسيرج" },
@@ -179,7 +176,6 @@ export const properties: Property[] = [
     featured: false,
     seller: "Palm Nest",
     rating: 4.7,
-    inquiries: 8,
     palette: ["from-emerald-500", "to-teal-600"],
     amenities: [
       { en: "Courtyard", ar: "فناء" },
@@ -205,7 +201,6 @@ export const properties: Property[] = [
     featured: true,
     seller: "Breeze Partners",
     rating: 4.95,
-    inquiries: 21,
     palette: ["from-amber-500", "to-orange-600"],
     amenities: [
       { en: "Private terrace", ar: "تراس خاص" },
@@ -231,7 +226,6 @@ export const properties: Property[] = [
     featured: false,
     seller: "Noble Homes",
     rating: 4.86,
-    inquiries: 9,
     palette: ["from-rose-500", "to-pink-600"],
     amenities: [
       { en: "Garden", ar: "حديقة" },
@@ -257,7 +251,6 @@ export const properties: Property[] = [
     featured: false,
     seller: "Harbor Bay",
     rating: 4.75,
-    inquiries: 6,
     palette: ["from-cyan-500", "to-blue-600"],
     amenities: [
       { en: "Workspace", ar: "مساحة عمل" },
@@ -446,7 +439,6 @@ export const users: UserRecord[] = [
 
 export const sellerStats = [
   { label: { en: "Live listings", ar: "العقارات المنشورة" }, value: 8 },
-  { label: { en: "Monthly inquiries", ar: "استفسارات شهرية" }, value: 46 },
   { label: { en: "Saved leads", ar: "العملاء المحتملون" }, value: 19 },
   { label: { en: "Plan health", ar: "حالة الباقة" }, value: 94 },
 ] as const;

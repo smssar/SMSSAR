@@ -22,7 +22,6 @@ type FavoriteProperty = {
   featured: boolean;
   seller: string;
   rating: number;
-  inquiries: number;
   media?: Array<{
     id: string;
     url: string;
@@ -74,7 +73,6 @@ export async function FavoriteListingsPanel({ locale }: { locale: Locale }) {
     featured: item.property.featured,
     seller: item.property.seller?.name || "Unknown",
     rating: 4.8,
-    inquiries: 0,
     media: item.property.media.map((media) => ({
       id: media.id,
       url: media.url,

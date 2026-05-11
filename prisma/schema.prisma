@@ -180,6 +180,7 @@ model Property {
   @@index([city])
   @@index([neighborhood])
   @@index([featured])
+  @@index([sellerId])
 }
 
 model Favorite {

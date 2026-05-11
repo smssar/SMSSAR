@@ -82,7 +82,6 @@ export default async function SellerProfilePage({
       featured: property.featured,
       seller: seller.name ?? "",
       rating: 4.8,
-      inquiries: 0,
       media: property.media || [],
     }),
   );

@@ -15,6 +15,7 @@ type CreateUserBody = {
   phone?: string;
   bio?: string;
   planId?: string;
+  emailVerified?: string | null;
 };
 
 export async function GET() {
@@ -33,6 +34,7 @@ export async function GET() {
       id: true,
       name: true,
       email: true,
+      emailVerified: true,
       phone: true,
       bio: true,
       role: true,
@@ -93,6 +95,14 @@ export async function POST(request: Request) {
   }
 
   const requestedPlanId = body.planId?.trim().toLowerCase();
+  const verifiedAt =
+    typeof body.emailVerified === "string" && body.emailVerified.trim()
+      ? new Date(body.emailVerified)
+      : null;
+
+  if (verifiedAt && Number.isNaN(verifiedAt.getTime())) {
+    return jsonError("emailVerified must be a valid date-time.", 400);
+  }
 
   try {
     const defaultPlan = await prisma.plan.findFirst({
@@ -128,11 +138,13 @@ export async function POST(request: Request) {
         role: role as "USER" | "SELLER" | "ADMIN",
         status: status as "ACTIVE" | "PENDING" | "FLAGGED",
         planId,
+        emailVerified: verifiedAt,
       },
       select: {
         id: true,
         name: true,
         email: true,
+        emailVerified: true,
         phone: true,
         bio: true,
         role: true,

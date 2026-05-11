@@ -74,7 +74,9 @@ export function LoginFormClient({
       setErrorText(
         locale === "ar"
           ? "بيانات تسجيل الدخول غير صحيحة."
-          : "Invalid email or password.",
+          : locale === "fr"
+            ? "Identifiants de connexion invalides."
+            : "Invalid login credentials.",
       );
       setLoading(false);
       return;

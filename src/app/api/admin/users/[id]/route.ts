@@ -14,6 +14,7 @@ type UpdateUserBody = {
   phone?: string | null;
   bio?: string | null;
   planId?: string;
+  emailVerified?: string | null;
 };
 
 export async function PATCH(
@@ -90,6 +91,23 @@ export async function PATCH(
     data.planId = planId;
   }
 
+  if (body.emailVerified !== undefined) {
+    if (typeof body.emailVerified !== "string" && body.emailVerified !== null) {
+      return jsonError("emailVerified must be a string or null.", 400);
+    }
+
+    const verifiedAt =
+      typeof body.emailVerified === "string" && body.emailVerified.trim()
+        ? new Date(body.emailVerified)
+        : null;
+
+    if (verifiedAt && Number.isNaN(verifiedAt.getTime())) {
+      return jsonError("emailVerified must be a valid date-time.", 400);
+    }
+
+    data.emailVerified = verifiedAt;
+  }
+
   if (body.password !== undefined && body.password !== null) {
     if (typeof body.password !== "string")
       return jsonError("Password must be a string.", 400);
@@ -110,6 +128,7 @@ export async function PATCH(
         id: true,
         name: true,
         email: true,
+        emailVerified: true,
         phone: true,
         bio: true,
         role: true,

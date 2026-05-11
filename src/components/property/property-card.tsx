@@ -37,7 +37,6 @@ export interface PropertyCardProps {
   featured: boolean;
   seller: string;
   rating: number;
-  inquiries: number;
   media?: Array<Pick<Media, "id" | "url" | "publicId" | "type">>;
   isFavorite?: boolean;
   favoriteEnabled?: boolean;

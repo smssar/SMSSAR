@@ -108,7 +108,6 @@ export default async function PropertyDetailPage({
       sellerBio: dbProperty.seller?.bio ?? null,
       sellerCity: dbProperty.seller?.city ?? null,
       rating: 4.8,
-      inquiries: 0,
       palette: ["from-blue-500", "to-indigo-600"] as [string, string],
       amenities: [],
       // include media for client swiper
@@ -349,10 +348,6 @@ export default async function PropertyDetailPage({
                   (property.city[locale as keyof typeof property.city] ??
                     property.city.en) as string
                 }
-              />
-              <InfoRow
-                label={messages.common.inquiries}
-                value={`${property.inquiries}`}
               />
               <InfoRow
                 label={locale === "ar" ? "نوع العقار" : "Property type"}

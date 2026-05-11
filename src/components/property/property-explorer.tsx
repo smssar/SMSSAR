@@ -30,7 +30,6 @@ export interface SimpleProperty {
   featured: boolean;
   seller: string;
   rating: number;
-  inquiries: number;
   media?: Array<{ id: string; url: string; type: string; publicId: string }>;
 }
 
@@ -78,27 +77,17 @@ export function PropertyExplorer({
   const searchParams = useSearchParams();
   const initializedRef = useRef(false);
 
-  const [activeFilters, setActiveFilters] = useState({
+  const initialFilters = {
     query: "",
     city: "all",
     neighborhood: "all",
     rooms: "all",
     propertyType: "all",
     maxPrice: "",
-  });
+  };
 
-  const [pendingFilters, setPendingFilters] = useState(activeFilters);
+  const [pendingFilters, setPendingFilters] = useState(initialFilters);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Reset neighborhood when city changes in pending filters
-  useEffect(() => {
-    if (pendingFilters.city !== activeFilters.city) {
-      setPendingFilters((prev) => ({
-        ...prev,
-        neighborhood: "all",
-      }));
-    }
-  }, [pendingFilters.city, activeFilters.city]);
 
   useEffect(() => {
     const urlQuery = searchParams.get("query") || "";
@@ -129,13 +118,11 @@ export function PropertyExplorer({
     };
 
     if (!initializedRef.current) {
-      setActiveFilters(filters);
       setPendingFilters(filters);
       initializedRef.current = true;
       return;
     }
 
-    setActiveFilters(filters);
     setPendingFilters(filters);
   }, [searchParams, allNeighborhoods]);
 
@@ -184,7 +171,6 @@ export function PropertyExplorer({
       propertyType: "all",
       maxPrice: "",
     };
-    setActiveFilters(emptyFilters);
     setPendingFilters(emptyFilters);
     router.push("?");
   };
@@ -242,6 +228,7 @@ export function PropertyExplorer({
                 setPendingFilters((prev) => ({
                   ...prev,
                   city: event.target.value,
+                  neighborhood: "all",
                 }))
               }
             >
