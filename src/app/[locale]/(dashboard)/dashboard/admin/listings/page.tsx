@@ -34,6 +34,7 @@ export default async function AdminListingsPage({
   const PAGE_SIZE = getValidPageSize(resolvedSearchParams.pageSize as string);
   const currentPage = toPositiveInteger(resolvedSearchParams.page as string, 1);
   const search = (resolvedSearchParams.search as string) ?? "";
+  const listingsPage = messages.dashboard.admin.listingsPage;
 
   let listings = [];
   let propertyTypes = [];
@@ -129,11 +130,7 @@ export default async function AdminListingsPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {messages.dashboard.admin.listings}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {locale === "ar"
-            ? "راجع القوائم المنشورة واحذف أو وافق عليها."
-            : "Review listings, approve them, or flag issues."}
-        </p>
+        <p className="mt-2 text-muted-foreground">{listingsPage.intro}</p>
       </div>
       <AdminListingsPanel
         locale={locale}

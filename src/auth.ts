@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import { compare } from "bcryptjs";
 import { AuthError } from "@auth/core/errors";
 import { prisma } from "@/lib/prisma";
+import { ensureFreePlan } from "@/lib/ensure-free-plan";
 
 declare module "next-auth" {
   interface User {
@@ -104,6 +105,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return false;
       }
 
+      await ensureFreePlan();
+
       let dbUser = await prisma.user.findUnique({ where: { email } });
 
       if (!dbUser) {
@@ -121,7 +124,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       } else if (!dbUser.emailVerified) {
         dbUser = await prisma.user.update({
           where: { id: dbUser.id },
-          data: { emailVerified: new Date() },
+          data: {
+            emailVerified: new Date(),
+            planId: dbUser.planId ?? "plan_free",
+          },
+        });
+      } else if (!dbUser.planId) {
+        dbUser = await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { planId: "plan_free" },
         });
       }
 
@@ -194,6 +205,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, user }) {
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+        });
+
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.planId = dbUser.planId ?? "plan_free";
+          token.picture = dbUser.avatar;
+          token.email = dbUser.email ?? token.email;
+          return token;
+        }
+      }
+
       if (user?.email) {
         const email = user.email.trim().toLowerCase();
         const dbUser = await prisma.user.findUnique({ where: { email } });

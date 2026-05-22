@@ -16,6 +16,9 @@ type CreateUserBody = {
   bio?: string;
   planId?: string;
   emailVerified?: string | null;
+  suspendedUntil?: string | null;
+  suspendedMessage?: string | null;
+  bannedMessage?: string | null;
 };
 
 export async function GET() {
@@ -39,6 +42,11 @@ export async function GET() {
       bio: true,
       role: true,
       status: true,
+      suspendedAt: true,
+      suspendedUntil: true,
+      suspendedMessage: true,
+      suspendedBy: true,
+      bannedMessage: true,
       planId: true,
       createdAt: true,
     },
@@ -79,7 +87,8 @@ export async function POST(request: Request) {
   const status = body.status?.toUpperCase() as
     | "ACTIVE"
     | "PENDING"
-    | "FLAGGED"
+    | "SUSPENDED"
+    | "BANNED"
     | undefined;
 
   if (!name || !email || !password) {
@@ -90,8 +99,8 @@ export async function POST(request: Request) {
     return jsonError("Role must be USER, SELLER, or ADMIN.");
   }
 
-  if (!["ACTIVE", "PENDING", "FLAGGED"].includes(status ?? "")) {
-    return jsonError("Status must be ACTIVE, PENDING, or FLAGGED.");
+  if (!["ACTIVE", "PENDING", "SUSPENDED", "BANNED"].includes(status ?? "")) {
+    return jsonError("Status must be ACTIVE, PENDING, SUSPENDED, or BANNED.");
   }
 
   const requestedPlanId = body.planId?.trim().toLowerCase();
@@ -99,6 +108,22 @@ export async function POST(request: Request) {
     typeof body.emailVerified === "string" && body.emailVerified.trim()
       ? new Date(body.emailVerified)
       : null;
+
+  const suspendedUntil =
+    typeof body.suspendedUntil === "string" && body.suspendedUntil.trim()
+      ? new Date(body.suspendedUntil)
+      : null;
+
+  if (suspendedUntil && Number.isNaN(suspendedUntil.getTime())) {
+    return jsonError("suspendedUntil must be a valid date-time.", 400);
+  }
+
+  if (status === "SUSPENDED" && !suspendedUntil) {
+    return jsonError(
+      "suspendedUntil is required when status is SUSPENDED.",
+      400,
+    );
+  }
 
   if (verifiedAt && Number.isNaN(verifiedAt.getTime())) {
     return jsonError("emailVerified must be a valid date-time.", 400);
@@ -127,6 +152,16 @@ export async function POST(request: Request) {
     const passwordHash = await hash(password, 12);
     const phone = body.phone?.trim();
     const bio = body.bio?.trim();
+    const isSuspended = status === "SUSPENDED";
+    const isBanned = status === "BANNED";
+    const suspendedMessage =
+      typeof body.suspendedMessage === "string"
+        ? body.suspendedMessage.trim() || null
+        : null;
+    const bannedMessage =
+      typeof body.bannedMessage === "string"
+        ? body.bannedMessage.trim() || null
+        : null;
 
     const user = await prisma.user.create({
       data: {
@@ -136,7 +171,12 @@ export async function POST(request: Request) {
         phone: phone ? phone : null,
         bio: bio ? bio : null,
         role: role as "USER" | "SELLER" | "ADMIN",
-        status: status as "ACTIVE" | "PENDING" | "FLAGGED",
+        status: status as "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED",
+        suspendedAt: isSuspended || isBanned ? new Date() : null,
+        suspendedUntil: isBanned ? null : suspendedUntil,
+        suspendedMessage: isSuspended ? suspendedMessage : null,
+        suspendedBy: isSuspended || isBanned ? session.user.id : null,
+        bannedMessage: isBanned ? bannedMessage : null,
         planId,
         emailVerified: verifiedAt,
       },
@@ -149,6 +189,11 @@ export async function POST(request: Request) {
         bio: true,
         role: true,
         status: true,
+        suspendedAt: true,
+        suspendedUntil: true,
+        suspendedMessage: true,
+        suspendedBy: true,
+        bannedMessage: true,
         planId: true,
         createdAt: true,
       },

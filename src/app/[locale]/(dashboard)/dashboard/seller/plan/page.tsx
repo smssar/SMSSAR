@@ -7,7 +7,13 @@ import { ButtonLink } from "@/components/ui/button";
 import { getMessages } from "@/lib/messages";
 import { plans as planFeatures } from "@/lib/site-data";
 import { prisma } from "@/lib/prisma";
+import {
+  getActiveSubscription,
+  getScheduledSubscription,
+} from "@/lib/getActiveSubscription";
+import { PricingCheckoutButton } from "@/components/payment/pricing-checkout-button";
 import type { Locale } from "@/lib/locales";
+import { formatCurrency } from "@/lib/format";
 
 export default async function SellerPlanPage({
   params,
@@ -31,13 +37,20 @@ export default async function SellerPlanPage({
     select: { planId: true },
   });
 
-  const currentPlanId = seller?.planId ?? session.user.planId ?? "free";
+  const currentPlanId = seller?.planId ?? session.user.planId ?? "plan_free";
 
   const plans = await prisma.plan.findMany({
     orderBy: { price: "asc" },
   });
 
   const currentPlan = plans.find((plan) => plan.id === currentPlanId) ?? null;
+  const visiblePlans =
+    currentPlanId === "plan_free"
+      ? plans
+      : plans.filter((plan) => plan.id !== "plan_free");
+
+  const activeSubscription = await getActiveSubscription(session.user.id);
+  const scheduledSubscription = await getScheduledSubscription(session.user.id);
 
   return (
     <div className="space-y-6">
@@ -75,7 +88,7 @@ export default async function SellerPlanPage({
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {plans.map((plan) => {
+        {visiblePlans.map((plan) => {
           const featureSet = planFeatures.find((item) => item.id === plan.id);
           const isCurrentPlan = plan.id === currentPlanId;
 
@@ -116,7 +129,7 @@ export default async function SellerPlanPage({
                     ? locale === "ar"
                       ? "مجاني"
                       : "Free"
-                    : `$${plan.price}`}
+                    : formatCurrency(plan.price, locale)}
                 </div>
                 <div className="space-y-3">
                   {(featureSet?.features ?? []).map((feature, index) => (
@@ -129,25 +142,30 @@ export default async function SellerPlanPage({
                     </div>
                   ))}
                 </div>
-                <ButtonLink
-                  href={`/${locale}/pricing`}
-                  variant={
-                    isCurrentPlan
-                      ? "default"
-                      : plan.featured
-                        ? "accent"
-                        : "outline"
-                  }
-                  className="w-full"
-                >
-                  {isCurrentPlan
-                    ? locale === "ar"
-                      ? "باقتك الحالية"
-                      : "Your current plan"
-                    : locale === "ar"
-                      ? "عرض الباقات"
-                      : "View plans"}
-                </ButtonLink>
+                {isCurrentPlan ? (
+                  <ButtonLink
+                    href={`/${locale}/pricing`}
+                    variant="default"
+                    className="w-full"
+                  >
+                    {locale === "ar" ? "باقتك الحالية" : "Your current plan"}
+                  </ButtonLink>
+                ) : (
+                  <PricingCheckoutButton
+                    planId={plan.id}
+                    locale={locale}
+                    featured={plan.featured}
+                    label={
+                      locale === "ar"
+                        ? "اشترك"
+                        : locale === "fr"
+                          ? "S'abonner"
+                          : "Subscribe"
+                    }
+                    activeSubscription={activeSubscription}
+                    scheduledSubscription={scheduledSubscription}
+                  />
+                )}
               </CardContent>
             </Card>
           );

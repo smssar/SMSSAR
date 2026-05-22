@@ -62,6 +62,11 @@ export type PropertyType = Prisma.PropertyTypeModel
  */
 export type Plan = Prisma.PlanModel
 /**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
  * Model User
  * 
  */

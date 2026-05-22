@@ -32,7 +32,12 @@ type UserRow = {
   phone?: string | null;
   bio?: string | null;
   role: "USER" | "SELLER" | "ADMIN";
-  status: "ACTIVE" | "PENDING" | "FLAGGED";
+  status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
+  suspendedAt?: Date | string | null;
+  suspendedUntil?: Date | string | null;
+  suspendedMessage?: string | null;
+  suspendedBy?: string | null;
+  bannedMessage?: string | null;
   planId?: string | null;
   createdAt: Date | string;
 };
@@ -85,16 +90,43 @@ export function AdminUsersPanel({
   const [emailVerified, setEmailVerified] = useState("");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [suspendedUntil, setSuspendedUntil] = useState("");
+  const [suspendedMessage, setSuspendedMessage] = useState("");
+  const [bannedMessage, setBannedMessage] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"USER" | "SELLER" | "ADMIN">("USER");
-  const [status, setStatus] = useState<"ACTIVE" | "PENDING" | "FLAGGED">(
-    "ACTIVE",
-  );
+  const [status, setStatus] = useState<
+    "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED"
+  >("ACTIVE");
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
   const [loading, setLoading] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const isSuspendedStatus = status === "SUSPENDED";
+  const isBannedStatus = status === "BANNED";
+
+  const handleStatusChange = (
+    nextStatus: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED",
+  ) => {
+    setStatus(nextStatus);
+
+    if (nextStatus === "SUSPENDED") {
+      setBannedMessage("");
+      return;
+    }
+
+    if (nextStatus === "BANNED") {
+      setSuspendedUntil("");
+      setSuspendedMessage("");
+      return;
+    }
+
+    setSuspendedUntil("");
+    setSuspendedMessage("");
+    setBannedMessage("");
+  };
 
   const currentSearch = (searchParams.get("search") as string) ?? "";
   const currentRole = (searchParams.get("role") as string) ?? "";
@@ -151,13 +183,16 @@ export function AdminUsersPanel({
     setEmailVerified(formatDateTimeLocal(user.emailVerified));
     setPhone(user.phone ?? "");
     setBio(user.bio ?? "");
+    setSuspendedUntil(formatDateTimeLocal(user.suspendedUntil));
+    setSuspendedMessage(user.suspendedMessage ?? "");
+    setBannedMessage(user.bannedMessage ?? "");
     setPassword("");
     setRole(user.role);
     setStatus(user.status);
     setPlanId(user.planId ?? "free");
   };
 
-  const cancelEdit = () => {
+  const CANCELLEDit = () => {
     setEditingId(null);
     setSelectedUser(null);
     setIsCreateDialogOpen(false);
@@ -166,6 +201,9 @@ export function AdminUsersPanel({
     setEmailVerified("");
     setPhone("");
     setBio("");
+    setSuspendedUntil("");
+    setSuspendedMessage("");
+    setBannedMessage("");
     setPassword("");
     setRole("USER");
     setStatus("ACTIVE");
@@ -180,6 +218,9 @@ export function AdminUsersPanel({
     setEmailVerified("");
     setPhone("");
     setBio("");
+    setSuspendedUntil("");
+    setSuspendedMessage("");
+    setBannedMessage("");
     setPassword("");
     setRole("USER");
     setStatus("ACTIVE");
@@ -194,6 +235,9 @@ export function AdminUsersPanel({
     setEmailVerified("");
     setPhone("");
     setBio("");
+    setSuspendedUntil("");
+    setSuspendedMessage("");
+    setBannedMessage("");
     setPassword("");
     setRole("USER");
     setStatus("ACTIVE");
@@ -202,6 +246,16 @@ export function AdminUsersPanel({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isSuspendedStatus && !suspendedUntil.trim()) {
+      toast.error(
+        locale === "ar"
+          ? "يجب إدخال تاريخ الإيقاف عند اختيار الحالة موقوف."
+          : "Suspended until is required when status is Suspended.",
+      );
+      return;
+    }
+
     setPendingAction({
       type: "save",
       label:
@@ -214,6 +268,15 @@ export function AdminUsersPanel({
   const performSave = async () => {
     setLoading(true);
     try {
+      const normalizedSuspendedUntil = isSuspendedStatus
+        ? suspendedUntil || null
+        : null;
+      const normalizedSuspendedMessage = isSuspendedStatus
+        ? suspendedMessage || null
+        : null;
+      const normalizedBannedMessage = isBannedStatus
+        ? bannedMessage || null
+        : null;
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";
       const response = editingId
@@ -228,6 +291,9 @@ export function AdminUsersPanel({
               emailVerified: emailVerified || null,
               role,
               status,
+              suspendedUntil: normalizedSuspendedUntil,
+              suspendedMessage: normalizedSuspendedMessage,
+              bannedMessage: normalizedBannedMessage,
               planId,
             }),
           })
@@ -243,6 +309,9 @@ export function AdminUsersPanel({
               emailVerified: emailVerified || null,
               role,
               status,
+              suspendedUntil: normalizedSuspendedUntil,
+              suspendedMessage: normalizedSuspendedMessage,
+              bannedMessage: normalizedBannedMessage,
               planId,
             }),
           });
@@ -252,7 +321,7 @@ export function AdminUsersPanel({
         throw new Error(payload?.error || `Status ${response.status}`);
       }
 
-      cancelEdit();
+      CANCELLEDit();
       setPendingAction(null);
       reloadData();
       toast.success(locale === "ar" ? "تم حفظ المستخدم." : "User saved.");
@@ -286,7 +355,7 @@ export function AdminUsersPanel({
         throw new Error(payload?.error || `Status ${response.status}`);
       }
 
-      if (editingId === id) cancelEdit();
+      if (editingId === id) CANCELLEDit();
       reloadData();
       toast.success(locale === "ar" ? "تم حذف المستخدم." : "User deleted.");
     } catch (error) {
@@ -340,7 +409,44 @@ export function AdminUsersPanel({
         ? plan.title_fr || plan.title
         : plan.title;
 
-  function formatDateTimeLocal(value: Date | string | null): string {
+  const getStatusLabel = (value: UserRow["status"]) => {
+    if (locale === "ar") {
+      return value === "ACTIVE"
+        ? "نشط"
+        : value === "PENDING"
+          ? "قيد الانتظار"
+          : value === "SUSPENDED"
+            ? "موقوف مؤقتًا"
+            : "محظور";
+    }
+
+    if (locale === "fr") {
+      return value === "ACTIVE"
+        ? "Actif"
+        : value === "PENDING"
+          ? "En attente"
+          : value === "SUSPENDED"
+            ? "Suspendu"
+            : "Bloqué";
+    }
+
+    return value === "ACTIVE"
+      ? "Active"
+      : value === "PENDING"
+        ? "Pending"
+        : value === "SUSPENDED"
+          ? "Suspended"
+          : "Blocked";
+  };
+
+  const getStatusBadgeVariant = (value: UserRow["status"]) => {
+    if (value === "ACTIVE") return "accent";
+    return "secondary";
+  };
+
+  function formatDateTimeLocal(
+    value: Date | string | null | undefined,
+  ): string {
     if (!value) return "";
 
     const date = new Date(value);
@@ -396,6 +502,22 @@ export function AdminUsersPanel({
     );
   }
 
+  function formatDateTime(value: Date | string | null | undefined): string {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleString(
+      locale === "ar" ? "ar" : locale === "fr" ? "fr" : "en",
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card className="border-border/70">
@@ -416,7 +538,7 @@ export function AdminUsersPanel({
               variant="outline"
               size="sm"
               onClick={reloadData}
-              disabled={isRefreshing || loading}
+              disabled={loading || isRefreshing}
               className="gap-2 self-start"
             >
               {isRefreshing ? (
@@ -454,8 +576,8 @@ export function AdminUsersPanel({
 
             <Select
               value={currentRole}
-              onChange={(e) =>
-                applyFilters(currentSearch, e.target.value, currentStatus)
+              onChange={(event) =>
+                applyFilters(currentSearch, event.target.value, currentStatus)
               }
             >
               <option value="">
@@ -474,8 +596,8 @@ export function AdminUsersPanel({
 
             <Select
               value={currentStatus}
-              onChange={(e) =>
-                applyFilters(currentSearch, currentRole, e.target.value)
+              onChange={(event) =>
+                applyFilters(currentSearch, currentRole, event.target.value)
               }
             >
               <option value="">
@@ -487,8 +609,15 @@ export function AdminUsersPanel({
               <option value="PENDING">
                 {locale === "ar" ? "قيد الانتظار" : "Pending"}
               </option>
-              <option value="FLAGGED">
-                {locale === "ar" ? "معلم" : "Flagged"}
+              <option value="SUSPENDED">
+                {locale === "ar" ? "موقوف مؤقتًا" : "Suspended"}
+              </option>
+              <option value="BANNED">
+                {locale === "ar"
+                  ? "محظور"
+                  : locale === "fr"
+                    ? "Bloqué"
+                    : "Blocked"}
               </option>
             </Select>
 
@@ -544,7 +673,7 @@ export function AdminUsersPanel({
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <InfoPill
                         label={locale === "ar" ? "الحالة" : "Status"}
-                        value={user.status}
+                        value={getStatusLabel(user.status)}
                       />
                       <InfoPill
                         label={locale === "ar" ? "التحقق" : "Verified"}
@@ -564,6 +693,35 @@ export function AdminUsersPanel({
                       <p className="rounded-2xl bg-muted/40 p-3 text-sm leading-6 text-muted-foreground">
                         {user.bio}
                       </p>
+                    ) : null}
+
+                    {user.status === "SUSPENDED" ? (
+                      <div className="rounded-2xl border border-border/60 bg-amber-500/5 p-3 text-sm leading-6 text-muted-foreground">
+                        <div className="font-medium text-foreground">
+                          {locale === "ar"
+                            ? "تفاصيل الإيقاف"
+                            : "Suspension details"}
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          <div>
+                            {locale === "ar" ? "حتى" : "Until"}:{" "}
+                            {formatDateTime(user.suspendedUntil)}
+                          </div>
+                          <div>
+                            {locale === "ar" ? "الرسالة" : "Message"}:{" "}
+                            {user.suspendedMessage || "-"}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {user.status === "BANNED" ? (
+                      <div className="rounded-2xl border border-border/60 bg-rose-500/5 p-3 text-sm leading-6 text-muted-foreground">
+                        <div className="font-medium text-foreground">
+                          {locale === "ar" ? "تفاصيل الحظر" : "Blocked details"}
+                        </div>
+                        <div className="mt-2">{user.bannedMessage || "-"}</div>
+                      </div>
                     ) : null}
 
                     <div className="flex flex-wrap gap-2">
@@ -684,12 +842,8 @@ export function AdminUsersPanel({
                         </Badge>
                       </td>
                       <td className="px-4 py-4">
-                        <Badge
-                          variant={
-                            user.status === "ACTIVE" ? "accent" : "secondary"
-                          }
-                        >
-                          {user.status}
+                        <Badge variant={getStatusBadgeVariant(user.status)}>
+                          {getStatusLabel(user.status)}
                         </Badge>
                       </td>
                       <td className="px-4 py-4 text-muted-foreground">
@@ -914,6 +1068,65 @@ export function AdminUsersPanel({
                 />
               </div>
 
+              {isSuspendedStatus ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="create-user-suspended-until">
+                      {locale === "ar" ? "موقوف حتى" : "Suspended until"}
+                    </Label>
+                    <Input
+                      id="create-user-suspended-until"
+                      type="datetime-local"
+                      value={suspendedUntil}
+                      onChange={(event) =>
+                        setSuspendedUntil(event.target.value)
+                      }
+                      required={isSuspendedStatus}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="create-user-suspended-message">
+                      {locale === "ar" ? "رسالة الإيقاف" : "Suspended message"}
+                    </Label>
+                    <Textarea
+                      id="create-user-suspended-message"
+                      value={suspendedMessage}
+                      onChange={(event) =>
+                        setSuspendedMessage(event.target.value)
+                      }
+                      rows={3}
+                      placeholder={
+                        locale === "ar"
+                          ? "رسالة تظهر للمستخدم أثناء الإيقاف"
+                          : "Message shown to user while suspended"
+                      }
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {isBannedStatus ? (
+                <div className="space-y-2">
+                  <Label htmlFor="create-user-banned-message">
+                    {locale === "ar"
+                      ? "رسالة الحظر"
+                      : locale === "fr"
+                        ? "Message du blocage"
+                        : "Blocked message"}
+                  </Label>
+                  <Input
+                    id="create-user-banned-message"
+                    value={bannedMessage}
+                    onChange={(event) => setBannedMessage(event.target.value)}
+                    placeholder={
+                      locale === "ar"
+                        ? "سبب الحظر للمستخدم"
+                        : "Reason for banning the user"
+                    }
+                  />
+                </div>
+              ) : null}
+
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="create-user-role">
@@ -946,8 +1159,12 @@ export function AdminUsersPanel({
                     id="create-user-status"
                     value={status}
                     onChange={(event) =>
-                      setStatus(
-                        event.target.value as "ACTIVE" | "PENDING" | "FLAGGED",
+                      handleStatusChange(
+                        event.target.value as
+                          | "ACTIVE"
+                          | "PENDING"
+                          | "SUSPENDED"
+                          | "BANNED",
                       )
                     }
                   >
@@ -957,8 +1174,15 @@ export function AdminUsersPanel({
                     <option value="PENDING">
                       {locale === "ar" ? "قيد الانتظار" : "Pending"}
                     </option>
-                    <option value="FLAGGED">
-                      {locale === "ar" ? "معلم" : "Flagged"}
+                    <option value="SUSPENDED">
+                      {locale === "ar" ? "موقوف مؤقتًا" : "Suspended"}
+                    </option>
+                    <option value="BANNED">
+                      {locale === "ar"
+                        ? "محظور"
+                        : locale === "fr"
+                          ? "Bloqué"
+                          : "Blocked"}
                     </option>
                   </Select>
                 </div>
@@ -1032,7 +1256,7 @@ export function AdminUsersPanel({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={cancelEdit}
+                onClick={CANCELLEDit}
                 className="gap-2"
                 disabled={loading}
               >
@@ -1067,7 +1291,7 @@ export function AdminUsersPanel({
                   />
                   <InfoPill
                     label={locale === "ar" ? "الحالة" : "Status"}
-                    value={selectedUser.status}
+                    value={getStatusLabel(selectedUser.status)}
                   />
                   <InfoPill
                     label={locale === "ar" ? "التحقق" : "Verified at"}
@@ -1107,6 +1331,33 @@ export function AdminUsersPanel({
                     <p className="mt-2 text-sm leading-7 text-foreground/90">
                       {selectedUser.bio}
                     </p>
+                  </div>
+                ) : null}
+
+                {selectedUser.status === "SUSPENDED" ? (
+                  <div className="rounded-2xl border border-border/60 bg-amber-500/5 p-4">
+                    <div className="text-sm font-medium text-foreground">
+                      {locale === "ar"
+                        ? "تفاصيل الإيقاف"
+                        : "Suspension details"}
+                    </div>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <div>
+                        {locale === "ar" ? "موقوف حتى" : "Suspended until"}:{" "}
+                        {formatDateTime(selectedUser.suspendedUntil)}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {selectedUser.status === "BANNED" ? (
+                  <div className="rounded-2xl border border-border/60 bg-rose-500/5 p-4">
+                    <div className="text-sm font-medium text-foreground">
+                      {locale === "ar" ? "تفاصيل الحظر" : "Blocked details"}
+                    </div>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      {selectedUser.bannedMessage || "-"}
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -1201,6 +1452,67 @@ export function AdminUsersPanel({
                   />
                 </div>
 
+                {isSuspendedStatus ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="dialog-user-suspended-until">
+                        {locale === "ar" ? "موقوف حتى" : "Suspended until"}
+                      </Label>
+                      <Input
+                        id="dialog-user-suspended-until"
+                        type="datetime-local"
+                        value={suspendedUntil}
+                        onChange={(event) =>
+                          setSuspendedUntil(event.target.value)
+                        }
+                        required={isSuspendedStatus}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dialog-user-suspended-message">
+                        {locale === "ar"
+                          ? "رسالة الإيقاف"
+                          : "Suspended message"}
+                      </Label>
+                      <Textarea
+                        id="dialog-user-suspended-message"
+                        value={suspendedMessage}
+                        onChange={(event) =>
+                          setSuspendedMessage(event.target.value)
+                        }
+                        rows={3}
+                        placeholder={
+                          locale === "ar"
+                            ? "رسالة تظهر للمستخدم أثناء الإيقاف"
+                            : "Message shown to user while suspended"
+                        }
+                      />
+                    </div>
+                  </>
+                ) : null}
+
+                {isBannedStatus ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="dialog-user-banned-message">
+                      {locale === "ar"
+                        ? "رسالة الحظر"
+                        : locale === "fr"
+                          ? "Message du blocage"
+                          : "Blocked message"}
+                    </Label>
+                    <Input
+                      id="dialog-user-banned-message"
+                      value={bannedMessage}
+                      onChange={(event) => setBannedMessage(event.target.value)}
+                      placeholder={
+                        locale === "ar"
+                          ? "سبب الحظر للمستخدم"
+                          : "Reason for banning the user"
+                      }
+                    />
+                  </div>
+                ) : null}
+
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
                     <Label htmlFor="dialog-user-role">
@@ -1235,11 +1547,12 @@ export function AdminUsersPanel({
                       id="dialog-user-status"
                       value={status}
                       onChange={(event) =>
-                        setStatus(
+                        handleStatusChange(
                           event.target.value as
                             | "ACTIVE"
                             | "PENDING"
-                            | "FLAGGED",
+                            | "SUSPENDED"
+                            | "BANNED",
                         )
                       }
                     >
@@ -1249,8 +1562,15 @@ export function AdminUsersPanel({
                       <option value="PENDING">
                         {locale === "ar" ? "قيد الانتظار" : "Pending"}
                       </option>
-                      <option value="FLAGGED">
-                        {locale === "ar" ? "معلم" : "Flagged"}
+                      <option value="SUSPENDED">
+                        {locale === "ar" ? "موقوف مؤقتًا" : "Suspended"}
+                      </option>
+                      <option value="BANNED">
+                        {locale === "ar"
+                          ? "محظور"
+                          : locale === "fr"
+                            ? "Bloqué"
+                            : "Blocked"}
                       </option>
                     </Select>
                   </div>
@@ -1298,7 +1618,7 @@ export function AdminUsersPanel({
                       type="button"
                       variant="ghost"
                       className="gap-2"
-                      onClick={cancelEdit}
+                      onClick={CANCELLEDit}
                       disabled={loading}
                     >
                       <X className="h-4 w-4" />

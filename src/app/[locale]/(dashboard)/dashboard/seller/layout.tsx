@@ -4,7 +4,7 @@ import {
   FilePlus2,
   FolderHeart,
   Heart,
-  MessageSquareText,
+  CreditCard,
   Settings2,
   UserRound,
 } from "lucide-react";
@@ -55,9 +55,14 @@ export default async function SellerDashboardLayout({
       icon: <FilePlus2 className="h-4 w-4" />,
     },
     {
-      label: messages.dashboard.seller.messages,
-      href: `/${locale}/dashboard/seller/messages`,
-      icon: <MessageSquareText className="h-4 w-4" />,
+      label: messages.dashboard.seller.subscriptions,
+      href: `/${locale}/dashboard/seller/subscriptions`,
+      icon: <CreditCard className="h-4 w-4" />,
+    },
+    {
+      label: messages.dashboard.seller.billing ?? "Billing",
+      href: `/${locale}/dashboard/seller/billing`,
+      icon: <CreditCard className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.plan,

@@ -7,6 +7,16 @@ import { formatCurrency } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 
+type AdminOverviewCopy = {
+  intro: string;
+  viewAllUsers: string;
+  viewAllListings: string;
+  totalUsers: string;
+  activeListings: string;
+  propertyTypes: string;
+  cities: string;
+};
+
 export default async function AdminOverviewPage({
   params,
 }: {
@@ -14,6 +24,21 @@ export default async function AdminOverviewPage({
 }) {
   const { locale } = await params;
   const messages = getMessages(locale);
+
+  const overviewPage: AdminOverviewCopy = {
+    intro:
+      locale === "ar"
+        ? "لوحة تحكم شاملة لإدارة المستخدمين والعقارات والخطط."
+        : locale === "fr"
+          ? "Unified control center for users, listings, plans, and reports."
+          : "Unified control center for users, listings, plans, and reports.",
+    viewAllUsers: locale === "ar" ? "عرض كل المستخدمين" : "View all users",
+    viewAllListings: locale === "ar" ? "عرض كل العقارات" : "View all listings",
+    totalUsers: locale === "ar" ? "إجمالي المستخدمين" : "Total users",
+    activeListings: locale === "ar" ? "العقارات النشطة" : "Active listings",
+    propertyTypes: locale === "ar" ? "أنواع العقارات" : "Property types",
+    cities: locale === "ar" ? "المدن" : "Cities",
+  };
 
   const [
     totalUsers,
@@ -54,31 +79,10 @@ export default async function AdminOverviewPage({
   ]);
 
   const stats = [
-    {
-      label: {
-        en: "Total users",
-        ar: "إجمالي المستخدمين",
-        fr: "Utilisateurs totaux",
-      },
-      value: totalUsers,
-    },
-    {
-      label: {
-        en: "Active listings",
-        ar: "العقارات النشطة",
-        fr: "Annonces actives",
-      },
-      value: activeListings,
-    },
-    {
-      label: {
-        en: "Property types",
-        ar: "أنواع العقارات",
-        fr: "Types de biens",
-      },
-      value: totalPropertyTypes,
-    },
-    { label: { en: "Cities", ar: "المدن", fr: "Villes" }, value: totalCities },
+    { label: overviewPage.totalUsers, value: totalUsers },
+    { label: overviewPage.activeListings, value: activeListings },
+    { label: overviewPage.propertyTypes, value: totalPropertyTypes },
+    { label: overviewPage.cities, value: totalCities },
   ] as const;
 
   const getRoleBadge = (role: string) =>
@@ -92,20 +96,16 @@ export default async function AdminOverviewPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {messages.dashboard.admin.overview}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {locale === "ar"
-            ? "لوحة تحكم شاملة لإدارة المستخدمين والعقارات والخطط."
-            : "Unified control center for users, listings, plans, and reports."}
-        </p>
+        <p className="mt-2 text-muted-foreground">{overviewPage.intro}</p>
       </div>
       <StatGrid
         locale={locale}
         items={stats.map((item) => ({
-          label: item.label[locale],
+          label: item.label,
           value: item.value,
         }))}
       />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3">
             <CardTitle>{messages.dashboard.admin.users}</CardTitle>
@@ -114,7 +114,7 @@ export default async function AdminOverviewPage({
               variant="outline"
               size="sm"
             >
-              {locale === "ar" ? "عرض كل المستخدمين" : "View all users"}
+              {overviewPage.viewAllUsers}
             </ButtonLink>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -145,7 +145,7 @@ export default async function AdminOverviewPage({
               variant="outline"
               size="sm"
             >
-              {locale === "ar" ? "عرض كل العقارات" : "View all listings"}
+              {overviewPage.viewAllListings}
             </ButtonLink>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -172,6 +172,37 @@ export default async function AdminOverviewPage({
                 </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <CardTitle>
+              {locale === "ar"
+                ? "المبالغ المسترجعة"
+                : locale === "fr"
+                  ? "Remboursements"
+                  : "Refunds"}
+            </CardTitle>
+            <ButtonLink
+              href={`/${locale}/dashboard/admin/refunds`}
+              variant="outline"
+              size="sm"
+            >
+              {locale === "ar"
+                ? "إدارة المبالغ"
+                : locale === "fr"
+                  ? "Gérer"
+                  : "Manage"}
+            </ButtonLink>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">
+              {locale === "ar"
+                ? "إدارة استرجاع المبالغ المدفوعة للمستخدمين"
+                : locale === "fr"
+                  ? "Gérer les remboursements des paiements utilisateur"
+                  : "Manage refunds for user payments"}
+            </div>
           </CardContent>
         </Card>
       </div>

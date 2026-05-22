@@ -21,7 +21,6 @@ export interface Property {
   forSale?: boolean;
   featured: boolean;
   seller: string;
-  rating: number;
   palette: [string, string];
   amenities: LocalizedText[];
 }
@@ -64,44 +63,74 @@ export interface UserRecord {
   name: string;
   email: string;
   role: "user" | "seller" | "admin";
-  status: "active" | "pending" | "flagged";
+  status: "active" | "pending" | "suspended" | "banned";
 }
 
 export const stats = [
-  { label: { en: "Homes listed", ar: "عقارات منشورة" }, value: 1280 },
-  { label: { en: "Verified sellers", ar: "بائعون موثقون" }, value: 340 },
-  { label: { en: "Average response", ar: "متوسط الاستجابة" }, value: 15 },
-  { label: { en: "Cities covered", ar: "مدن مشمولة" }, value: 18 },
+  {
+    label: { en: "Homes listed", ar: "عقارات منشورة", fr: "Logements listés" },
+    value: 1280,
+  },
+  {
+    label: {
+      en: "Verified sellers",
+      ar: "بائعون موثقون",
+      fr: "Vendeurs vérifiés",
+    },
+    value: 340,
+  },
+  {
+    label: {
+      en: "Average response",
+      ar: "متوسط الاستجابة",
+      fr: "Réponse moyenne",
+    },
+    value: 15,
+  },
+  {
+    label: { en: "Cities covered", ar: "مدن مشمولة", fr: "Villes couvertes" },
+    value: 18,
+  },
 ] as const;
 
 export const propertyTypes: PropertyTypeSummary[] = [
   {
     id: "villas",
-    title: { en: "Villas", ar: "فلل" },
-    description: { en: "Spacious premium homes", ar: "منازل فاخرة واسعة" },
+    title: { en: "Villas", ar: "فلل", fr: "Villas" },
+    description: {
+      en: "Spacious premium homes",
+      ar: "منازل فاخرة واسعة",
+      fr: "Maisons spacieuses et haut de gamme",
+    },
     count: 42,
   },
   {
     id: "apartments",
-    title: { en: "Apartments", ar: "شقق" },
-    description: { en: "Modern city living", ar: "حياة عصرية في المدينة" },
+    title: { en: "Apartments", ar: "شقق", fr: "Appartements" },
+    description: {
+      en: "Modern city living",
+      ar: "حياة عصرية في المدينة",
+      fr: "Vie urbaine moderne",
+    },
     count: 63,
   },
   {
     id: "family",
-    title: { en: "Family homes", ar: "منازل عائلية" },
+    title: { en: "Family homes", ar: "منازل عائلية", fr: "Maisons familiales" },
     description: {
       en: "Comfortable long-term rentals",
       ar: "إيجارات مريحة طويلة الأجل",
+      fr: "Locations confortables à long terme",
     },
     count: 51,
   },
   {
     id: "luxury",
-    title: { en: "Luxury stays", ar: "إقامات فاخرة" },
+    title: { en: "Luxury stays", ar: "إقامات فاخرة", fr: "Séjours de luxe" },
     description: {
       en: "High-end, high-touch homes",
       ar: "منازل راقية وخدمات مميزة",
+      fr: "Maisons haut de gamme avec services premium",
     },
     count: 24,
   },
@@ -110,14 +139,19 @@ export const propertyTypes: PropertyTypeSummary[] = [
 export const properties: Property[] = [
   {
     id: "1",
-    title: { en: "Marina Skyline Villa", ar: "فيلا مارينا بإطلالة على الأفق" },
+    title: {
+      en: "Marina Skyline Villa",
+      ar: "فيلا مارينا بإطلالة على الأفق",
+      fr: "Villa Marina Skyline",
+    },
     description: {
       en: "A sunlit villa with a rooftop lounge, private garden, and sweeping marina views.",
       ar: "فيلا مشرقة مع جلسة على السطح وحديقة خاصة وإطلالات واسعة على المارينا.",
+      fr: "Une villa ensoleillée avec salon sur le toit, jardin privé et vues sur la marina.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Dubai", ar: "دبي" },
+    city: { en: "Dubai", ar: "دبي", fr: "Dubaï" },
     area: 248,
     rooms: 4,
     bathrooms: 4,
@@ -125,24 +159,28 @@ export const properties: Property[] = [
     propertyType: "villas",
     featured: true,
     seller: "Noura Estates",
-    rating: 4.9,
     palette: ["from-sky-500", "to-indigo-600"],
     amenities: [
-      { en: "Private pool", ar: "مسبح خاص" },
-      { en: "Smart home", ar: "منزل ذكي" },
-      { en: "Covered parking", ar: "موقف مغطى" },
+      { en: "Private pool", ar: "مسبح خاص", fr: "Piscine privée" },
+      { en: "Smart home", ar: "منزل ذكي", fr: "Maison connectée" },
+      { en: "Covered parking", ar: "موقف مغطى", fr: "Parking couvert" },
     ],
   },
   {
     id: "2",
-    title: { en: "Downtown Pearl Residence", ar: "سكن بيرل في وسط المدينة" },
+    title: {
+      en: "Downtown Pearl Residence",
+      ar: "سكن بيرل في وسط المدينة",
+      fr: "Résidence Downtown Pearl",
+    },
     description: {
       en: "A design-led apartment with concierge service, gym access, and floor-to-ceiling windows.",
       ar: "شقة بتصميم عصري مع خدمة كونسيرج وصالة رياضية ونوافذ بانورامية.",
+      fr: "Un appartement design avec conciergerie, accès à la salle de sport et fenêtres du sol au plafond.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Abu Dhabi", ar: "أبوظبي" },
+    city: { en: "Abu Dhabi", ar: "أبوظبي", fr: "Abou Dabi" },
     area: 132,
     rooms: 2,
     bathrooms: 2,
@@ -150,24 +188,28 @@ export const properties: Property[] = [
     propertyType: "apartments",
     featured: true,
     seller: "Pearl Living",
-    rating: 4.8,
     palette: ["from-fuchsia-500", "to-violet-600"],
     amenities: [
-      { en: "Concierge", ar: "كونسيرج" },
-      { en: "Gym", ar: "نادي رياضي" },
-      { en: "Balcony", ar: "شرفة" },
+      { en: "Concierge", ar: "كونسيرج", fr: "Conciergerie" },
+      { en: "Gym", ar: "نادي رياضي", fr: "Salle de sport" },
+      { en: "Balcony", ar: "شرفة", fr: "Balcon" },
     ],
   },
   {
     id: "3",
-    title: { en: "Palm Family Retreat", ar: "استراحة عائلية على النخيل" },
+    title: {
+      en: "Palm Family Retreat",
+      ar: "استراحة عائلية على النخيل",
+      fr: "Retraite familiale Palm",
+    },
     description: {
       en: "A cozy family house with a shaded courtyard, children’s play area, and quiet street access.",
       ar: "منزل عائلي مريح مع فناء مظلل ومنطقة ألعاب للأطفال ومدخل هادئ.",
+      fr: "Une maison familiale confortable avec cour ombragée, aire de jeux pour enfants et accès calme.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Sharjah", ar: "الشارقة" },
+    city: { en: "Sharjah", ar: "الشارقة", fr: "Charjah" },
     area: 176,
     rooms: 3,
     bathrooms: 3,
@@ -175,24 +217,28 @@ export const properties: Property[] = [
     propertyType: "family",
     featured: false,
     seller: "Palm Nest",
-    rating: 4.7,
     palette: ["from-emerald-500", "to-teal-600"],
     amenities: [
-      { en: "Courtyard", ar: "فناء" },
-      { en: "Kids room", ar: "غرفة أطفال" },
-      { en: "Laundry room", ar: "غرفة غسيل" },
+      { en: "Courtyard", ar: "فناء", fr: "Cour" },
+      { en: "Kids room", ar: "غرفة أطفال", fr: "Chambre enfants" },
+      { en: "Laundry room", ar: "غرفة غسيل", fr: "Buanderie" },
     ],
   },
   {
     id: "4",
-    title: { en: "Breeze Penthouse", ar: "بنتهاوس بريز" },
+    title: {
+      en: "Breeze Penthouse",
+      ar: "بنتهاوس بريز",
+      fr: "Penthouse Breeze",
+    },
     description: {
       en: "An elevated penthouse with a terrace, skyline dining area, and premium security.",
       ar: "بنتهاوس مرتفع مع تراس ومنطقة طعام وإطلالة مميزة وأمان عالٍ.",
+      fr: "Un penthouse élevé avec terrasse, espace repas avec vue sur la skyline et sécurité premium.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Doha", ar: "الدوحة" },
+    city: { en: "Doha", ar: "الدوحة", fr: "Doha" },
     area: 210,
     rooms: 4,
     bathrooms: 3,
@@ -200,24 +246,28 @@ export const properties: Property[] = [
     propertyType: "luxury",
     featured: true,
     seller: "Breeze Partners",
-    rating: 4.95,
     palette: ["from-amber-500", "to-orange-600"],
     amenities: [
-      { en: "Private terrace", ar: "تراس خاص" },
-      { en: "24/7 security", ar: "أمن 24/7" },
-      { en: "Chef’s kitchen", ar: "مطبخ احترافي" },
+      { en: "Private terrace", ar: "تراس خاص", fr: "Terrasse privée" },
+      { en: "24/7 security", ar: "أمن 24/7", fr: "Sécurité 24/7" },
+      { en: "Chef’s kitchen", ar: "مطبخ احترافي", fr: "Cuisine de chef" },
     ],
   },
   {
     id: "5",
-    title: { en: "Noble Garden House", ar: "منزل نوبل جاردن" },
+    title: {
+      en: "Noble Garden House",
+      ar: "منزل نوبل جاردن",
+      fr: "Maison Noble Garden",
+    },
     description: {
       en: "A private garden home with a study, guest suite, and open-plan living room.",
       ar: "منزل بحديقة خاصة مع مكتب وجناح ضيوف وغرفة معيشة مفتوحة.",
+      fr: "Une maison avec jardin privé, bureau, suite d'invité et salon ouvert.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Riyadh", ar: "الرياض" },
+    city: { en: "Riyadh", ar: "الرياض", fr: "Riyad" },
     area: 194,
     rooms: 4,
     bathrooms: 4,
@@ -225,24 +275,28 @@ export const properties: Property[] = [
     propertyType: "family",
     featured: false,
     seller: "Noble Homes",
-    rating: 4.86,
     palette: ["from-rose-500", "to-pink-600"],
     amenities: [
-      { en: "Garden", ar: "حديقة" },
-      { en: "Study room", ar: "غرفة دراسة" },
-      { en: "Guest suite", ar: "جناح ضيوف" },
+      { en: "Garden", ar: "حديقة", fr: "Jardin" },
+      { en: "Study room", ar: "غرفة دراسة", fr: "Bureau" },
+      { en: "Guest suite", ar: "جناح ضيوف", fr: "Suite d'invité" },
     ],
   },
   {
     id: "6",
-    title: { en: "Harbor View Loft", ar: "لوفت بإطلالة على الميناء" },
+    title: {
+      en: "Harbor View Loft",
+      ar: "لوفت بإطلالة على الميناء",
+      fr: "Loft Vue Port",
+    },
     description: {
       en: "An airy loft with industrial finishes, a mezzanine workspace, and a bright harbor view.",
       ar: "لوفت رحب بتشطيبات صناعية ومساحة عمل علوية وإطلالة مشرقة على الميناء.",
+      fr: "Un loft aérien aux finitions industrielles, espace de travail en mezzanine et vue lumineuse sur le port.",
     },
     imageUrl:
       "https://images.unsplash.com/photo-1600607687644-c7f34b5063b4?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Muscat", ar: "مسقط" },
+    city: { en: "Muscat", ar: "مسقط", fr: "Mascate" },
     area: 109,
     rooms: 2,
     bathrooms: 2,
@@ -250,12 +304,11 @@ export const properties: Property[] = [
     propertyType: "apartments",
     featured: false,
     seller: "Harbor Bay",
-    rating: 4.75,
     palette: ["from-cyan-500", "to-blue-600"],
     amenities: [
-      { en: "Workspace", ar: "مساحة عمل" },
-      { en: "Elevator", ar: "مصعد" },
-      { en: "Storage room", ar: "غرفة تخزين" },
+      { en: "Workspace", ar: "مساحة عمل", fr: "Espace de travail" },
+      { en: "Elevator", ar: "مصعد", fr: "Ascenseur" },
+      { en: "Storage room", ar: "غرفة تخزين", fr: "Stockage" },
     ],
   },
 ] as const;
@@ -371,6 +424,7 @@ export const inboxMessages: InboxMessage[] = [
     preview: {
       en: "Is the rooftop lounge available for the full contract term?",
       ar: "هل الجلسة العلوية متاحة طوال مدة العقد؟",
+      fr: "Le salon sur le toit est-il disponible pour toute la durée du contrat?",
     },
     time: "2m",
     unread: true,
@@ -382,6 +436,7 @@ export const inboxMessages: InboxMessage[] = [
     preview: {
       en: "Can I schedule a viewing this weekend?",
       ar: "هل يمكنني حجز موعد للمعاينة هذا الأسبوع؟",
+      fr: "Puis-je planifier une visite ce week-end?",
     },
     time: "1h",
     unread: false,
@@ -393,6 +448,7 @@ export const inboxMessages: InboxMessage[] = [
     preview: {
       en: "Please send me the lease terms and deposit details.",
       ar: "أرسل لي تفاصيل العقد والدفعة المقدمة من فضلك.",
+      fr: "Veuillez m'envoyer les conditions de location et les détails du dépôt.",
     },
     time: "4h",
     unread: false,
@@ -433,14 +489,31 @@ export const users: UserRecord[] = [
     name: "Ibrahim Rami",
     email: "ibrahim@example.com",
     role: "seller",
-    status: "flagged",
+    status: "banned",
   },
 ] as const;
 
 export const sellerStats = [
-  { label: { en: "Live listings", ar: "العقارات المنشورة" }, value: 8 },
-  { label: { en: "Saved leads", ar: "العملاء المحتملون" }, value: 19 },
-  { label: { en: "Plan health", ar: "حالة الباقة" }, value: 94 },
+  {
+    label: {
+      en: "Live listings",
+      ar: "العقارات المنشورة",
+      fr: "Annonces en ligne",
+    },
+    value: 8,
+  },
+  {
+    label: {
+      en: "Saved leads",
+      ar: "العملاء المحتملون",
+      fr: "Prospects sauvegardés",
+    },
+    value: 19,
+  },
+  {
+    label: { en: "Plan health", ar: "حالة الباقة", fr: "Santé du plan" },
+    value: 94,
+  },
 ] as const;
 
 export const adminStats = [

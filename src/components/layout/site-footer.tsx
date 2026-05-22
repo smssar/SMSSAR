@@ -14,16 +14,19 @@ export function SiteFooter({
     <footer className="border-t border-border/60 bg-card/40">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 text-center sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr] lg:px-8 lg:text-left">
         <div className="flex flex-col items-center lg:items-start">
-          <div className="text-xl font-semibold">House Rental Platform</div>
+          <div className="text-xl font-semibold">Smssar</div>
           <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground lg:mt-4 lg:max-w-xl lg:text-left">
             {messages.footer.tagline}
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 text-sm text-muted-foreground lg:items-start">
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4" /> support@houserental.example
+              <Mail className="h-4 w-4" /> support@smsaar.ma
             </div>
             <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" /> +971 50 000 0000
+              <Phone className="h-4 w-4" />
+              <span dir="ltr" className="inline-block">
+                +212 700754242
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4" /> Morocco
@@ -46,6 +49,12 @@ export function SiteFooter({
               className="text-foreground/80 transition hover:text-foreground"
             >
               {messages.nav.properties}
+            </Link>
+            <Link
+              href={`/${locale}/about`}
+              className="text-foreground/80 transition hover:text-foreground"
+            >
+              {messages.nav.about}
             </Link>
             <Link
               href={`/${locale}/pricing`}
@@ -71,8 +80,7 @@ export function SiteFooter({
         </div>
       </div>
       <div className="border-t border-border/60 px-4 py-6 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
-        © {new Date().getFullYear()} House Rental Platform.{" "}
-        {messages.footer.rights}
+        © {new Date().getFullYear()} Smssar. {messages.footer.rights}
       </div>
     </footer>
   );

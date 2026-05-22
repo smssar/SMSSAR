@@ -155,7 +155,7 @@ export function AdminCitiesPanel({
     setSlug(city.slug || "");
   };
 
-  const cancelEdit = () => {
+  const CANCELLEDit = () => {
     setEditingId(null);
     setNameEn("");
     setNameAr("");
@@ -274,7 +274,7 @@ export function AdminCitiesPanel({
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={cancelEdit}
+                  onClick={CANCELLEDit}
                   disabled={saving}
                 >
                   <X className="h-4 w-4" />

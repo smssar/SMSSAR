@@ -57,6 +57,8 @@ export function SiteNavbar({
   const userEmail = session?.user?.email?.trim();
 
   const links: Array<{ key: keyof Messages["nav"]; href: string }> = [
+    { key: "home", href: `/${locale}` },
+    { key: "about", href: `/${locale}/about` },
     { key: "properties", href: `/${locale}/properties` },
     { key: "pricing", href: `/${locale}/pricing` },
   ];
@@ -86,7 +88,7 @@ export function SiteNavbar({
           <div>
             <div className="text-base">
               {t(locale, {
-                en: "House Rental Platform",
+                en: "Smssar",
                 ar: "منصة تأجير العقارات",
                 fr: "Plateforme de location",
               })}

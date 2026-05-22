@@ -28,8 +28,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const title =
-    locale === "ar" ? "منصة تأجير المنازل" : "House Rental Platform";
+  const title = locale === "ar" ? "منصة تأجير المنازل" : "Smssar";
 
   return {
     title,

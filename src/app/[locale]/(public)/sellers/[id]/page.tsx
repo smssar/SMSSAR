@@ -81,7 +81,6 @@ export default async function SellerProfilePage({
       propertyType: property.propertyType?.name || "Other",
       featured: property.featured,
       seller: seller.name ?? "",
-      rating: 4.8,
       media: property.media || [],
     }),
   );

@@ -29,7 +29,6 @@ export interface SimpleProperty {
   propertyType: string;
   featured: boolean;
   seller: string;
-  rating: number;
   media?: Array<{ id: string; url: string; type: string; publicId: string }>;
 }
 

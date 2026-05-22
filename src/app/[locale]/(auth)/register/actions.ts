@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getRequestBaseUrl } from "@/lib/api-utils";
 
 export async function registerAction(formData: FormData, locale: string) {
   const name = formData.get("name")?.toString().trim();
@@ -9,20 +10,14 @@ export async function registerAction(formData: FormData, locale: string) {
   const password = formData.get("password")?.toString();
   const confirmPassword = formData.get("confirmPassword")?.toString();
   const roleValue = formData.get("role")?.toString();
+  const phone = formData.get("phone")?.toString().trim();
 
   if (!email || !password) {
     redirect(`/${locale}/register?error=missing_fields`);
   }
 
   const requestHeaders = await headers();
-  const forwardedProto = requestHeaders.get("x-forwarded-proto");
-  const forwardedHost = requestHeaders.get("x-forwarded-host");
-  const host = requestHeaders.get("host");
-  const baseUrl =
-    process.env.NEXTAUTH_URL ??
-    (forwardedHost || host
-      ? `${forwardedProto ?? "http"}://${forwardedHost ?? host}`
-      : null);
+  const baseUrl = getRequestBaseUrl(requestHeaders);
 
   if (!baseUrl) {
     redirect(`/${locale}/register?error=server_error`);
@@ -41,6 +36,7 @@ export async function registerAction(formData: FormData, locale: string) {
         password,
         confirmPassword,
         role: roleValue,
+        phone,
         locale,
       }),
     });

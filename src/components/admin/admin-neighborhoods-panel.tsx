@@ -213,7 +213,7 @@ export function AdminNeighborhoodsPanel({
     setSlug(neighborhood.slug || "");
   };
 
-  const cancelEdit = () => {
+  const CANCELLEDit = () => {
     resetForm();
   };
 
@@ -354,7 +354,7 @@ export function AdminNeighborhoodsPanel({
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={cancelEdit}
+                  onClick={CANCELLEDit}
                   disabled={saving}
                 >
                   <X className="h-4 w-4" />

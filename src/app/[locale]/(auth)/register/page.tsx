@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, UserRound } from "lucide-react";
+import { Mail, Lock, UserRound } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,24 +10,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { registerAction } from "./actions";
 import { RegisterSubmitButton } from "./register-submit-button";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
+import { RegisterFields } from "./register-fields";
 
 export default async function RegisterPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; role?: string }>;
 }) {
   const { locale } = await params;
-  const { error } = await searchParams;
+  const { error, role } = await searchParams;
   const messages = getMessages(locale);
+  const initialRole = role === "seller" ? "seller" : "user";
   const errorText =
     error === "missing_fields"
       ? locale === "ar"
@@ -47,12 +47,12 @@ export default async function RegisterPage({
             : locale === "fr"
               ? "Les mots de passe ne correspondent pas."
               : "Password and confirmation do not match."
-          : error === "email_exists"
+          : error === "seller_phone_required"
             ? locale === "ar"
-              ? "هذا البريد الإلكتروني مستخدم بالفعل."
+              ? "رقم الهاتف مطلوب عند اختيار حساب بائع."
               : locale === "fr"
-                ? "Cette adresse e-mail est déjà utilisée."
-                : "This email is already registered."
+                ? "Le numéro de téléphone est requis pour un compte vendeur."
+                : "Phone number is required for seller accounts."
             : error === "server_error"
               ? locale === "ar"
                 ? "حدث خطأ غير متوقع. حاول مرة أخرى."
@@ -98,20 +98,26 @@ export default async function RegisterPage({
             className="space-y-5"
           >
             <div className="space-y-2">
-              <Label htmlFor="name">{messages.auth.fullName}</Label>
+              <Label htmlFor="name">
+                {messages.auth.fullName}
+                <span className="text-red-500">*</span>
+              </Label>
               <div className="relative">
                 <UserRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
                 <Input
                   id="name"
                   name="name"
                   placeholder={locale === "ar" ? "محمد أحمد" : "John Doe"}
-                  className="pl-11 rtl:pr-11 rtl:pl-4"
+                  className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                   required
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">{messages.auth.email}</Label>
+              <Label htmlFor="email">
+                {messages.auth.email}
+                <span className="text-red-500">*</span>
+              </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
                 <Input
@@ -119,42 +125,44 @@ export default async function RegisterPage({
                   name="email"
                   type="email"
                   placeholder="name@example.com"
-                  className="pl-11 rtl:pr-11 rtl:pl-4"
+                  className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                   required
                 />
               </div>
             </div>
+
+            <RegisterFields locale={locale} initialRole={initialRole} />
+
             <div className="space-y-2">
-              <Label htmlFor="role">{messages.auth.accountType}</Label>
-              <Select id="role" name="role" defaultValue="user">
-                <option value="user">
-                  {locale === "ar"
-                    ? "مستأجر"
-                    : locale === "fr"
-                      ? "Locataire"
-                      : "Renter"}
-                </option>
-                <option value="seller">
-                  {locale === "ar"
-                    ? "بائع"
-                    : locale === "fr"
-                      ? "Vendeur"
-                      : "Seller"}
-                </option>
-              </Select>
+              <Label htmlFor="password">
+                {messages.auth.password}
+                <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  minLength={8}
+                  required
+                  className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{messages.auth.password}</Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                minLength={8}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm">{messages.auth.confirmPassword}</Label>
-              <PasswordInput id="confirm" name="confirmPassword" required />
+              <Label htmlFor="confirm">
+                {messages.auth.confirmPassword}
+                <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
+                <PasswordInput
+                  id="confirm"
+                  name="confirmPassword"
+                  required
+                  className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
+                />
+              </div>
             </div>
             <RegisterSubmitButton
               label={messages.nav.register}

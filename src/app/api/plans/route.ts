@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import {
+  withSubscription,
+  getActiveSubscription,
+} from "@/lib/getActiveSubscription";
 
 export const runtime = "nodejs";
 
@@ -23,7 +27,16 @@ export async function GET() {
   return NextResponse.json({ data: plans });
 }
 
-export async function POST(request: Request) {
+const createPlanHandler = async (
+  request: Request,
+  _context: unknown,
+  _subscription: Exclude<
+    Awaited<ReturnType<typeof getActiveSubscription>>,
+    null
+  >,
+) => {
+  void _context;
+  void _subscription;
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -79,4 +92,6 @@ export async function POST(request: Request) {
 
     return jsonError("Failed to create plan.", 500);
   }
-}
+};
+
+export const POST = withSubscription(createPlanHandler);

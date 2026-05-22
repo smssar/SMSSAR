@@ -9,7 +9,6 @@ import {
   Phone,
   Ruler,
   ShieldCheck,
-  Star,
   UserRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -107,7 +106,6 @@ export default async function PropertyDetailPage({
       sellerPhone: dbProperty.seller?.phone ?? null,
       sellerBio: dbProperty.seller?.bio ?? null,
       sellerCity: dbProperty.seller?.city ?? null,
-      rating: 4.8,
       palette: ["from-blue-500", "to-indigo-600"] as [string, string],
       amenities: [],
       // include media for client swiper
@@ -198,9 +196,6 @@ export default async function PropertyDetailPage({
               <div className="mt-3 flex flex-wrap items-center gap-4 text-muted-foreground">
                 <span className="inline-flex items-center gap-2">
                   <MapPin className="h-4 w-4" /> {property.city[locale]}
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Star className="h-4 w-4" /> {property.rating.toFixed(1)}
                 </span>
               </div>
             </div>
@@ -303,7 +298,7 @@ export default async function PropertyDetailPage({
                 {property.sellerPhone ? (
                   <ButtonLink
                     href={`tel:${property.sellerPhone}`}
-                    variant="accent"
+                    variant="outline"
                     className="w-full"
                   >
                     <Phone className="h-4 w-4" />
@@ -311,6 +306,36 @@ export default async function PropertyDetailPage({
                   </ButtonLink>
                 ) : null}
               </div>
+              {property.sellerPhone ? (
+                <ButtonLink
+                  href={`https://wa.me/${property.sellerPhone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  variant="accent"
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                    role="img"
+                  >
+                    <path
+                      fill="white"
+                      d="M20.52 3.48A11.95 11.95 0 0012 0C5.37 0 .11 5.26.11 11.89c0 2.1.55 4.16 1.6 5.98L0 24l6.36-1.63A11.9 11.9 0 0012 23.89c6.63 0 11.89-5.26 11.89-11.89 0-3.19-1.24-6.16-3.37-8.52z"
+                    />
+                    <path
+                      fill="white"
+                      d="M17.56 14.11c-.29-.14-1.69-.83-1.95-.93-.26-.09-.45-.14-.65.15-.2.29-.75.93-.92 1.12-.17.2-.34.22-.63.08-.29-.14-1.21-.45-2.3-1.43-.83-.74-1.39-1.65-1.55-1.94-.17-.29-.02-.45.12-.6.13-.13.29-.36.44-.53.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.69-1.67-.95-2.29-.25-.62-.52-.53-.71-.54l-.61-.01c-.19 0-.5.07-.75.33-.26.26-.98.99-.98 2.42 0 1.42 1 3.05 1.14 3.26.14.21 1.97 3.04 5.06 4.39 0 0 .04.02.09.03.42.13.83.19 1.23.19.55 0 1.08-.08 1.57-.24.2-.06.52-.22.59-.4.07-.18.07-.33.05-.45-.02-.12-.08-.19-.17-.23z"
+                    />
+                  </svg>
+                  <span className="ml-2">
+                    {locale === "ar"
+                      ? "تواصل عبر واتساب"
+                      : "Contact on WhatsApp"}
+                  </span>
+                </ButtonLink>
+              ) : null}
               {session?.user?.id ? (
                 <FavoriteButton
                   key={`${property.id}-${Boolean(favorite)}`}

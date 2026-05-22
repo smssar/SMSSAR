@@ -2,9 +2,77 @@ import { PropertyExplorer } from "@/components/property/property-explorer";
 import { auth } from "@/auth";
 import { getMessages } from "@/lib/messages";
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
 import type { Locale } from "@/lib/locales";
 
 const PAGE_SIZE = 10;
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+function getSeoCopy(locale: Locale) {
+  if (locale === "ar") {
+    return {
+      title: "تصفح جميع العقارات | منصة تأجير المنازل",
+      description:
+        "اكتشف عقارات مميزة للإيجار مع فلاتر متقدمة حسب المدينة والسعر وعدد الغرف، وتواصل مباشرة مع بائعين موثقين.",
+    };
+  }
+
+  if (locale === "fr") {
+    return {
+      title: "Parcourir toutes les proprietes | Smssar",
+      description:
+        "Decouvrez des proprietes locatives premium avec des filtres avances par ville, prix et nombre de chambres.",
+    };
+  }
+
+  return {
+    title: "Browse all properties | Smssar",
+    description:
+      "Discover premium rental properties with advanced filters by city, price, and rooms, and contact verified sellers directly.",
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getSeoCopy(locale);
+  const canonicalPath = `/${locale}/properties`;
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    alternates: {
+      canonical: canonicalPath,
+      languages: {
+        en: "/en/properties",
+        ar: "/ar/properties",
+        fr: "/fr/properties",
+        "x-default": "/en/properties",
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: canonicalPath,
+      title: seo.title,
+      description: seo.description,
+      siteName: "Smssar",
+      locale: locale === "ar" ? "ar_AE" : locale === "fr" ? "fr_FR" : "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 function toPositiveInteger(
   value: string | string[] | undefined,
@@ -202,7 +270,6 @@ export default async function PropertiesPage({
     featured: property.featured,
     imageUrl: property.imageUrl || undefined,
     seller: sellerMap.get(property.sellerId) || "Unknown",
-    rating: 4.8, // Default rating
     media: property.media.map((m) => ({
       id: m.id,
       url: m.url,
@@ -212,8 +279,56 @@ export default async function PropertiesPage({
     isFavorite: favoritePropertyIds.has(property.id),
     favoriteEnabled: true,
   }));
+
+  const seo = getSeoCopy(locale);
+  const baseUrl = APP_URL.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: seo.title,
+    description: seo.description,
+    inLanguage: locale,
+    url: `${baseUrl}/${locale}/properties`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: transformedProperties.length,
+      itemListElement: transformedProperties.map((property, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Residence",
+          name: property.title,
+          description: property.description,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: property.city,
+          },
+          floorSize: {
+            "@type": "QuantitativeValue",
+            value: property.area,
+            unitText: "SQM",
+          },
+          numberOfRooms: property.rooms,
+          numberOfBathroomsTotal: property.bathrooms,
+          image: property.imageUrl,
+          url: `${baseUrl}/${locale}/properties/${property.id}`,
+          offers: {
+            "@type": "Offer",
+            price: property.price,
+            priceCurrency: "USD",
+            availability: "https://schema.org/InStock",
+          },
+        },
+      })),
+    },
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PropertyExplorer
         locale={locale}
         properties={transformedProperties}

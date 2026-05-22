@@ -5,11 +5,11 @@ function toIntlLocale(locale: Locale | string) {
 }
 
 export function formatCurrency(value: number, locale: Locale) {
-  return new Intl.NumberFormat(toIntlLocale(locale), {
-    style: "currency",
-    currency: "MAD",
+  const formattedNumber = new Intl.NumberFormat(toIntlLocale(locale), {
     maximumFractionDigits: 0,
   }).format(value);
+
+  return `${formattedNumber} DH`;
 }
 
 export function formatCompactNumber(value: number, locale: Locale) {

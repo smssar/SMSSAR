@@ -19,7 +19,7 @@ export default async function AuthLayout({
           href={`/${locale}`}
           className="text-lg font-semibold tracking-tight"
         >
-          House Rental Platform
+          Smssar
         </Link>
         <LanguageSwitcher currentLocale={locale} />
       </div>

@@ -4,6 +4,7 @@ export const messages = {
   en: {
     nav: {
       home: "Home",
+      about: "About us",
       properties: "Properties",
       pricing: "Pricing",
       seller: "Seller Dashboard",
@@ -19,6 +20,13 @@ export const messages = {
     common: {
       search: "Search",
       learnMore: "Learn more",
+      start: "Start",
+      end: "End",
+      payment: "Payment",
+      created: "Created",
+      page: "Page",
+      previous: "Previous",
+      next: "Next",
       save: "Save",
       cancel: "Cancel",
       submit: "Submit",
@@ -73,6 +81,7 @@ export const messages = {
       password: "Password",
       fullName: "Full name",
       accountType: "Account type",
+      phone: "Phone number",
       rememberMe: "Remember me",
       confirmPassword: "Confirm password",
       resetLink: "Send reset link",
@@ -103,7 +112,98 @@ export const messages = {
         title: "Seller dashboard",
         overview: "Overview",
         listings: "My listings",
+        subscriptions: "Subscriptions",
+        subscriptionsIntro: "View all account subscriptions with pagination.",
+        localSession: "Session number",
+        confirmCancel: "Are you sure you want to cancel your subscription?",
+        billing: "Billing",
         addHouse: "Add house",
+        about: {
+          metaTitle: "About us | Smssar",
+          metaDescription:
+            "Learn the story behind the Smssar and what makes it simple, trustworthy, and enjoyable for renters and sellers.",
+          badge: "About the people behind the platform",
+          heroTitle: "A calmer, friendlier way to find a home",
+          heroDescription:
+            "We built this platform for people who want property search to feel easy, human, and beautifully organized. Instead of overwhelming visitors with clutter, we focus on clarity, trust, and a satisfying reading experience that helps users feel confident before they ever send a message.",
+          primaryCta: "Browse properties",
+          secondaryCta: "Create account",
+          stats: [
+            {
+              value: "10k+",
+              label: "curated experiences designed around people",
+            },
+            { value: "24h", label: "support response target" },
+            { value: "3", label: "languages supported" },
+            { value: "100%", label: "dedication to a polished experience" },
+          ],
+          story: {
+            eyebrow: "Our story",
+            title: "Built to remove stress from the search process",
+            description:
+              "The property market can feel noisy: too many tabs, too many details hidden in the wrong places, and too many steps between interest and action. We wanted to redesign that feeling. So we focused on smooth browsing, clear listing pages, fast contact paths, and a welcoming tone that respects both the renter’s time and the seller’s effort.",
+          },
+          values: {
+            eyebrow: "What we value",
+            title: "The principles that shape every page",
+            description:
+              "These values guide how we design interfaces, write content, and support people using the platform every day.",
+            items: [
+              {
+                key: "trust",
+                title: "Trust you can feel",
+                description:
+                  "We believe confidence should come from the interface itself. That is why we emphasize verified sellers, structured information, clean design, and visible contact options that help people move forward without hesitation.",
+              },
+              {
+                key: "language",
+                title: "Built for more than one language",
+                description:
+                  "Rental decisions are easier when people can read naturally. That is why the experience supports Arabic, English, and French.",
+              },
+              {
+                key: "service",
+                title: "Human, not just technical",
+                description:
+                  "Behind every listing is a real person. We design the platform to make conversations, decisions, and follow-up feel easy and warm.",
+              },
+            ],
+          },
+          journey: {
+            eyebrow: "Our journey",
+            title: "A platform designed to keep improving",
+            description:
+              "Every phase of the product has been guided by the same idea: make home discovery feel calmer, more elegant, and easier to trust.",
+            milestones: [
+              {
+                year: "01",
+                title: "A simpler way to discover homes",
+                description:
+                  "The idea started with a simple frustration: finding a good rental should feel calm, not chaotic. We built a cleaner path from discovery to contact.",
+              },
+              {
+                year: "02",
+                title: "Better listings, better conversations",
+                description:
+                  "We focused on better presentation, clearer details, and direct contact tools so that users can move from browsing to talking without friction.",
+              },
+              {
+                year: "03",
+                title: "A platform that grows with people",
+                description:
+                  "Today the platform is designed to support renters, sellers, and teams with a polished experience that can scale without losing warmth.",
+              },
+            ],
+          },
+          final: {
+            badge: "Ready when you are",
+            title: "Explore properties, meet sellers, and enjoy the process.",
+            description:
+              "If you are here to browse quietly, compare options carefully, or publish your own listing, the platform is built to make each step feel smooth. Take your time, read comfortably, and move forward when the home feels right.",
+            primary: "Browse properties",
+            secondary: "Create account",
+          },
+        },
         editHouse: "Edit house",
         messages: "Messages",
         plan: "Subscription plan",
@@ -112,6 +212,123 @@ export const messages = {
       },
       admin: {
         title: "Admin dashboard",
+        citiesPage: {
+          intro: "Create and organize cities from the admin dashboard.",
+          neighborhoodsTitle: "Manage neighborhoods",
+          neighborhoodsDescription:
+            "Add neighborhoods and link them to cities so they appear in listing forms.",
+        },
+        listingsPage: {
+          intro: "Review listings, approve them, or flag issues.",
+        },
+        overviewPage: {
+          intro:
+            "Unified control center for users, listings, plans, and reports.",
+          viewAllUsers: "View all users",
+          viewAllListings: "View all listings",
+          totalUsers: "Total users",
+          activeListings: "Active listings",
+          propertyTypes: "Property types",
+          cities: "Cities",
+        },
+        managementPage: {
+          propertyTypes: {
+            title: "Property Types",
+            intro: "Create and manage property types from the admin dashboard.",
+          },
+          plans: {
+            title: "Seller plans",
+            intro: "Change seller tiers and adjust listing limits.",
+          },
+          users: {
+            title: "Users",
+            intro: "Create and manage users.",
+            adminOnly: "This page is available to admins only.",
+          },
+        },
+        about: {
+          metaTitle: "من نحن | منصة تأجير العقارات",
+          metaDescription:
+            "تعرف على قصة منصة تأجير العقارات، وما الذي يجعلها بسيطة وموثوقة وممتعة للمستأجرين والبائعين.",
+          badge: "عن الأشخاص خلف المنصة",
+          heroTitle: "طريقة أهدأ وألطف للعثور على منزل",
+          heroDescription:
+            "بنينا هذه المنصة للأشخاص الذين يريدون أن تكون رحلة البحث عن العقار سهلة وإنسانية ومنظمة بشكل جميل. بدل أن نغمر الزائر بالتفاصيل المشتتة، نركز على الوضوح والثقة وتجربة قراءة ممتعة تساعد المستخدم على الشعور بالاطمئنان قبل أن يرسل أي رسالة.",
+          primaryCta: "تصفح العقارات",
+          secondaryCta: "إنشاء حساب",
+          stats: [
+            { value: "10k+", label: "تجارب مصممة بعناية حول الناس" },
+            { value: "24h", label: "هدف الاستجابة للدعم" },
+            { value: "3", label: "لغات مدعومة" },
+            { value: "100%", label: "التزام بتجربة أنيقة ومصقولة" },
+          ],
+          story: {
+            eyebrow: "قصتنا",
+            title: "بُنِيت لإزالة التوتر من رحلة البحث",
+            description:
+              "سوق العقارات قد يبدو صاخباً: تبويبات كثيرة، تفاصيل مخفية في الأماكن الخاطئة، وخطوات كثيرة بين الاهتمام واتخاذ القرار. أردنا إعادة تصميم هذا الشعور. لذلك ركزنا على التصفح السلس وصفحات الإعلانات الواضحة ومسارات التواصل السريعة ونبرة ودودة تحترم وقت المستأجر وجهد البائع.",
+          },
+          values: {
+            eyebrow: "قيمنا",
+            title: "المبادئ التي تشكل كل صفحة",
+            description:
+              "هذه القيم توجهنا في تصميم الواجهات وكتابة المحتوى ودعم المستخدمين يومياً.",
+            items: [
+              {
+                key: "trust",
+                title: "ثقة يمكنك الشعور بها",
+                description:
+                  "نؤمن بأن الثقة يجب أن تأتي من الواجهة نفسها. لذلك نركز على البائعين الموثقين والمعلومات المنظمة والتصميم النظيف وخيارات التواصل الواضحة التي تساعد الناس على التقدم من دون تردد.",
+              },
+              {
+                key: "language",
+                title: "مصمم لأكثر من لغة",
+                description:
+                  "القرار العقاري يصبح أسهل عندما يقرأ المستخدم بلغته الطبيعية، لذلك ندعم العربية والإنجليزية والفرنسية.",
+              },
+              {
+                key: "service",
+                title: "إنساني قبل أن يكون تقنياً",
+                description:
+                  "خلف كل إعلان شخص حقيقي. نصمم المنصة لتجعل التواصل والقرار والمتابعة أموراً سهلة ودافئة.",
+              },
+            ],
+          },
+          journey: {
+            eyebrow: "رحلتنا",
+            title: "منصة مصممة لتستمر في التحسن",
+            description:
+              "كل مرحلة من مراحل المنتج كانت موجّهة بالفكرة نفسها: جعل اكتشاف المنزل أكثر هدوءاً وأناقة وسهولة في الثقة.",
+            milestones: [
+              {
+                year: "01",
+                title: "طريقة أبسط لاكتشاف العقارات",
+                description:
+                  "بدأت الفكرة من إحباط بسيط: البحث عن سكن جيد يجب أن يكون هادئاً لا فوضوياً. لذلك بنينا مساراً أوضح من الاكتشاف حتى التواصل.",
+              },
+              {
+                year: "02",
+                title: "إعلانات أفضل ومحادثات أفضل",
+                description:
+                  "ركزنا على عرض أفضل وتفاصيل أوضح وأدوات تواصل مباشرة حتى ينتقل المستخدم من التصفح إلى المحادثة دون تعقيد.",
+              },
+              {
+                year: "03",
+                title: "منصة تنمو مع الناس",
+                description:
+                  "اليوم صُممت المنصة لدعم المستأجرين والبائعين والفرق بتجربة مصقولة قابلة للنمو من دون أن تفقد طابعها الإنساني.",
+              },
+            ],
+          },
+          final: {
+            badge: "جاهزون عندما تكون جاهزاً",
+            title: "استكشف العقارات وتعرّف على البائعين واستمتع بالرحلة.",
+            description:
+              "سواء كنت هنا للتصفح بهدوء أو للمقارنة بعناية أو لنشر إعلانك الخاص، فالمنصة مبنية لتجعل كل خطوة سلسة. خذ وقتك، واقرأ براحة، وتقدم عندما تشعر أن المنزل مناسب لك.",
+            primary: "تصفح العقارات",
+            secondary: "إنشاء حساب",
+          },
+        },
         overview: "Overview",
         users: "Manage users",
         listings: "Manage listings",
@@ -119,6 +336,118 @@ export const messages = {
         cities: "Manage cities",
         plans: "Seller plans",
         reports: "Reports",
+        refunds: "Refunds",
+        refundsPage: {
+          title: "Refunds",
+          intro:
+            "List of recent paid subscriptions. Refund payments when necessary.",
+          payment: "Payment",
+          started: "Started",
+          created: "Created",
+          partialAmount: "Partial amount (DH)",
+          partialAmountHelp: "Leave empty for a full refund",
+          partialAmountPlaceholder: "0 DH",
+          refund: "Refund",
+          refundConfirm:
+            "Refund this payment? This will mark the subscription as cancelled.",
+          refundSuccess: "Refund issued",
+          refundError: "Refund failed",
+          processing: "Processing...",
+        },
+      },
+      about: {
+        metaTitle: "À propos | Plateforme de location",
+        metaDescription:
+          "Découvrez l’histoire de la plateforme de location et ce qui la rend simple, fiable et agréable pour les locataires et vendeurs.",
+        badge: "À propos des personnes derrière la plateforme",
+        heroTitle:
+          "Une façon plus calme et plus agréable de trouver un logement",
+        heroDescription:
+          "Nous avons conçu cette plateforme pour les personnes qui souhaitent que la recherche d’un bien soit simple, humaine et élégamment organisée. Au lieu de submerger les visiteurs avec du bruit visuel, nous privilégions la clarté, la confiance et une lecture agréable qui aide l’utilisateur à se sentir serein avant même d’envoyer un message.",
+        primaryCta: "Parcourir les biens",
+        secondaryCta: "Créer un compte",
+        overviewPage: {
+          intro: "لوحة تحكم شاملة لإدارة المستخدمين والعقارات والخطط.",
+          viewAllUsers: "عرض كل المستخدمين",
+          viewAllListings: "عرض كل العقارات",
+          totalUsers: "إجمالي المستخدمين",
+          activeListings: "العقارات النشطة",
+          propertyTypes: "أنواع العقارات",
+          cities: "المدن",
+        },
+        stats: [
+          { value: "10k+", label: "expériences pensées autour des personnes" },
+          { value: "24h", label: "objectif de réponse du support" },
+          { value: "3", label: "langues prises en charge" },
+          { value: "100%", label: "engagement pour une expérience soignée" },
+        ],
+        story: {
+          eyebrow: "Notre histoire",
+          title: "Conçue pour enlever le stress du processus de recherche",
+          description:
+            "Le marché immobilier peut paraître bruyant : trop d’onglets, trop de détails cachés au mauvais endroit et trop d’étapes entre l’intérêt et l’action. Nous avons voulu repenser cette sensation. Nous avons donc privilégié une navigation fluide, des annonces claires, des contacts rapides et un ton accueillant qui respecte à la fois le temps du locataire et l’effort du vendeur.",
+        },
+        values: {
+          eyebrow: "Nos valeurs",
+          title: "Les principes qui façonnent chaque page",
+          description:
+            "Ces valeurs guident la façon dont nous concevons les interfaces, rédigeons le contenu et accompagnons les utilisateurs au quotidien.",
+          items: [
+            {
+              key: "trust",
+              title: "Une confiance tangible",
+              description:
+                "Nous pensons que la confiance doit transparaître dans l’interface elle-même. C’est pourquoi nous mettons en avant les vendeurs vérifiés, une information structurée, un design épuré et des options de contact visibles qui aident à avancer sans hésitation.",
+            },
+            {
+              key: "language",
+              title: "Pensé pour plusieurs langues",
+              description:
+                "Une décision immobilière est plus simple quand on lit naturellement. C’est pourquoi l’expérience prend en charge l’arabe, l’anglais et le français.",
+            },
+            {
+              key: "service",
+              title: "Humain avant tout",
+              description:
+                "Derrière chaque annonce, il y a une vraie personne. Nous concevons la plateforme pour rendre les échanges, les décisions et le suivi simples et chaleureux.",
+            },
+          ],
+        },
+        journey: {
+          eyebrow: "Notre parcours",
+          title: "Une plateforme pensée pour s’améliorer en continu",
+          description:
+            "Chaque étape du produit a été guidée par la même idée : rendre la recherche d’un logement plus calme, plus élégante et plus facile à faire confiance.",
+          milestones: [
+            {
+              year: "01",
+              title: "Une façon plus simple de découvrir des logements",
+              description:
+                "L’idée est née d’une frustration simple : chercher un bon logement devrait être calme, pas chaotique. Nous avons construit un parcours plus clair, de la découverte au contact.",
+            },
+            {
+              year: "02",
+              title: "De meilleures annonces, de meilleures conversations",
+              description:
+                "Nous nous sommes concentrés sur une meilleure présentation, des détails plus clairs et des outils de contact directs pour passer de la recherche à l’échange sans friction.",
+            },
+            {
+              year: "03",
+              title: "Une plateforme qui grandit avec ses utilisateurs",
+              description:
+                "Aujourd’hui, la plateforme est conçue pour soutenir locataires, vendeurs et équipes avec une expérience soignée qui peut évoluer sans perdre sa chaleur.",
+            },
+          ],
+        },
+        final: {
+          badge: "Prêt quand vous l’êtes",
+          title:
+            "Explorez les biens, rencontrez les vendeurs et profitez du parcours.",
+          description:
+            "Que vous soyez ici pour parcourir tranquillement, comparer avec soin ou publier votre propre annonce, la plateforme est conçue pour rendre chaque étape fluide. Prenez votre temps, lisez confortablement et avancez lorsque le logement vous convient.",
+          primary: "Parcourir les biens",
+          secondary: "Créer un compte",
+        },
       },
       profile: {
         favorites: "Saved properties",
@@ -129,6 +458,82 @@ export const messages = {
     pricing: {
       title: "Flexible plans for every seller",
       subtitle: "Start free and upgrade when you need more listings.",
+      currentPlan: "Current plan",
+      currentPlanTag: "Active",
+      getPlan: "Get this plan",
+      currentPlanHelp: "This is your active plan",
+    },
+    payment: {
+      eyebrow: "Secure checkout",
+      title: "Complete your payment",
+      description:
+        "Enter your payment details to finish the checkout securely.",
+      securityBadge: "100% secure payment processing",
+      summaryTitle: "Order summary",
+      totalLabel: "Total",
+      methodTitle: "Payment method",
+      methodSelected: "Selected",
+      methodHint: "Tap to select",
+      payNow: "Pay now",
+      includedTitle: "Included with this payment",
+      perks: [
+        "Secure payment processing",
+        "Instant confirmation",
+        "Save card for faster checkout",
+      ],
+      trustCards: [
+        {
+          eyebrow: "Secure",
+          title: "PCI-ready flow",
+          description: "Encrypted checkout and safe processing.",
+        },
+        {
+          eyebrow: "Fast",
+          title: "Instant confirmation",
+          description: "Your payment is confirmed without delay.",
+        },
+        {
+          eyebrow: "Trust",
+          title: "Encrypted checkout",
+          description: "Protection built into every step.",
+        },
+      ],
+      form: {
+        cardholder: "Cardholder name",
+        cardholderPlaceholder: "e.g. John Doe",
+        cardNumber: "Card number",
+        cardNumberPlaceholder: "0000 0000 0000 0000",
+        expiry: "Expiry date",
+        expiryPlaceholder: "MM/YY",
+        cvc: "CVC",
+        cvcPlaceholder: "123",
+        email: "Email",
+        address: "Billing address",
+        addressPlaceholder: "Street, city, building",
+        city: "City",
+        cityPlaceholder: "Dubai",
+        country: "Country",
+        countryPlaceholder: "Select country",
+        zip: "ZIP code",
+        zipPlaceholder: "00000",
+        notes: "Payment notes",
+        notesPlaceholder: "Anything the payment team should know",
+        saveCard: "Save card for faster future payments",
+        billingHint: "Billing details matched to your address",
+        secureHint: "Payment is encrypted and securely processed.",
+        methods: {
+          card: "Card",
+          wallet: "Wallet",
+          bank: "Bank transfer",
+        },
+        countries: [
+          { value: "ae", label: "United Arab Emirates" },
+          { value: "sa", label: "Saudi Arabia" },
+          { value: "qa", label: "Qatar" },
+          { value: "eg", label: "Egypt" },
+          { value: "fr", label: "France" },
+        ],
+      },
     },
     footer: {
       tagline: "A modern marketplace for premium rental homes.",
@@ -140,6 +545,7 @@ export const messages = {
   ar: {
     nav: {
       home: "الرئيسية",
+      about: "من نحن",
       properties: "العقارات",
       pricing: "الأسعار",
       seller: "لوحة البائع",
@@ -149,12 +555,29 @@ export const messages = {
       register: "إنشاء حساب",
       contact: "تواصل معنا",
       dashboard: "لوحة التحكم",
+      overviewPage: {
+        intro:
+          "Centre de contrôle unifié pour les utilisateurs, les annonces, les forfaits et les rapports.",
+        viewAllUsers: "Voir tous les utilisateurs",
+        viewAllListings: "Voir toutes les annonces",
+        totalUsers: "Utilisateurs totaux",
+        activeListings: "Annonces actives",
+        propertyTypes: "Types de biens",
+        cities: "Villes",
+      },
       favorites: "المفضلة",
       profile: "الملف الشخصي",
     },
     common: {
       search: "بحث",
       learnMore: "اعرف المزيد",
+      start: "بداية",
+      end: "انتهاء",
+      payment: "دفع",
+      created: "تم الإنشاء",
+      page: "الصفحة",
+      previous: "السابق",
+      next: "التالي",
       save: "حفظ",
       cancel: "إلغاء",
       submit: "إرسال",
@@ -207,6 +630,7 @@ export const messages = {
       password: "كلمة المرور",
       fullName: "الاسم الكامل",
       accountType: "نوع الحساب",
+      phone: "رقم الهاتف",
       rememberMe: "تذكرني",
       confirmPassword: "تأكيد كلمة المرور",
       resetLink: "إرسال رابط إعادة التعيين",
@@ -237,6 +661,11 @@ export const messages = {
         title: "لوحة البائع",
         overview: "نظرة عامة",
         listings: "عقاراتي",
+        subscriptions: "الاشتراكات",
+        subscriptionsIntro: "عرض جميع اشتراكات الحساب مع التنقل بين الصفحات",
+        localSession: "رقم الجلسة",
+        confirmCancel: "هل أنت متأكد أنك تريد إلغاء اشتراكك؟",
+        billing: "الفواتير",
         addHouse: "إضافة منزل",
         editHouse: "تعديل المنزل",
         messages: "الرسائل",
@@ -246,6 +675,15 @@ export const messages = {
       },
       admin: {
         title: "لوحة الإدارة",
+        citiesPage: {
+          intro: "أنشئ المدن ونظمها من لوحة الإدارة.",
+          neighborhoodsTitle: "إدارة الأحياء",
+          neighborhoodsDescription:
+            "أضف الأحياء وربطها بالمدينة لتظهر في نماذج العقارات.",
+        },
+        listingsPage: {
+          intro: "راجع القوائم المنشورة واحذف أو وافق عليها.",
+        },
         overview: "نظرة عامة",
         users: "إدارة المستخدمين",
         listings: "إدارة العقارات",
@@ -253,6 +691,24 @@ export const messages = {
         cities: "إدارة المدن",
         plans: "خطط البائعين",
         reports: "التقارير",
+        refunds: "المبالغ المسترجعة",
+        refundsPage: {
+          title: "المبالغ المسترجعة",
+          intro:
+            "قائمة الاشتراكات المدفوعة الأخيرة. استرجع المبالغ عند الحاجة.",
+          payment: "رقم الدفعة",
+          started: "بدء التاريخ",
+          created: "تاريخ الإنشاء",
+          partialAmount: "المبلغ الجزئي (DH)",
+          partialAmountHelp: "اتركه فارغًا لإجراء استرجاع كامل",
+          partialAmountPlaceholder: "0 DH",
+          refund: "استرجاع",
+          refundConfirm:
+            "هل تريد استرجاع هذه الدفعة؟ سيتم تحديد الاشتراك كملغى.",
+          refundSuccess: "تم استرجاع المبلغ",
+          refundError: "فشل الاسترجاع",
+          processing: "جاري المعالجة...",
+        },
       },
       profile: {
         favorites: "العقارات المحفوظة",
@@ -263,6 +719,81 @@ export const messages = {
     pricing: {
       title: "باقات مرنة لكل بائع",
       subtitle: "ابدأ مجاناً ثم ارتقِ عندما تحتاج إلى المزيد من العقارات.",
+      currentPlan: "الباقة الحالية",
+      currentPlanTag: "نشطة",
+      getPlan: "احصل على هذه الباقة",
+      currentPlanHelp: "هذه هي باقتك الحالية",
+    },
+    payment: {
+      eyebrow: "دفع آمن",
+      title: "أكمل عملية الدفع",
+      description: "أدخل بيانات الدفع الخاصة بك لإكمال العملية بأمان وسلاسة.",
+      securityBadge: "مدفوعات آمنة 100%",
+      summaryTitle: "ملخص الطلب",
+      totalLabel: "الإجمالي",
+      methodTitle: "طريقة الدفع",
+      methodSelected: "محدد",
+      methodHint: "اضغط للاختيار",
+      payNow: "ادفع الآن",
+      includedTitle: "المزايا المرفقة مع الدفع",
+      perks: [
+        "مدفوعات آمنة ومشفرة",
+        "تأكيد فوري",
+        "حفظ البطاقة للدفع المستقبلي",
+      ],
+      trustCards: [
+        {
+          eyebrow: "آمن",
+          title: "تدفق جاهز للامتثال",
+          description: "إتمام دفع مشفر ومعالجة آمنة.",
+        },
+        {
+          eyebrow: "سريع",
+          title: "تأكيد فوري",
+          description: "تتم مراجعة الدفع وتأكيده بسرعة.",
+        },
+        {
+          eyebrow: "موثوق",
+          title: "إتمام دفع مشفر",
+          description: "حماية مدمجة في كل خطوة.",
+        },
+      ],
+      form: {
+        cardholder: "اسم حامل البطاقة",
+        cardholderPlaceholder: "مثال: أحمد علي",
+        cardNumber: "رقم البطاقة",
+        cardNumberPlaceholder: "0000 0000 0000 0000",
+        expiry: "تاريخ الانتهاء",
+        expiryPlaceholder: "MM/YY",
+        cvc: "CVC",
+        cvcPlaceholder: "123",
+        email: "البريد الإلكتروني",
+        address: "عنوان الفوترة",
+        addressPlaceholder: "الشارع، المدينة، المبنى",
+        city: "المدينة",
+        cityPlaceholder: "دبي",
+        country: "الدولة",
+        countryPlaceholder: "اختر الدولة",
+        zip: "الرمز البريدي",
+        zipPlaceholder: "00000",
+        notes: "ملاحظات الدفع",
+        notesPlaceholder: "أي تفاصيل إضافية لعملية الدفع",
+        saveCard: "حفظ البطاقة للدفع المستقبلي",
+        billingHint: "تفاصيل الفوترة متوافقة مع عنوانك",
+        secureHint: "تتم معالجة الدفع بشكل مشفر وآمن.",
+        methods: {
+          card: "بطاقة",
+          wallet: "محفظة",
+          bank: "تحويل بنكي",
+        },
+        countries: [
+          { value: "ae", label: "الإمارات العربية المتحدة" },
+          { value: "sa", label: "المملكة العربية السعودية" },
+          { value: "qa", label: "قطر" },
+          { value: "eg", label: "مصر" },
+          { value: "fr", label: "فرنسا" },
+        ],
+      },
     },
     footer: {
       tagline: "منصة حديثة للعقارات السكنية المميزة.",
@@ -274,6 +805,7 @@ export const messages = {
   fr: {
     nav: {
       home: "Accueil",
+      about: "À propos",
       properties: "Propriétés",
       pricing: "Tarifs",
       seller: "Tableau de bord vendeur",
@@ -289,6 +821,13 @@ export const messages = {
     common: {
       search: "Recherche",
       learnMore: "En savoir plus",
+      start: "Début",
+      end: "Fin",
+      payment: "Paiement",
+      created: "Créé",
+      page: "Page",
+      previous: "Précédent",
+      next: "Suivant",
       save: "Enregistrer",
       cancel: "Annuler",
       submit: "Envoyer",
@@ -344,6 +883,7 @@ export const messages = {
       password: "Mot de passe",
       fullName: "Nom complet",
       accountType: "Type de compte",
+      phone: "Numéro de téléphone",
       rememberMe: "Se souvenir de moi",
       confirmPassword: "Confirmer le mot de passe",
       resetLink: "Envoyer le lien",
@@ -374,6 +914,12 @@ export const messages = {
         title: "Tableau de bord vendeur",
         overview: "Aperçu",
         listings: "Mes annonces",
+        subscriptions: "Abonnements",
+        subscriptionsIntro:
+          "Voir toutes les abonnements du compte avec pagination.",
+        localSession: "numéro de session",
+        confirmCancel: "Êtes-vous sûr de vouloir annuler votre abonnement ?",
+        billing: "Facturation",
         addHouse: "Ajouter une maison",
         editHouse: "Modifier la maison",
         messages: "Messages",
@@ -383,6 +929,17 @@ export const messages = {
       },
       admin: {
         title: "Tableau de bord administrateur",
+        citiesPage: {
+          intro:
+            "Créez et organisez les villes depuis le tableau de bord administrateur.",
+          neighborhoodsTitle: "Gérer les quartiers",
+          neighborhoodsDescription:
+            "Ajoutez des quartiers et reliez-les aux villes pour qu’ils apparaissent dans les formulaires d’annonce.",
+        },
+        listingsPage: {
+          intro:
+            "Passez en revue les annonces, approuvez-les ou signalez les problèmes.",
+        },
         overview: "Aperçu",
         users: "Gérer les utilisateurs",
         listings: "Gérer les annonces",
@@ -390,6 +947,24 @@ export const messages = {
         cities: "Gérer les villes",
         plans: "Forfaits vendeur",
         reports: "Rapports",
+        refunds: "Remboursements",
+        refundsPage: {
+          title: "Remboursements",
+          intro:
+            "Liste des abonnements payants récents. Remboursez les paiements si nécessaire.",
+          payment: "Paiement",
+          started: "Commencé",
+          created: "Créé",
+          partialAmount: "Montant partiel (DH)",
+          partialAmountHelp: "Laissez vide pour un remboursement complet",
+          partialAmountPlaceholder: "0 DH",
+          refund: "Remboursement",
+          refundConfirm:
+            "Rembourser ce paiement ? Cela marquera l'abonnement comme annulé.",
+          refundSuccess: "Remboursement émis",
+          refundError: "Le remboursement a échoué",
+          processing: "Traitement...",
+        },
       },
       profile: {
         favorites: "Biens enregistrés",
@@ -401,6 +976,83 @@ export const messages = {
       title: "Des forfaits flexibles pour chaque vendeur",
       subtitle:
         "Commencez gratuitement et passez à un forfait supérieur quand vous avez besoin de plus d'annonces.",
+      currentPlan: "Forfait actuel",
+      currentPlanTag: "Actif",
+      getPlan: "Obtenir ce forfait",
+      currentPlanHelp: "C'est votre forfait actif",
+    },
+    payment: {
+      eyebrow: "Paiement sécurisé",
+      title: "Finalisez votre paiement",
+      description:
+        "Saisissez vos informations de paiement pour finaliser la commande en toute sécurité.",
+      securityBadge: "Paiements 100 % sécurisés",
+      summaryTitle: "Résumé de la commande",
+      totalLabel: "Total",
+      methodTitle: "Méthode de paiement",
+      methodSelected: "Sélectionné",
+      methodHint: "Appuyez pour sélectionner",
+      payNow: "Payer maintenant",
+      includedTitle: "Inclus avec ce paiement",
+      perks: [
+        "Traitement de paiement sécurisé",
+        "Confirmation instantanée",
+        "Enregistrer la carte pour plus tard",
+      ],
+      trustCards: [
+        {
+          eyebrow: "Sécurisé",
+          title: "Flux prêt pour PCI",
+          description: "Paiement chiffré et traitement sûr.",
+        },
+        {
+          eyebrow: "Rapide",
+          title: "Confirmation instantanée",
+          description: "Votre paiement est confirmé sans délai.",
+        },
+        {
+          eyebrow: "Confiance",
+          title: "Paiement chiffré",
+          description: "Protection intégrée à chaque étape.",
+        },
+      ],
+      form: {
+        cardholder: "Nom du titulaire",
+        cardholderPlaceholder: "Ex: Jean Dupont",
+        cardNumber: "Numéro de carte",
+        cardNumberPlaceholder: "0000 0000 0000 0000",
+        expiry: "Expiration",
+        expiryPlaceholder: "MM/AA",
+        cvc: "CVC",
+        cvcPlaceholder: "123",
+        email: "E-mail",
+        address: "Adresse de facturation",
+        addressPlaceholder: "Rue, ville, immeuble",
+        city: "Ville",
+        cityPlaceholder: "Paris",
+        country: "Pays",
+        countryPlaceholder: "Sélectionnez un pays",
+        zip: "Code postal",
+        zipPlaceholder: "00000",
+        notes: "Notes de paiement",
+        notesPlaceholder: "Détails supplémentaires pour ce paiement",
+        saveCard: "Enregistrer la carte pour plus tard",
+        billingHint:
+          "Les informations de facturation correspondent à votre adresse",
+        secureHint: "Le paiement est chiffré et traité de manière sécurisée.",
+        methods: {
+          card: "Carte",
+          wallet: "Portefeuille",
+          bank: "Virement bancaire",
+        },
+        countries: [
+          { value: "ae", label: "Émirats arabes unis" },
+          { value: "sa", label: "Arabie saoudite" },
+          { value: "qa", label: "Qatar" },
+          { value: "eg", label: "Égypte" },
+          { value: "fr", label: "France" },
+        ],
+      },
     },
     footer: {
       tagline: "Une plateforme moderne pour les logements locatifs premium.",

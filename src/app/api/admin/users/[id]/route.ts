@@ -15,6 +15,9 @@ type UpdateUserBody = {
   bio?: string | null;
   planId?: string;
   emailVerified?: string | null;
+  suspendedUntil?: string | null;
+  suspendedMessage?: string | null;
+  bannedMessage?: string | null;
 };
 
 export async function PATCH(
@@ -40,6 +43,12 @@ export async function PATCH(
   if (!body) return jsonError("Invalid JSON body.");
 
   const data: Record<string, unknown> = {};
+  let requestedStatus:
+    | "ACTIVE"
+    | "PENDING"
+    | "SUSPENDED"
+    | "BANNED"
+    | undefined;
 
   if (typeof body.name === "string") {
     const name = body.name.trim();
@@ -57,10 +66,31 @@ export async function PATCH(
 
   if (typeof body.status === "string") {
     const status = body.status.toUpperCase();
-    if (!["ACTIVE", "PENDING", "FLAGGED"].includes(status)) {
-      return jsonError("Status must be ACTIVE, PENDING, or FLAGGED.", 400);
+    if (!["ACTIVE", "PENDING", "SUSPENDED", "BANNED"].includes(status)) {
+      return jsonError(
+        "Status must be ACTIVE, PENDING, SUSPENDED, or BANNED.",
+        400,
+      );
     }
+    requestedStatus = status as "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
     data.status = status;
+
+    if (status === "ACTIVE" || status === "PENDING") {
+      data.suspendedAt = null;
+      data.suspendedUntil = null;
+      data.suspendedMessage = null;
+      data.suspendedBy = null;
+      data.bannedMessage = null;
+    } else if (status === "SUSPENDED") {
+      data.suspendedAt = new Date();
+      data.suspendedBy = session.user.id;
+      data.bannedMessage = null;
+    } else {
+      data.suspendedAt = new Date();
+      data.suspendedUntil = null;
+      data.suspendedMessage = null;
+      data.suspendedBy = session.user.id;
+    }
   }
 
   if (body.phone !== undefined) {
@@ -108,6 +138,49 @@ export async function PATCH(
     data.emailVerified = verifiedAt;
   }
 
+  if (body.suspendedUntil !== undefined) {
+    if (
+      typeof body.suspendedUntil !== "string" &&
+      body.suspendedUntil !== null
+    ) {
+      return jsonError("suspendedUntil must be a string or null.", 400);
+    }
+
+    const suspendedUntil =
+      typeof body.suspendedUntil === "string" && body.suspendedUntil.trim()
+        ? new Date(body.suspendedUntil)
+        : null;
+
+    if (suspendedUntil && Number.isNaN(suspendedUntil.getTime())) {
+      return jsonError("suspendedUntil must be a valid date-time.", 400);
+    }
+
+    data.suspendedUntil = suspendedUntil;
+  }
+
+  if (body.suspendedMessage !== undefined) {
+    if (
+      typeof body.suspendedMessage !== "string" &&
+      body.suspendedMessage !== null
+    ) {
+      return jsonError("suspendedMessage must be a string or null.", 400);
+    }
+    const suspendedMessage =
+      typeof body.suspendedMessage === "string"
+        ? body.suspendedMessage.trim()
+        : "";
+    data.suspendedMessage = suspendedMessage ? suspendedMessage : null;
+  }
+
+  if (body.bannedMessage !== undefined) {
+    if (typeof body.bannedMessage !== "string" && body.bannedMessage !== null) {
+      return jsonError("bannedMessage must be a string or null.", 400);
+    }
+    const bannedMessage =
+      typeof body.bannedMessage === "string" ? body.bannedMessage.trim() : "";
+    data.bannedMessage = bannedMessage ? bannedMessage : null;
+  }
+
   if (body.password !== undefined && body.password !== null) {
     if (typeof body.password !== "string")
       return jsonError("Password must be a string.", 400);
@@ -121,6 +194,33 @@ export async function PATCH(
     const existing = await prisma.user.findUnique({ where: { id } });
     if (!existing) return jsonError("User not found.", 404);
 
+    const effectiveStatus = requestedStatus ?? existing.status;
+    const effectiveSuspendedUntil =
+      "suspendedUntil" in data
+        ? (data.suspendedUntil as Date | null)
+        : existing.suspendedUntil;
+
+    if (effectiveStatus === "SUSPENDED" && !effectiveSuspendedUntil) {
+      return jsonError(
+        "suspendedUntil is required when status is SUSPENDED.",
+        400,
+      );
+    }
+
+    if (effectiveStatus === "ACTIVE" || effectiveStatus === "PENDING") {
+      data.suspendedAt = null;
+      data.suspendedUntil = null;
+      data.suspendedMessage = null;
+      data.suspendedBy = null;
+      data.bannedMessage = null;
+    } else if (effectiveStatus === "SUSPENDED") {
+      data.bannedMessage = null;
+    } else {
+      // Blocked users never keep suspension fields.
+      data.suspendedUntil = null;
+      data.suspendedMessage = null;
+    }
+
     const updated = await prisma.user.update({
       where: { id },
       data,
@@ -133,6 +233,11 @@ export async function PATCH(
         bio: true,
         role: true,
         status: true,
+        suspendedAt: true,
+        suspendedUntil: true,
+        suspendedMessage: true,
+        suspendedBy: true,
+        bannedMessage: true,
         planId: true,
         createdAt: true,
       },

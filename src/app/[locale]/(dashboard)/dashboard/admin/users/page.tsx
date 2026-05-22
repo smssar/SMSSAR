@@ -25,6 +25,27 @@ export default async function AdminUsersPage({
   const { locale } = (await params) as { locale: Locale };
   const resolvedSearchParams = await searchParams;
   const session = await auth();
+  const messages = getMessages(locale);
+  type AdminUsersCopy = { intro: string; adminOnly: string };
+
+  const admin = (messages.dashboard?.admin ??
+    {}) as typeof messages.dashboard.admin & {
+    managementPage?: { users?: AdminUsersCopy };
+  };
+  const pageCopy: AdminUsersCopy = admin.managementPage?.users ?? {
+    intro:
+      locale === "ar"
+        ? "أنشئ وأدر المستخدمين."
+        : locale === "fr"
+          ? "Create and manage users."
+          : "Create and manage users.",
+    adminOnly:
+      locale === "ar"
+        ? "هذه الصفحة متاحة للمديرين فقط."
+        : locale === "fr"
+          ? "This page is available to admins only."
+          : "This page is available to admins only.",
+  };
 
   if (!session?.user?.id) {
     redirect(`/${locale}/login`);
@@ -33,14 +54,10 @@ export default async function AdminUsersPage({
   if (session.user.role !== "ADMIN") {
     return (
       <div className="rounded-3xl border border-border/70 bg-card p-8 text-sm text-muted-foreground">
-        {locale === "ar"
-          ? "هذه الصفحة متاحة للمديرين فقط."
-          : "This page is available to admins only."}
+        {pageCopy.adminOnly}
       </div>
     );
   }
-
-  const messages = getMessages(locale);
 
   function getValidPageSize(value: string | null | undefined): number {
     const parsed = parseInt(value || "", 10);
@@ -56,7 +73,7 @@ export default async function AdminUsersPage({
   const roleParam = (resolvedSearchParams.role as string) ?? "";
   const statusParam = (resolvedSearchParams.status as string) ?? "";
   const validRoles = ["USER", "SELLER", "ADMIN"] as const;
-  const validStatuses = ["ACTIVE", "PENDING", "FLAGGED"] as const;
+  const validStatuses = ["ACTIVE", "PENDING", "SUSPENDED", "BANNED"] as const;
 
   const isValidRole = (value: string): value is (typeof validRoles)[number] =>
     validRoles.includes(value as (typeof validRoles)[number]);
@@ -105,6 +122,11 @@ export default async function AdminUsersPage({
         bio: true,
         role: true,
         status: true,
+        suspendedAt: true,
+        suspendedUntil: true,
+        suspendedMessage: true,
+        suspendedBy: true,
+        bannedMessage: true,
         planId: true,
         createdAt: true,
       },
@@ -122,11 +144,7 @@ export default async function AdminUsersPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {messages.dashboard.admin.users}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {locale === "ar"
-            ? "أنشئ وأدر المستخدمين."
-            : "Create and manage users."}
-        </p>
+        <p className="mt-2 text-muted-foreground">{pageCopy.intro}</p>
       </div>
 
       <AdminUsersPanel

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["paralyses-sequel-motion.ngrok-free.dev"],
+
   images: {
     remotePatterns: [
       {

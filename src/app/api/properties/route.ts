@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import {
+  withSubscription,
+  getActiveSubscription,
+} from "@/lib/getActiveSubscription";
 
 type CreatePropertyBody = {
   title?: string;
@@ -38,7 +42,14 @@ export async function GET() {
   return NextResponse.json({ data: properties });
 }
 
-export async function POST(request: Request) {
+const createPropertyHandler = async (
+  request: Request,
+  _context: unknown,
+  subscription: Exclude<
+    Awaited<ReturnType<typeof getActiveSubscription>>,
+    null
+  >,
+) => {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -49,9 +60,8 @@ export async function POST(request: Request) {
     return jsonError("Only sellers can create properties.", 403);
   }
 
-  // Check plan listing limits
   const userPlan = await prisma.plan.findUnique({
-    where: { id: session.user.planId },
+    where: { id: subscription.planId },
   });
 
   if (!userPlan) {
@@ -235,4 +245,5 @@ export async function POST(request: Request) {
 
     return jsonError("Failed to create property.", 500);
   }
-}
+};
+export const POST = withSubscription(createPropertyHandler);

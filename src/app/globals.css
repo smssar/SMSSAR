@@ -59,10 +59,15 @@ html {
 }
 
 body {
+  font-family: Inter, Arial, Helvetica, sans-serif;
   background:
     radial-gradient(circle at top, hsl(262 83% 58% / 0.08), transparent 35%),
     hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+html[dir="rtl"] body {
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 ::selection {

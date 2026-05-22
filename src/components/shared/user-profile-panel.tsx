@@ -121,7 +121,7 @@ type UserProfile = {
   name: string;
   email: string;
   role: "USER" | "SELLER" | "ADMIN";
-  status: "ACTIVE" | "PENDING" | "FLAGGED";
+  status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   createdAt: Date | string;
   hasPassword: boolean;
 };
@@ -234,13 +234,17 @@ export function UserProfilePanel({
         ? "نشط"
         : user.status === "PENDING"
           ? "قيد الانتظار"
-          : "معلّم"
+          : user.status === "SUSPENDED"
+            ? "موقوف مؤقتًا"
+            : "محظور"
       : locale === "fr"
         ? user.status === "ACTIVE"
           ? "Actif"
           : user.status === "PENDING"
             ? "En attente"
-            : "Signalé"
+            : user.status === "SUSPENDED"
+              ? "Suspendu"
+              : "Banni"
         : user.status;
 
   const roleText =

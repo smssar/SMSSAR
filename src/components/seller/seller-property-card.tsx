@@ -36,7 +36,6 @@ type Property = {
   propertyType?: string;
   amenities?: Array<Record<string, string>>;
   seller?: string;
-  rating?: number;
   palette?: string[];
 };
 
@@ -164,7 +163,6 @@ export function SellerPropertyCard({
             <div className="font-medium text-foreground">
               {property.seller ?? ""}
             </div>
-            <div>{(property.rating ?? 0).toFixed(1)} ★</div>
           </div>
         </div>
       </CardContent>

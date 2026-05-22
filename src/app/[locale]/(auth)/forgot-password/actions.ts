@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getRequestBaseUrl } from "@/lib/api-utils";
 import { prisma } from "@/lib/prisma";
 import {
   generateResetToken,
@@ -21,14 +22,7 @@ export async function sendResetAction(formData: FormData, locale: string) {
   }
 
   const requestHeaders = await headers();
-  const forwardedProto = requestHeaders.get("x-forwarded-proto");
-  const forwardedHost = requestHeaders.get("x-forwarded-host");
-  const host = requestHeaders.get("host");
-  const baseUrl =
-    process.env.NEXTAUTH_URL ??
-    (forwardedHost || host
-      ? `${forwardedProto ?? "http"}://${forwardedHost ?? host}`
-      : null);
+  const baseUrl = getRequestBaseUrl(requestHeaders);
 
   if (!baseUrl) {
     redirect(`/${locale}/forgot-password?sent=1`);

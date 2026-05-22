@@ -1,4 +1,4 @@
-# House Rental Platform
+# Smssar
 
 A production-ready multilingual house rental marketplace built with Next.js App Router, TypeScript, Tailwind CSS, and shadcn-style UI.
 

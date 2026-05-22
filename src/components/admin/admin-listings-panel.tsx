@@ -235,7 +235,7 @@ export function AdminListingsPanel({
     );
   };
 
-  const cancelEdit = () => {
+  const CANCELLEDit = () => {
     setEditingId(null);
     setEditingMedia([]);
     setCoverUrl(undefined);
@@ -519,7 +519,7 @@ export function AdminListingsPanel({
         );
       }
 
-      cancelEdit();
+      CANCELLEDit();
       setPendingAction(null);
       toast.success(locale === "ar" ? "تم حفظ العقار." : "Listing saved.");
     } catch (error) {
@@ -565,7 +565,7 @@ export function AdminListingsPanel({
       );
 
       if (editingId === item.id) {
-        cancelEdit();
+        CANCELLEDit();
       }
 
       toast.success(locale === "ar" ? "تم حذف العقار." : "Listing deleted.");
@@ -768,7 +768,7 @@ export function AdminListingsPanel({
       {editingId && pendingAction?.type !== "delete" ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm"
-          onClick={cancelEdit}
+          onClick={CANCELLEDit}
         >
           <div
             className="w-full max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border border-border/70 bg-card shadow-2xl"
@@ -803,7 +803,7 @@ export function AdminListingsPanel({
               <Button
                 type="button"
                 variant="ghost"
-                onClick={cancelEdit}
+                onClick={CANCELLEDit}
                 className="absolute right-4 top-4 gap-2 rounded-full bg-black/20 hover:bg-black/40"
               >
                 <X className="h-5 w-5 text-white" />
@@ -1193,7 +1193,6 @@ export function AdminListingsPanel({
                       id="edit-neighborhood"
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
-                      required
                     >
                       <option value="">
                         {!city
@@ -1459,7 +1458,7 @@ export function AdminListingsPanel({
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={cancelEdit}
+                    onClick={CANCELLEDit}
                     className="gap-2"
                   >
                     <X className="h-4 w-4" />

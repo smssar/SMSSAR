@@ -1,9 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import {
-  generateResetToken,
-  hashResetToken,
-  sendResetPasswordEmail,
-} from "@/lib/email-verification";
+import { generateResetToken, hashResetToken, sendResetPasswordEmail } from "@/lib/email-verification";
+import { getRequestBaseUrl } from "@/lib/api-utils";
 import { headers } from "next/headers";
 import type { Locale } from "@/lib/locales";
 
@@ -19,14 +16,7 @@ export async function POST(request: Request) {
     }
 
     const requestHeaders = await headers();
-    const forwardedProto = requestHeaders.get("x-forwarded-proto");
-    const forwardedHost = requestHeaders.get("x-forwarded-host");
-    const host = requestHeaders.get("host");
-    const baseUrl =
-      process.env.NEXTAUTH_URL ??
-      (forwardedHost || host
-        ? `${forwardedProto ?? "http"}://${forwardedHost ?? host}`
-        : null);
+    const baseUrl = getRequestBaseUrl(requestHeaders);
 
     if (!baseUrl) {
       return Response.json(

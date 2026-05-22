@@ -36,7 +36,6 @@ export interface PropertyCardProps {
   propertyType: string;
   featured: boolean;
   seller: string;
-  rating: number;
   media?: Array<Pick<Media, "id" | "url" | "publicId" | "type">>;
   isFavorite?: boolean;
   favoriteEnabled?: boolean;
@@ -161,7 +160,6 @@ export function PropertyCard({
           </div>
           <div className="text-sm text-muted-foreground">
             <div className="font-medium text-foreground">{property.seller}</div>
-            <div>{property.rating.toFixed(1)} ★</div>
           </div>
         </div>
       </CardContent>

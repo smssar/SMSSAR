@@ -5,7 +5,13 @@ import type {
   ReactNode,
 } from "react";
 
-type Variant = "default" | "secondary" | "outline" | "ghost" | "accent";
+type Variant =
+  | "default"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "accent"
+  | "destructive";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
@@ -15,6 +21,8 @@ const variantClasses: Record<Variant, string> = {
   ghost: "hover:bg-muted/60",
   accent:
     "bg-violet-500 from-primary-500 to-secondary-600 text-white shadow-lg hover:opacity-95",
+  destructive:
+    "bg-red-600 text-white shadow-sm hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800",
 };
 
 const sizeClasses: Record<Size, string> = {

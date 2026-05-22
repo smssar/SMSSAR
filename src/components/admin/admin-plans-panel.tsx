@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/lib/locales";
+import { formatCurrency } from "@/lib/format";
 
 type PlanRow = {
   id: string;
@@ -373,7 +374,7 @@ export function AdminPlansPanel({
                       ? locale === "ar"
                         ? "مجاني"
                         : "Free"
-                      : `${plan.price} DH`}
+                      : formatCurrency(plan.price, locale)}
                   </div>
                   <div className="text-muted-foreground">
                     {plan.description}

@@ -29,7 +29,6 @@ type Property = {
     name: string;
     email: string;
   } | null;
-  rating?: number;
   palette?: string[];
 };
 
@@ -108,7 +107,6 @@ export function SellerListingsPanel({
               propertyType: property.propertyType?.name ?? "other",
               amenities: property.amenities ?? [],
               seller: property.seller?.name ?? "",
-              rating: property.rating ?? 0,
               palette: property.palette ?? [],
             }}
             onDelete={handleDeleteClick}

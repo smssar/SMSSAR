@@ -9,6 +9,7 @@ import {
   Users,
   Settings2,
   UserCircle2,
+  Undo2,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { getMessages } from "@/lib/messages";
@@ -80,6 +81,16 @@ export default async function AdminDashboardLayout({
       label: messages.dashboard.admin.reports,
       href: `/${locale}/dashboard/admin/reports`,
       icon: <FileBadge2 className="h-4 w-4" />,
+    },
+    {
+      label:
+        locale === "ar"
+          ? "المبالغ المسترجعة"
+          : locale === "fr"
+            ? "Remboursements"
+            : "Refunds",
+      href: `/${locale}/dashboard/admin/refunds`,
+      icon: <Undo2 className="h-4 w-4" />,
     },
     {
       label: messages.nav.favorites,

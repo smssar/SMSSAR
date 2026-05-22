@@ -63,6 +63,7 @@ export default async function AdminCitiesPage({
   }));
 
   const messages = getMessages(locale);
+  const citiesPage = messages.dashboard.admin.citiesPage;
 
   return (
     <div className="space-y-6">
@@ -70,23 +71,17 @@ export default async function AdminCitiesPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {messages.dashboard.admin.cities}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {locale === "ar"
-            ? "أنشئ المدن ونظمها من لوحة الإدارة."
-            : "Create and organize cities from the admin dashboard."}
-        </p>
+        <p className="mt-2 text-muted-foreground">{citiesPage.intro}</p>
       </div>
 
       <AdminCitiesPanel locale={locale} initialCities={initialCities} />
 
       <div>
         <h2 className="text-2xl font-semibold tracking-tight">
-          {locale === "ar" ? "إدارة الأحياء" : "Manage neighborhoods"}
+          {citiesPage.neighborhoodsTitle}
         </h2>
         <p className="mt-2 text-muted-foreground">
-          {locale === "ar"
-            ? "أضف الأحياء وربطها بالمدينة لتظهر في نماذج العقارات."
-            : "Add neighborhoods and link them to cities so they appear in listing forms."}
+          {citiesPage.neighborhoodsDescription}
         </p>
       </div>
 

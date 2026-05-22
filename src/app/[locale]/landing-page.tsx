@@ -17,8 +17,9 @@ import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
 // prisma and auth are server-only; import dynamically inside the server component
 import { PropertyCard } from "@/components/property";
+import { BecomeSellerButton } from "@/components/auth/become-seller-button";
 
-const t = <T extends { en: string; ar: string; fr?: string }>(
+const t = <T extends { en: string; ar?: string; fr?: string }>(
   locale: Locale,
   text: T,
 ) => (text[locale as keyof T] ?? text.en) as string;
@@ -128,18 +129,14 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                   {messages.home.heroCta}
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                 </ButtonLink>
-                <ButtonLink
-                  href={`/${locale}/register`}
-                  variant="outline"
-                  size="lg"
-                >
-                  {messages.home.heroSecondary}
-                </ButtonLink>
+                {session?.user?.role === "USER" ? (
+                  <BecomeSellerButton locale={locale} />
+                ) : null}
               </div>
               <StatGrid
                 locale={locale}
                 items={stats.map((item) => ({
-                  label: locale === "ar" ? item.label.ar : item.label.en,
+                  label: t(locale, item.label),
                   value: item.value,
                   icon: <Shield className="h-4 w-4" />,
                 }))}
@@ -168,7 +165,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                       {messages.common.price}
                     </div>
                     <div className="mt-2 text-xl font-semibold">
-                      {formatCurrency(15000, locale)}
+                      {formatCurrency(1500, locale)}
                     </div>
                   </div>
                   <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
@@ -245,18 +242,18 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 mx-auto lg:mx-0">
-                    {locale === "ar"
-                      ? type.name_ar || type.name
-                      : locale === "fr"
-                        ? type.name_fr || type.name
-                        : type.name}
+                    {t(locale, {
+                      en: type.name,
+                      ar: type.name_ar ?? type.name,
+                      fr: type.name_fr ?? type.name,
+                    })}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mx-auto lg:mx-0">
-                    {locale === "ar"
-                      ? `${type._count.properties} عقار`
-                      : locale === "fr"
-                        ? `${type._count.properties} biens`
-                        : `${type._count.properties} properties`}
+                    {t(locale, {
+                      en: `${type._count.properties} properties`,
+                      ar: `${type._count.properties} عقار`,
+                      fr: `${type._count.properties} biens`,
+                    })}
                   </p>
                 </CardHeader>
                 <CardContent className="flex items-end justify-between">
@@ -292,57 +289,65 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
             description={messages.pricing.subtitle}
           />
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {dbPlans.map((plan) => (
-              <Card
-                key={plan.id}
-                className={
-                  plan.featured
-                    ? "border-violet-500/30 bg-violet-500/5"
-                    : "border-border/70"
-                }
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-center lg:justify-between gap-3 ">
-                    <CardTitle>
-                      {locale === "ar"
-                        ? plan.title_ar || plan.title
-                        : locale === "fr"
-                          ? plan.title_fr || plan.title
-                          : plan.title}
-                    </CardTitle>
-                    {plan.featured ? (
-                      <div className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-300">
-                        {messages.common.featured}
-                      </div>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {locale === "ar"
-                      ? plan.description_ar || plan.description
-                      : locale === "fr"
-                        ? plan.description_fr || plan.description
-                        : plan.description}
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div className="text-4xl font-semibold">
-                    {plan.price === 0
-                      ? t(locale, { en: "Free", ar: "مجاني", fr: "Gratuit" })
-                      : `${plan.price} DH`}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <Sparkles className="h-4 w-4 text-violet-500" />
-                      {locale === "ar"
-                        ? `الحد: ${plan.listings === null ? "غير محدود" : plan.listings}`
-                        : locale === "fr"
-                          ? `Limite: ${plan.listings === null ? "Illimitee" : plan.listings}`
-                          : `Limit: ${plan.listings === null ? "Unlimited" : plan.listings}`}
+            {dbPlans.map((plan) => {
+              const unlimitedLabel = t(locale, {
+                en: "Unlimited",
+                ar: "غير محدود",
+                fr: "Illimitée",
+              });
+
+              return (
+                <Card
+                  key={plan.id}
+                  className={
+                    plan.featured
+                      ? "border-violet-500/30 bg-violet-500/5"
+                      : "border-border/70"
+                  }
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-center lg:justify-between gap-3 ">
+                      <CardTitle>
+                        {t(locale, {
+                          en: plan.title,
+                          ar: plan.title_ar || plan.title,
+                          fr: plan.title_fr || plan.title,
+                        })}
+                      </CardTitle>
+                      {plan.featured ? (
+                        <div className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-300">
+                          {messages.common.featured}
+                        </div>
+                      ) : null}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <p className="text-sm text-muted-foreground">
+                      {t(locale, {
+                        en: plan.description,
+                        ar: plan.description_ar || plan.description,
+                        fr: plan.description_fr || plan.description,
+                      })}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="text-4xl font-semibold">
+                      {plan.price === 0
+                        ? t(locale, { en: "Free", ar: "مجاني", fr: "Gratuit" })
+                        : formatCurrency(plan.price, locale)}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <Sparkles className="h-4 w-4 text-violet-500" />
+                        {t(locale, {
+                          en: `Limit: ${plan.listings === null ? unlimitedLabel : plan.listings}`,
+                          ar: `الحد: ${plan.listings === null ? unlimitedLabel : plan.listings}`,
+                          fr: `Limite: ${plan.listings === null ? unlimitedLabel : plan.listings}`,
+                        })}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </section>
 

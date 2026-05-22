@@ -55,6 +55,7 @@ export const ModelName = {
   Neighborhood: 'Neighborhood',
   PropertyType: 'PropertyType',
   Plan: 'Plan',
+  Subscription: 'Subscription',
   User: 'User',
   Account: 'Account',
   Session: 'Session',
@@ -141,6 +142,23 @@ export const PlanScalarFieldEnum = {
 export type PlanScalarFieldEnum = (typeof PlanScalarFieldEnum)[keyof typeof PlanScalarFieldEnum]
 
 
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  status: 'status',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  paymentId: 'paymentId',
+  dodoSubscriptionId: 'dodoSubscriptionId',
+  localSessionId: 'localSessionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -151,6 +169,11 @@ export const UserScalarFieldEnum = {
   phone: 'phone',
   city: 'city',
   bio: 'bio',
+  suspendedAt: 'suspendedAt',
+  suspendedUntil: 'suspendedUntil',
+  suspendedMessage: 'suspendedMessage',
+  suspendedBy: 'suspendedBy',
+  bannedMessage: 'bannedMessage',
   planId: 'planId',
   role: 'role',
   status: 'status',

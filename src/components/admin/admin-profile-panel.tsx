@@ -130,7 +130,7 @@ type AdminProfile = {
   name: string;
   email: string;
   role: "ADMIN";
-  status: "ACTIVE" | "PENDING" | "FLAGGED";
+  status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   createdAt: Date | string;
   hasPassword: boolean;
 };
@@ -245,13 +245,17 @@ export function AdminProfilePanel({
         ? "نشط"
         : admin.status === "PENDING"
           ? "قيد الانتظار"
-          : "معلّم"
+          : admin.status === "SUSPENDED"
+            ? "موقوف مؤقتًا"
+            : "محظور"
       : locale === "fr"
         ? admin.status === "ACTIVE"
           ? "Actif"
           : admin.status === "PENDING"
             ? "En attente"
-            : "Signalé"
+            : admin.status === "SUSPENDED"
+              ? "Suspendu"
+              : "Banni"
         : admin.status;
 
   return (

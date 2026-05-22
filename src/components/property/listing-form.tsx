@@ -154,20 +154,6 @@ export function ListingForm({
     [neighborhoods, city],
   );
 
-  useEffect(() => {
-    if (
-      city &&
-      neighborhood &&
-      availableNeighborhoods.length > 0 &&
-      !availableNeighborhoods.some((item) => item.name === neighborhood)
-    ) {
-      setNeighborhood("");
-    }
-    if (!city) {
-      setNeighborhood("");
-    }
-  }, [availableNeighborhoods, city, neighborhood]);
-
   const totalMediaCount =
     imageAssets.length +
     existingMedia.filter((m) => !existingMediaToDelete.has(m.id)).length;
@@ -615,6 +601,7 @@ export function ListingForm({
               value={city}
               onChange={(e) => {
                 setCity(e.target.value);
+                setNeighborhood("");
                 setCityError(null);
               }}
               className={cityError ? "border-red-500" : ""}
@@ -634,7 +621,7 @@ export function ListingForm({
               </div>
             )}
           </Field>
-          <Field label={locale === "ar" ? "الحي" : "Neighborhood"} required>
+          <Field label={locale === "ar" ? "الحي" : "Neighborhood"}>
             <Select
               value={neighborhood}
               onChange={(e) => {
@@ -642,7 +629,6 @@ export function ListingForm({
                 setNeighborhoodError(null);
               }}
               className={neighborhoodError ? "border-red-500" : ""}
-              required
             >
               <option value="">
                 {!city

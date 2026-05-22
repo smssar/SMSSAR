@@ -146,7 +146,7 @@ export function AdminPropertyTypesPanel({
     setSlug(propertyType.slug || "");
   };
 
-  const cancelEdit = () => {
+  const CANCELLEDit = () => {
     setEditingId(null);
     setNameEn("");
     setNameAr("");
@@ -281,7 +281,7 @@ export function AdminPropertyTypesPanel({
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={cancelEdit}
+                  onClick={CANCELLEDit}
                   disabled={saving}
                 >
                   <X className="h-4 w-4" />

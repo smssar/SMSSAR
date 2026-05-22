@@ -21,7 +21,21 @@ export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 export const UserStatus = {
   ACTIVE: 'ACTIVE',
   PENDING: 'PENDING',
-  FLAGGED: 'FLAGGED'
+  SUSPENDED: 'SUSPENDED',
+  BANNED: 'BANNED'
 } as const
 
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
+export const SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+  PENDING: 'PENDING',
+  WiLL_EXPIRE: 'WiLL_EXPIRE',
+  SCHEDULED: 'SCHEDULED',
+  DISABLED: 'DISABLED'
+} as const
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]

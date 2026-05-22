@@ -2,6 +2,7 @@ import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import { ensureFreePlan } from "@/lib/ensure-free-plan";
 import {
   generateVerificationCode,
   hashVerificationCode,
@@ -16,6 +17,7 @@ type RegisterBody = {
   password?: string;
   confirmPassword?: string;
   role?: string;
+  phone?: string;
   locale?: string;
 };
 
@@ -31,6 +33,7 @@ export async function POST(request: Request) {
   const password = body.password;
   const confirmPassword = body.confirmPassword;
   const roleValue = body.role?.trim().toLowerCase();
+  const phone = body.phone?.trim();
   const locale = body.locale?.trim() || "en";
 
   if (!name || !email || !password || !confirmPassword || !roleValue) {
@@ -46,23 +49,28 @@ export async function POST(request: Request) {
   }
 
   const role = roleValue === "seller" ? "SELLER" : "USER";
+  const sellerPhone = role === "SELLER" ? phone : undefined;
+
+  if (role === "SELLER" && !sellerPhone) {
+    return NextResponse.json(
+      { error: "seller_phone_required" },
+      { status: 400 },
+    );
+  }
+
   const passwordHash = await hash(password, 12);
 
   try {
-    const defaultPlan = await prisma.plan.findFirst({
-      orderBy: { price: "asc" },
-    });
-    if (!defaultPlan) {
-      return jsonError("No plans available. Ask an admin to create one.", 400);
-    }
+    await ensureFreePlan();
 
     const user = await prisma.user.create({
       data: {
         name,
         email,
         passwordHash,
-        planId: defaultPlan.id,
+        planId: "plan_free",
         role,
+        phone: sellerPhone || null,
       },
       select: {
         id: true,
