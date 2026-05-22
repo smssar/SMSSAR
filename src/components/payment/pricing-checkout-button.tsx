@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -37,6 +38,7 @@ export function PricingCheckoutButton({
   scheduledSubscription,
 }: PricingCheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const pathname = usePathname();
   const hasPaidActiveSubscription = Boolean(
     activeSubscription &&
     activeSubscription.planId !== "plan_free" &&
@@ -140,7 +142,12 @@ export function PricingCheckoutButton({
     setIsLoading(true);
 
     try {
-      const payload = { planId, activationMode: mode, locale };
+      const payload = {
+        planId,
+        activationMode: mode,
+        locale,
+        returnTo: pathname,
+      };
       const response = await fetch("/api/payments/plans/dodo-checkout", {
         method: "POST",
         headers: {
@@ -149,11 +156,23 @@ export function PricingCheckoutButton({
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
+        const result = (await response.json()) as {
+          error?: string;
+          loginUrl?: string;
+        };
+
+        if (response.status === 401 && result.loginUrl) {
+          window.location.href = result.loginUrl;
+          return;
+        }
+
         throw new Error(result.error || "Checkout failed");
       }
+
+      const result = (await response.json()) as {
+        checkoutUrl?: string;
+      };
 
       if (!result.checkoutUrl) {
         throw new Error("Missing checkout URL");

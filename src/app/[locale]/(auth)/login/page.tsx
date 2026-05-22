@@ -15,10 +15,14 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ error?: string; verified?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    verified?: string;
+    redirect?: string;
+  }>;
 }) {
   const { locale } = await params;
-  const { error, verified } = await searchParams;
+  const { error, verified, redirect } = await searchParams;
   const messages = getMessages(locale);
   const verifiedMessage =
     verified === "1"
@@ -76,6 +80,7 @@ export default async function LoginPage({
             locale={locale}
             messages={messages}
             initialErrorText={errorText}
+            redirectTo={redirect}
           />
           <p className="text-center text-sm text-muted-foreground">
             {messages.auth.noAccount}{" "}

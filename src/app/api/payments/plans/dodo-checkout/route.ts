@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/locales";
 type DodoCheckoutRequest = {
   planId: string;
   locale?: Locale;
+  returnTo?: string;
   paymentMethod?: string;
   cardholder?: string;
   email?: string;
@@ -22,14 +23,33 @@ type DodoCheckoutRequest = {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
+    const body: DodoCheckoutRequest = await req.json();
+    const {
+      planId,
+      cardholder,
+      email,
+      paymentMethod,
+      activationMode,
+      locale,
+      returnTo,
+    } = body;
+
+    const safeLocale: Locale =
+      locale === "ar" || locale === "fr" ? locale : "en";
+    const baseUrl = getRequestBaseUrl(req.headers) ?? "http://localhost:3000";
+    const loginUrl = `${baseUrl}/${safeLocale}/login${
+      returnTo ? `?redirect=${encodeURIComponent(returnTo)}` : ""
+    }`;
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          loginUrl,
+        },
+        { status: 401 },
+      );
     }
-
-    const body: DodoCheckoutRequest = await req.json();
-    const { planId, cardholder, email, paymentMethod, activationMode, locale } =
-      body;
 
     if (!planId) {
       return NextResponse.json(
@@ -158,11 +178,28 @@ export async function POST(req: NextRequest) {
       return process.env.DODO_PRODUCT_ID;
     })();
 
-    const DODO_API_BASE_URL =
+    const resolvedDodoBase =
       process.env.DODO_API_BASE_URL ??
-      (process.env.NODE_ENV === "development"
+      (process.env.DODO_MODE === "test"
         ? "https://test.dodopayments.com"
         : "https://live.dodopayments.com");
+
+    if (
+      (resolvedDodoBase.includes("localhost") ||
+        resolvedDodoBase.includes("127.0.0.1")) &&
+      process.env.NODE_ENV !== "development"
+    ) {
+      console.error(
+        "Invalid DODO_API_BASE_URL in production environment:",
+        resolvedDodoBase,
+      );
+      return NextResponse.json(
+        { error: "Dodo API base is misconfigured" },
+        { status: 500 },
+      );
+    }
+
+    const DODO_API_BASE_URL = resolvedDodoBase;
 
     if (!DODO_API_KEY || !DODO_PRODUCT_ID) {
       return NextResponse.json(
@@ -174,15 +211,10 @@ export async function POST(req: NextRequest) {
     const customerEmail = email || session.user.email;
     const customerName = cardholder || session.user.name || "Customer";
 
-    // Generate a local session id so we can show a session token on
-    // the return page regardless of Dodo's own redirect params.
     const localSessionId =
       typeof globalThis.crypto?.randomUUID === "function"
         ? globalThis.crypto.randomUUID()
         : `local_${Date.now()}`;
-
-    const safeLocale: Locale =
-      locale === "ar" || locale === "fr" ? locale : "en";
 
     const returnUrlWithSession = `${BASE_URL}/${safeLocale}/payments/success?session=${encodeURIComponent(
       localSessionId,
@@ -206,7 +238,7 @@ export async function POST(req: NextRequest) {
       return_url: returnUrlWithSession,
       cancel_url: `${BASE_URL}/${safeLocale}/pricing`,
     };
-
+    console.log("DODO_API_BASE_URL", `${DODO_API_BASE_URL}/checkouts`);
     const dodoResponse = await fetch(`${DODO_API_BASE_URL}/checkouts`, {
       method: "POST",
       headers: {

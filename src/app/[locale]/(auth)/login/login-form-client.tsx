@@ -16,10 +16,12 @@ export function LoginFormClient({
   locale,
   messages,
   initialErrorText,
+  redirectTo,
 }: {
   locale: Locale;
   messages: Messages;
   initialErrorText: string | null;
+  redirectTo?: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -90,8 +92,11 @@ export function LoginFormClient({
       user?: { role?: "USER" | "SELLER" | "ADMIN" };
     };
 
-    const nextPath =
-      session.user?.role === "ADMIN"
+    const nextPath = redirectTo
+      ? redirectTo.startsWith("/")
+        ? redirectTo
+        : `/${locale}`
+      : session.user?.role === "ADMIN"
         ? `/${locale}/dashboard/admin`
         : session.user?.role === "SELLER"
           ? `/${locale}/dashboard/seller`
