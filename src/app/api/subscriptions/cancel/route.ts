@@ -5,7 +5,7 @@ import { getActiveSubscription } from "@/lib/getActiveSubscription";
 
 const DODO_BASE =
   process.env.DODO_API_BASE_URL ??
-  (process.env.NODE_ENV === "production"
+  (process.env.DODO_MODE === "test"
     ? "https://live.dodopayments.com"
     : "https://test.dodopayments.com");
 

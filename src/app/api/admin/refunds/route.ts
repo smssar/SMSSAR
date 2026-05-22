@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     const DODO_API_KEY = process.env.DODO_API_KEY;
     const DODO_API_BASE_URL =
       process.env.DODO_API_BASE_URL ??
-      (process.env.NODE_ENV === "development"
+      (process.env.DODO_MODE === "test"
         ? "https://test.dodopayments.com"
         : "https://live.dodopayments.com");
 
