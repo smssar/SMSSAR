@@ -7,12 +7,14 @@ import { ensurePlan } from "@/lib/ensure-plan";
 type DodoWebhookData = {
   customer?: {
     email?: string | null;
+    name?: string | null;
   } | null;
   cancel_at_next_billing_date?: boolean;
   subscription_id?: string | null;
   metadata?: {
     productId?: string | null;
     userId?: string | null;
+    userName?: string | null;
     userEmail?: string | null;
     activationMode?: string | null;
     paymentId?: string | null;
@@ -79,6 +81,10 @@ export const POST = Webhooks({
 
   onPaymentSucceeded: async (payload) => {
     try {
+      const customerName =
+        payload.data?.customer?.name ??
+        payload.data?.metadata?.userName ??
+        null;
       const productId =
         payload.data?.metadata?.productId ??
         payload.data?.product_cart?.[0]?.product_id;
@@ -129,6 +135,22 @@ export const POST = Webhooks({
       if (!user) {
         console.error("No user found for Dodo customer:", customerEmail);
         return;
+      }
+
+      // Persist customer name if available and user has no name
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
       }
 
       const startDate = new Date();
@@ -250,6 +272,10 @@ export const POST = Webhooks({
   onPaymentFailed: async (payload) => {
     try {
       const customerEmail = payload.data?.customer?.email;
+      const customerName =
+        payload.data?.customer?.name ??
+        payload.data?.metadata?.userName ??
+        null;
 
       if (!customerEmail) return;
 
@@ -260,6 +286,21 @@ export const POST = Webhooks({
       });
 
       if (!user) return;
+
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
+      }
 
       await prisma.subscription.updateMany({
         where: {
@@ -278,6 +319,7 @@ export const POST = Webhooks({
   onSubscriptionCancelled: async (payload) => {
     try {
       const customerEmail = payload.data?.customer?.email;
+      const customerName = payload.data?.customer?.name ?? null;
       const dodoSubscriptionId = payload.data?.subscription_id;
 
       if (!customerEmail) return;
@@ -289,6 +331,21 @@ export const POST = Webhooks({
       });
 
       if (!user) return;
+
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
+      }
 
       // cancel subscription
       await prisma.subscription.updateMany({
@@ -314,6 +371,8 @@ export const POST = Webhooks({
   onSubscriptionUpdated: async (payload) => {
     try {
       const data = (payload.data ?? {}) as DodoWebhookData;
+      const customerName =
+        data?.customer?.name ?? data?.metadata?.userName ?? null;
       const customerEmail = data?.customer?.email ?? data?.metadata?.userEmail;
       if (!customerEmail) return;
 
@@ -321,6 +380,21 @@ export const POST = Webhooks({
         where: { email: customerEmail },
       });
       if (!user) return;
+
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
+      }
 
       const dodoSubscriptionId =
         data?.subscription_id ?? data?.metadata?.subscriptionId;
@@ -360,6 +434,8 @@ export const POST = Webhooks({
     try {
       const data = (payload.data ?? {}) as DodoWebhookData;
       const customerEmail = data?.customer?.email ?? data?.metadata?.userEmail;
+      const customerName =
+        data?.customer?.name ?? data?.metadata?.userName ?? null;
       const expiredAt = data?.end_date ? new Date(data.end_date) : null;
 
       if (!customerEmail) return;
@@ -367,6 +443,21 @@ export const POST = Webhooks({
         where: { email: customerEmail },
       });
       if (!user) return;
+
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
+      }
 
       // Ignore premature expiration callbacks until the actual end date.
       if (expiredAt && expiredAt > new Date()) {
@@ -396,9 +487,10 @@ export const POST = Webhooks({
   onRefundSucceeded: async (payload) => {
     try {
       const data = payload.data as {
-        customer?: { email?: string | null } | null;
+        customer?: { email?: string | null; name?: string | null } | null;
         metadata?: {
           userEmail?: string | null;
+          userName?: string | null;
           paymentId?: string | null;
           subscriptionId?: string | null;
         } | null;
@@ -407,11 +499,28 @@ export const POST = Webhooks({
       };
 
       const customerEmail = data?.customer?.email ?? data?.metadata?.userEmail;
+      const customerName =
+        data?.customer?.name ?? data?.metadata?.userName ?? null;
       if (!customerEmail) return;
       const user = await prisma.user.findUnique({
         where: { email: customerEmail },
       });
       if (!user) return;
+
+      if (customerName && !user.name) {
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: customerName },
+          });
+        } catch (e) {
+          console.error(
+            "Failed to persist customer name for user:",
+            user.id,
+            e,
+          );
+        }
+      }
 
       // mark subscriptions with this paymentId as cancelled
       const isPartialRefund = Boolean(data?.is_partial);
