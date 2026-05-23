@@ -34,6 +34,12 @@ const VALID_STATUSES = [
   "DISABLED",
 ] as const;
 
+const REFUND_ACTION_STATUSES: SubscriptionStatus[] = [
+  "ACTIVE",
+  "SCHEDULED",
+  "WiLL_EXPIRE",
+];
+
 function isValidStatus(value: string): value is SubscriptionStatus {
   return VALID_STATUSES.includes(value as (typeof VALID_STATUSES)[number]);
 }
@@ -259,44 +265,58 @@ export default async function AdminRefundsPage({
 
                     {/* Right: Action Button */}
                     <div className="flex items-center justify-center md:items-end md:justify-end">
-                      <RefundButton
-                        paymentId={sub.paymentId!}
-                        subscriptionId={sub.id}
-                        cancelText={messages.common.cancel ?? "Cancel"}
-                        partialAmountLabel={
-                          messages.dashboard.admin.refundsPage?.partialAmount ??
-                          "Partial amount (DH)"
-                        }
-                        partialAmountHelp={
-                          messages.dashboard.admin.refundsPage
-                            ?.partialAmountHelp ??
-                          "Leave empty for a full refund"
-                        }
-                        partialAmountPlaceholder={
-                          messages.dashboard.admin.refundsPage
-                            ?.partialAmountPlaceholder ?? "0 DH"
-                        }
-                        confirmText={
-                          messages.dashboard.admin.refundsPage?.refundConfirm ??
-                          "Refund this payment? This will mark the subscription as cancelled."
-                        }
-                        successText={
-                          messages.dashboard.admin.refundsPage?.refundSuccess ??
-                          "Refund issued"
-                        }
-                        errorText={
-                          messages.dashboard.admin.refundsPage?.refundError ??
-                          "Refund failed"
-                        }
-                        processingText={
-                          messages.dashboard.admin.refundsPage?.processing ??
-                          "Processing..."
-                        }
-                        refundText={
-                          messages.dashboard.admin.refundsPage?.refund ??
-                          "Refund"
-                        }
-                      />
+                      {REFUND_ACTION_STATUSES.includes(sub.status) ? (
+                        <RefundButton
+                          paymentId={sub.paymentId!}
+                          subscriptionId={sub.id}
+                          cancelText={messages.common.cancel ?? "Cancel"}
+                          partialAmountLabel={
+                            messages.dashboard.admin.refundsPage
+                              ?.partialAmount ?? "Partial amount (DH)"
+                          }
+                          partialAmountHelp={
+                            messages.dashboard.admin.refundsPage
+                              ?.partialAmountHelp ??
+                            "Leave empty for a full refund"
+                          }
+                          partialAmountPlaceholder={
+                            messages.dashboard.admin.refundsPage
+                              ?.partialAmountPlaceholder ?? "0 DH"
+                          }
+                          confirmText={
+                            messages.dashboard.admin.refundsPage
+                              ?.refundConfirm ??
+                            "Refund this payment? This will mark the subscription as cancelled."
+                          }
+                          successText={
+                            messages.dashboard.admin.refundsPage
+                              ?.refundSuccess ?? "Refund issued"
+                          }
+                          errorText={
+                            messages.dashboard.admin.refundsPage?.refundError ??
+                            "Refund failed"
+                          }
+                          processingText={
+                            messages.dashboard.admin.refundsPage?.processing ??
+                            "Processing..."
+                          }
+                          refundText={
+                            messages.dashboard.admin.refundsPage?.refund ??
+                            "Refund"
+                          }
+                        />
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-muted-foreground"
+                        >
+                          {locale === "ar"
+                            ? "الاسترجاع غير متاح لهذه الحالة"
+                            : locale === "fr"
+                              ? "Remboursement indisponible pour ce statut"
+                              : "Refund unavailable for this status"}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Locale } from "@/lib/locales";
-import { Search, X } from "lucide-react";
+import { Search, X, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 type RefundFiltersProps = {
@@ -35,6 +35,10 @@ export function RefundFilters({ locale }: RefundFiltersProps) {
 
   const handleClear = () => {
     window.location.href = "?";
+  };
+
+  const handleReload = () => {
+    window.location.reload();
   };
 
   const hasFilters = email || paymentId || status || dateFrom || dateTo;
@@ -176,6 +180,19 @@ export function RefundFilters({ locale }: RefundFiltersProps) {
                     : "Clear"}
               </Button>
             )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleReload}
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {locale === "ar"
+                ? "تحديث"
+                : locale === "fr"
+                  ? "Actualiser"
+                  : "Reload"}
+            </Button>
           </div>
         </form>
       </CardContent>
