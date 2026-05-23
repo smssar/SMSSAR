@@ -10,7 +10,11 @@ type RefundRequest = {
   partialAmount?: number;
 };
 
-const REFUNDABLE_STATUSES: SubscriptionStatus[] = ["ACTIVE", "WiLL_EXPIRE"];
+const REFUNDABLE_STATUSES: SubscriptionStatus[] = [
+  "ACTIVE",
+  "WiLL_EXPIRE",
+  "SCHEDULED",
+];
 
 function mapPlanToProductId(planId?: string | null) {
   const proProductId = process.env.DODO_PRODUCT_ID_PRO_PLAN;
