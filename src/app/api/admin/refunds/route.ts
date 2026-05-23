@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             error:
-              "Refunds are only allowed for ACTIVE or WiLL_EXPIRE subscriptions",
+              "Refunds are only allowed for ACTIVE, WiLL_EXPIRE, or SCHEDULED subscriptions",
           },
           { status: 400 },
         );
@@ -88,20 +88,21 @@ export async function POST(req: Request) {
     }
 
     const DODO_API_KEY = process.env.DODO_API_KEY;
-    const DODO_API_BASE_URL =
+    const resolvedDodoBase =
       process.env.DODO_API_BASE_URL ??
       (process.env.DODO_MODE === "test"
         ? "https://test.dodopayments.com"
         : "https://live.dodopayments.com");
 
     if (!DODO_API_KEY) {
+      console.error("DODO_API_KEY missing in environment");
       return NextResponse.json(
         { error: "Dodo API key missing" },
         { status: 502 },
       );
     }
 
-    const refundUrl = `${DODO_API_BASE_URL}/refunds`;
+    const refundUrl = `${resolvedDodoBase}/refunds`;
 
     const refundBody: {
       payment_id: string;
@@ -142,21 +143,39 @@ export async function POST(req: Request) {
       ];
     }
 
-    const resp = await fetch(refundUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${DODO_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(refundBody),
-    });
+    let resp;
+    try {
+      resp = await fetch(refundUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${DODO_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(refundBody),
+      });
+    } catch (err) {
+      console.error("Dodo refund request failed:", err);
+      return NextResponse.json(
+        {
+          error: "Dodo request failed",
+          detail: err instanceof Error ? err.message : String(err),
+        },
+        { status: 502 },
+      );
+    }
 
     const raw = await resp.text();
-    const data = raw ? JSON.parse(raw) : null;
+    let data = null;
+    try {
+      data = raw ? JSON.parse(raw) : null;
+    } catch {
+      data = raw;
+    }
 
     if (!resp.ok) {
+      console.error("Dodo refund failed", { status: resp.status, body: data });
       return NextResponse.json(
-        { error: "Refund failed", detail: data },
+        { error: "Refund failed", status: resp.status, detail: data },
         { status: 502 },
       );
     }
