@@ -6,8 +6,8 @@ import { getActiveSubscription } from "@/lib/getActiveSubscription";
 const DODO_BASE =
   process.env.DODO_API_BASE_URL ??
   (process.env.DODO_MODE === "test"
-    ? "https://live.dodopayments.com"
-    : "https://test.dodopayments.com");
+    ? "https://test.dodopayments.com"
+    : "https://live.dodopayments.com");
 
 export async function cancelSubscriptionInDodo(subscriptionId: string) {
   const apiKey = process.env.DODO_API_KEY;
