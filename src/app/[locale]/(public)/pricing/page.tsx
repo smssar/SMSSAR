@@ -39,7 +39,12 @@ export default async function PricingPage({
 }) {
   const { locale } = await params;
   const messages = getMessages(locale);
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch (error) {
+    console.warn("Ignoring auth session error on pricing page:", error);
+  }
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
   const plansResponse = await fetch(`${baseUrl}/api/plans`, {
     cache: "no-store",
