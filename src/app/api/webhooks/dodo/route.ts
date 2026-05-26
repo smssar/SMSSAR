@@ -486,66 +486,55 @@ export const POST = Webhooks({
   // PAYMENT REFUNDED
   onRefundSucceeded: async (payload) => {
     try {
-      const data = payload.data as {
-        customer?: { email?: string | null; name?: string | null } | null;
-        metadata?: {
-          userEmail?: string | null;
-          userName?: string | null;
-          paymentId?: string | null;
-          subscriptionId?: string | null;
-        } | null;
-        payment_id?: string | null;
-        is_partial?: boolean | null;
-      };
+      const data = payload.data ?? {};
 
       const customerEmail = data?.customer?.email ?? data?.metadata?.userEmail;
+
       const customerName =
         data?.customer?.name ?? data?.metadata?.userName ?? null;
+
       if (!customerEmail) return;
+
       const user = await prisma.user.findUnique({
         where: { email: customerEmail },
       });
+
       if (!user) return;
 
       if (customerName && !user.name) {
-        try {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { name: customerName },
-          });
-        } catch (e) {
-          console.error(
-            "Failed to persist customer name for user:",
-            user.id,
-            e,
-          );
-        }
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { name: customerName },
+        });
       }
 
-      // mark subscriptions with this paymentId as cancelled
-      const isPartialRefund = Boolean(data?.is_partial);
       const paymentId = data?.payment_id ?? data?.metadata?.paymentId;
-      const dodoSubscriptionId = data?.metadata?.subscriptionId;
-      if (paymentId && !isPartialRefund) {
-        await prisma.subscription.updateMany({
-          where: {
-            paymentId,
-            status: { not: "CANCELLED" },
-          },
-          data: { status: "CANCELLED" },
-        });
-      }
 
-      if (dodoSubscriptionId && !isPartialRefund) {
-        await prisma.subscription.updateMany({
-          where: { dodoSubscriptionId },
-          data: { status: "CANCELLED" },
-        });
-      }
+      const subscriptionId = data?.metadata?.subscriptionId;
+
+      const isPartialRefund = Boolean(data?.is_partial);
 
       if (isPartialRefund) {
-        console.log("Partial refund succeeded; subscription remains active.");
+        console.log("Partial refund → no subscription change");
+        return;
       }
+
+      if (paymentId) {
+        await prisma.subscription.updateMany({
+          where: { paymentId },
+          data: { status: "CANCELLED" },
+        });
+      }
+
+      // Cancel by subscriptionId
+      if (subscriptionId) {
+        await prisma.subscription.updateMany({
+          where: { dodoSubscriptionId: subscriptionId },
+          data: { status: "CANCELLED" },
+        });
+      }
+
+      console.log("Refund processed successfully for:", customerEmail);
     } catch (error) {
       console.error("Error handling refund webhook:", error);
     }
