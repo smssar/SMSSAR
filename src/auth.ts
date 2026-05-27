@@ -36,7 +36,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   logger: {
     error(error) {
-      if (error instanceof AuthError && error.type === "CredentialsSignin") {
+      if (
+        (error instanceof AuthError && error.type === "CredentialsSignin") ||
+        error.name === "JWTSessionError"
+      ) {
         return;
       }
 

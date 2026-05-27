@@ -63,6 +63,7 @@ export function SiteNavbar({
     { key: "about", href: `/${locale}/about` },
     { key: "properties", href: `/${locale}/properties` },
     { key: "pricing", href: `/${locale}/pricing` },
+    { key: "contact", href: `/${locale}/contact` },
   ];
 
   if (showSellerLink) {

@@ -45,15 +45,9 @@ export default async function PricingPage({
   try {
     session = await auth();
   } catch (error) {
-    console.warn("Ignoring auth session error on pricing page:", error);
+    session = null;
   }
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  const plansResponse = await fetch(`${baseUrl}/api/plans`, {
-    cache: "no-store",
-  });
-
-  const plansData = (await plansResponse.json()) as { data?: Plan[] };
-  const plans = plansData.data ?? [];
+  const plans = await prisma.plan.findMany({ orderBy: { price: "asc" } });
   let currentPlanId: string | null = null;
   let activeSubscription = null;
   let scheduledSubscription = null;

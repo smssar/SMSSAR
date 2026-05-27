@@ -27,7 +27,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
   const requestHeaders = await headers();
   const headerLocale = requestHeaders.get("x-locale");
   const locale: Locale =

@@ -1413,6 +1413,7 @@ export const SubscriptionScalarFieldEnum = {
   paymentId: 'paymentId',
   dodoSubscriptionId: 'dodoSubscriptionId',
   localSessionId: 'localSessionId',
+  refunded: 'refunded',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

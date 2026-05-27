@@ -14,7 +14,12 @@ export default async function PublicLayout({
 }) {
   const { locale } = (await params) as { locale: Locale };
   const messages = getMessages(locale);
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
 
   return (
     <div className="min-h-screen bg-background">

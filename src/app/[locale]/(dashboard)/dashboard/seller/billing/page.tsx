@@ -82,7 +82,7 @@ export default async function SellerBillingPage({ params }: Props) {
                 {willExpire && current?.endDate ? (
                   <div className="mt-3 flex items-center gap-4">
                     <div className="rounded-md bg-amber-50/60 px-3 py-2 text-2xl font-semibold text-amber-700">
-                      {timeUntil(current.endDate, locale)}
+                      {timeUntil(current.endDate)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {locale === "ar"
@@ -135,7 +135,7 @@ export default async function SellerBillingPage({ params }: Props) {
               <div className="font-medium">
                 {formatDate(current?.endDate, locale)}
                 {willExpire && current?.endDate ? (
-                  <div className="text-sm text-muted-foreground">{` (${timeUntil(current.endDate, locale)} left)`}</div>
+                  <div className="text-sm text-muted-foreground">{` (${timeUntil(current.endDate)} left)`}</div>
                 ) : null}
               </div>
             </div>
@@ -157,7 +157,7 @@ export default async function SellerBillingPage({ params }: Props) {
             </div>
 
             <div className="pt-4 col-span-full flex justify-end">
-              {active ? (
+              {active && current?.plan?.id !== "plan_free" ? (
                 <CancelButton
                   label={messages.common.cancel}
                   confirmMessage={messages.dashboard.seller.confirmCancel}
@@ -241,10 +241,7 @@ function formatDate(date: string | Date | null | undefined, locale: string) {
   }
 }
 
-function timeUntil(
-  date: string | Date | null | undefined,
-  locale: string = "en",
-) {
+function timeUntil(date: string | Date | null | undefined) {
   if (!date) return "-";
   const then = new Date(date).getTime();
   const now = Date.now();

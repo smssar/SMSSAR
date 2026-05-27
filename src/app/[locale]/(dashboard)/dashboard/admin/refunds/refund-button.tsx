@@ -9,6 +9,7 @@ import { Undo2, Loader2, AlertTriangle } from "lucide-react";
 export function RefundButton({
   paymentId,
   subscriptionId,
+  locale,
   cancelText,
   partialAmountLabel,
   partialAmountHelp,
@@ -21,6 +22,7 @@ export function RefundButton({
 }: {
   paymentId: string;
   subscriptionId: string;
+  locale: string;
   cancelText: string;
   partialAmountLabel: string;
   partialAmountHelp: string;
@@ -55,6 +57,7 @@ export function RefundButton({
         body: JSON.stringify({
           paymentId,
           subscriptionId,
+          locale,
           partialAmount:
             parsedPartialAmount !== undefined
               ? parsedPartialAmount * 10
@@ -63,15 +66,35 @@ export function RefundButton({
       });
       const data = await res.json();
       if (!res.ok) {
-        const detailedMessage = [
-          typeof data?.error === "string" ? data.error : null,
-          typeof data?.detail === "string" ? data.detail : null,
-          typeof data?.dodo?.message === "string" ? data.dodo.message : null,
-        ]
-          .filter(Boolean)
-          .join(" - ");
+        const parts: string[] = [];
+        if (typeof data?.error === "string") parts.push(data.error);
+        if (typeof data?.detail === "string") parts.push(data.detail);
+        else if (data?.detail && typeof data.detail === "object") {
+          if (typeof data.detail.message === "string")
+            parts.push(data.detail.message);
+          if (typeof data.detail.code === "string")
+            parts.push(data.detail.code);
+          if (data.detail.body && typeof data.detail.body === "object") {
+            if (typeof data.detail.body.message === "string")
+              parts.push(data.detail.body.message);
+            if (typeof data.detail.body.code === "string")
+              parts.push(data.detail.body.code);
+          }
+        }
+        if (typeof data?.message === "string") parts.push(data.message);
+        if (data?.dodo && typeof data.dodo === "object") {
+          if (typeof data.dodo.message === "string")
+            parts.push(data.dodo.message);
+          if (data.dodo.body && typeof data.dodo.body === "object") {
+            if (typeof data.dodo.body.message === "string")
+              parts.push(data.dodo.body.message);
+            if (typeof data.dodo.body.code === "string")
+              parts.push(data.dodo.body.code);
+          }
+        }
 
-        throw new Error(detailedMessage || errorText);
+        const detailedMessage = parts.filter(Boolean).join(" - ") || errorText;
+        throw new Error(detailedMessage);
       }
       toast.success(successText);
       // reload to show updated status

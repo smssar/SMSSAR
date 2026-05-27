@@ -88,25 +88,27 @@ model Plan {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  users User[]
+  users         User[]
   subscriptions Subscription[]
 }
 
 model Subscription {
-  id             String   @id @default(cuid())
-  userId         String
-  planId         String
-  status         SubscriptionStatus @default(ACTIVE)
-  startDate      DateTime @default(now())
-  endDate        DateTime?
-  paymentId      String?
+  id                 String             @id @default(cuid())
+  userId             String
+  planId             String
+  status             SubscriptionStatus @default(ACTIVE)
+  startDate          DateTime           @default(now())
+  endDate            DateTime?
+  paymentId          String?            @unique
   dodoSubscriptionId String?
-  localSessionId String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  localSessionId     String?
+  refunded           Boolean            @default(false)
+  refund_id          String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan           Plan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict)
 
   @@index([userId])
   @@index([planId])
@@ -116,56 +118,56 @@ model Subscription {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  name         String?
-  email        String?    @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
   emailVerified DateTime?
-  passwordHash String?
-  avatar       String?
+  passwordHash  String?
+  avatar        String?
 
-  phone        String?
-  city         String?
-  bio          String?
+  phone String?
+  city  String?
+  bio   String?
 
-  suspendedAt   DateTime?
-  suspendedUntil DateTime?
+  suspendedAt      DateTime?
+  suspendedUntil   DateTime?
   suspendedMessage String?
-  suspendedBy   String?
-  bannedMessage String?
-  planId       String?
+  suspendedBy      String?
+  bannedMessage    String?
+  planId           String?
 
-  role         UserRole   @default(USER)
-  status       UserStatus @default(ACTIVE)
+  role   UserRole   @default(USER)
+  status UserStatus @default(ACTIVE)
 
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  plan         Plan?      @relation(fields: [planId], references: [id])
+  plan Plan? @relation(fields: [planId], references: [id])
 
-  properties   Property[]
-  favorites    Favorite[]
-  accounts     Account[]
-  sessions     Session[]
+  properties    Property[]
+  favorites     Favorite[]
+  accounts      Account[]
+  sessions      Session[]
   subscriptions Subscription[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId             String
-  provider           String
-  providerAccountId  String
+  userId            String
+  provider          String
+  providerAccountId String
 
-  access_token       String?
-  refresh_token      String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  access_token  String?
+  refresh_token String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

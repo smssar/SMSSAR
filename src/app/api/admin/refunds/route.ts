@@ -8,6 +8,7 @@ type RefundRequest = {
   subscriptionId?: string;
   reason?: string;
   partialAmount?: number;
+  locale?: string;
 };
 
 const REFUNDABLE_STATUSES: SubscriptionStatus[] = [
@@ -39,6 +40,8 @@ export async function POST(req: Request) {
 
     const body: RefundRequest = await req.json();
     const { subscriptionId, reason, partialAmount } = body;
+    const locale =
+      body.locale === "ar" || body.locale === "fr" ? body.locale : "en";
     let paymentId = body.paymentId;
     let subscription: {
       id: string;
@@ -107,6 +110,7 @@ export async function POST(req: Request) {
     const refundBody: {
       payment_id: string;
       reason: string;
+      metadata?: { locale: string };
       items?: Array<{
         item_id: string;
         amount?: number | null;
@@ -115,6 +119,7 @@ export async function POST(req: Request) {
     } = {
       payment_id: paymentId!,
       reason: reason ?? "admin_refund",
+      metadata: { locale },
     };
 
     if (partialAmount !== undefined && partialAmount !== null) {

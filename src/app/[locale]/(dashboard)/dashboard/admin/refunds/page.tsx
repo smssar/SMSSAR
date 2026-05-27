@@ -265,10 +265,11 @@ export default async function AdminRefundsPage({
 
                     {/* Right: Action Button */}
                     <div className="flex items-center justify-center md:items-end md:justify-end">
-                      {REFUND_ACTION_STATUSES.includes(sub.status) ? (
+                      {REFUND_ACTION_STATUSES.includes(sub.status) && !sub.refunded ? (
                         <RefundButton
                           paymentId={sub.paymentId!}
                           subscriptionId={sub.id}
+                          locale={locale}
                           cancelText={messages.common.cancel ?? "Cancel"}
                           partialAmountLabel={
                             messages.dashboard.admin.refundsPage
