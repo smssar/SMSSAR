@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
-import { jsonError, readJson } from "@/lib/api-utils";
+import { jsonError, readJson, jsonFieldErrors } from "@/lib/api-utils";
+import { getMessages } from "@/lib/messages";
 
 export const runtime = "nodejs";
 
@@ -88,7 +89,6 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
 
-  // Check if property exists and belongs to the seller (if seller)
   if (session.user.role === "SELLER") {
     const property = await prisma.property.findUnique({
       where: { id },
@@ -128,6 +128,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       neighborhood: true,
       imageUrl: true,
       videoUrl: true,
+      featured: true,
+      sellerId: true,
       media: {
         select: { id: true, url: true, publicId: true, type: true },
       },
@@ -204,21 +206,61 @@ export async function PATCH(request: Request, context: RouteContext) {
     data.priceType = body.priceType.trim();
   }
 
+  const localeHeader = (request.headers as Headers).get
+    ? (request.headers as Headers).get("x-locale") || undefined
+    : undefined;
+  const messages = getMessages(localeHeader);
+  const locale =
+    localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
+
+  const featuredNotAllowedMessage =
+    locale === "ar"
+      ? "الخطة الحالية لا تسمح بالعقارات المميزة."
+      : locale === "fr"
+        ? "Votre forfait actuel n'autorise pas les annonces en vedette."
+        : "Your current plan does not allow featured listings.";
+
+  const featuredLimitReachedMessage = (maxFeatured: number) =>
+    locale === "ar"
+      ? `خطتك تسمح بحد أقصى ${maxFeatured} عقار${maxFeatured === 1 ? "" : "ات"} مميز. لقد وصلت إلى الحد.`
+      : locale === "fr"
+        ? `Votre forfait autorise jusqu'a ${maxFeatured} annonce${maxFeatured === 1 ? "" : "s"} en vedette. Vous avez atteint la limite.`
+        : `Your plan allows up to ${maxFeatured} featured listing${maxFeatured === 1 ? "" : "s"}. You have reached the limit.`;
+
   if (data.title !== undefined && data.title.length === 0) {
-    return jsonError("Title is required.", 400);
+    return jsonFieldErrors(
+      { title: messages.dashboard.seller.validation.title.required },
+      messages.dashboard.seller.validation.fixErrors,
+      400,
+    );
   }
   if (data.city !== undefined && data.city.length === 0) {
-    return jsonError("City is required.", 400);
+    return jsonFieldErrors(
+      { city: messages.dashboard.seller.validation.city.required },
+      messages.dashboard.seller.validation.fixErrors,
+      400,
+    );
   }
   if (!data.neighborhood || data.neighborhood.length === 0) {
-    return jsonError("Neighborhood is required.", 400);
+    return jsonFieldErrors(
+      {
+        neighborhood:
+          messages.dashboard.seller.validation.neighborhood.minLength,
+      },
+      messages.dashboard.seller.validation.fixErrors,
+      400,
+    );
   }
   if (
     data.propertyTypeId !== undefined &&
     data.propertyTypeId !== null &&
     data.propertyTypeId.length === 0
   ) {
-    return jsonError("Property type is required.", 400);
+    return jsonFieldErrors(
+      { propertyTypeId: "Property type is required." },
+      messages.dashboard.seller.validation.fixErrors,
+      400,
+    );
   }
 
   const nextCity = data.city ?? existingProperty.city;
@@ -234,10 +276,54 @@ export async function PATCH(request: Request, context: RouteContext) {
     });
 
     if (!neighborhoodExists) {
-      return jsonError(
-        `Neighborhood '${nextNeighborhood}' is not available for city '${nextCity}'.`,
+      return jsonFieldErrors(
+        {
+          neighborhood:
+            messages.dashboard.seller.validation.neighborhood.minLength,
+        },
+        messages.dashboard.seller.validation.fixErrors,
         400,
       );
+    }
+  }
+
+  // Check featured property limit if featured status is being changed or set to true
+  if (data.featured === true && !existingProperty.featured) {
+    if (session.user.role === "SELLER") {
+      const sellerAccount = await prisma.user.findUnique({
+        where: { id: existingProperty.sellerId },
+        select: { id: true, featuredproperties: true, planId: true },
+      });
+
+      if (!sellerAccount?.planId) {
+        return jsonError("User plan not found.", 500);
+      }
+
+      const sellerPlan = await prisma.plan.findUnique({
+        where: { id: sellerAccount.planId },
+      });
+
+      if (!sellerPlan) {
+        return jsonError("User plan not found.", 500);
+      }
+
+      if (!sellerPlan.featured) {
+        return jsonError(featuredNotAllowedMessage, 400);
+      }
+
+      const maxFeatured = sellerPlan.maxFeaturedListings;
+      const currentFeatured = sellerAccount.featuredproperties ?? 0;
+      if (typeof maxFeatured === "number" && currentFeatured >= maxFeatured) {
+        console.log(
+          "[FEATURED LIMIT] Blocking update: sellerId=",
+          existingProperty.sellerId,
+          "currentFeatured=",
+          currentFeatured,
+          "maxFeatured=",
+          maxFeatured,
+        );
+        return jsonError(featuredLimitReachedMessage(maxFeatured), 400);
+      }
     }
   }
 
@@ -412,16 +498,53 @@ export async function PATCH(request: Request, context: RouteContext) {
       },
     };
 
-    const property = hasFieldUpdates
-      ? await prisma.property.update({
+    let property;
+
+    const willBeFeatured = data.featured === true && !existingProperty.featured;
+    const willBeUnfeatured =
+      data.featured === false && existingProperty.featured;
+
+    if (hasFieldUpdates) {
+      if (willBeFeatured || willBeUnfeatured) {
+        property = await prisma.$transaction(async (tx) => {
+          const updated = await tx.property.update({
+            where: { id },
+            data,
+            include,
+          });
+
+          if (willBeFeatured) {
+            await tx.user.update({
+              where: { id: existingProperty.sellerId },
+              data: { featuredproperties: { increment: 1 } },
+            });
+          }
+
+          if (willBeUnfeatured) {
+            const user = await tx.user.findUnique({
+              where: { id: existingProperty.sellerId },
+              select: { featuredproperties: true },
+            });
+            const current = user?.featuredproperties ?? 0;
+            const next = Math.max(current - 1, 0);
+            await tx.user.update({
+              where: { id: existingProperty.sellerId },
+              data: { featuredproperties: next },
+            });
+          }
+
+          return updated;
+        });
+      } else {
+        property = await prisma.property.update({
           where: { id },
           data,
           include,
-        })
-      : await prisma.property.findUnique({
-          where: { id },
-          include,
         });
+      }
+    } else {
+      property = await prisma.property.findUnique({ where: { id }, include });
+    }
 
     if (!property) {
       return jsonError("Property not found.", 404);
@@ -473,7 +596,45 @@ export async function DELETE(_: Request, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    await prisma.property.delete({ where: { id } });
+    // Fetch property to know if it was featured and who the seller is
+    const propertyToDelete = await prisma.property.findUnique({
+      where: { id },
+      select: { featured: true, sellerId: true },
+    });
+
+    if (!propertyToDelete) {
+      return jsonError("Property not found.", 404);
+    }
+
+    // Ensure sellers can only delete their own properties
+    if (
+      session.user.role === "SELLER" &&
+      propertyToDelete.sellerId !== session.user.id
+    ) {
+      return jsonError("You can only delete your own properties.", 403);
+    }
+
+    // Delete property and adjust user's featured count in a transaction
+    await prisma.$transaction(async (tx) => {
+      await tx.property.delete({ where: { id } });
+
+      if (propertyToDelete.featured) {
+        // Read current count and clamp to zero then update
+        const user = await tx.user.findUnique({
+          where: { id: propertyToDelete.sellerId },
+          select: { featuredproperties: true },
+        });
+
+        const current = user?.featuredproperties ?? 0;
+        const next = Math.max(current - 1, 0);
+
+        await tx.user.update({
+          where: { id: propertyToDelete.sellerId },
+          data: { featuredproperties: next },
+        });
+      }
+    });
+
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     if (

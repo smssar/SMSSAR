@@ -29,11 +29,21 @@ export type AggregatePlan = {
 export type PlanAvgAggregateOutputType = {
   price: number | null
   listings: number | null
+  ads: number | null
+  adsduration: number | null
+  maxFeaturedListings: number | null
+  maxImagesPerListing: number | null
+  maxVideosPerListing: number | null
 }
 
 export type PlanSumAggregateOutputType = {
   price: number | null
   listings: number | null
+  ads: number | null
+  adsduration: number | null
+  maxFeaturedListings: number | null
+  maxImagesPerListing: number | null
+  maxVideosPerListing: number | null
 }
 
 export type PlanMinAggregateOutputType = {
@@ -47,6 +57,11 @@ export type PlanMinAggregateOutputType = {
   price: number | null
   listings: number | null
   featured: boolean | null
+  ads: number | null
+  adsduration: number | null
+  maxFeaturedListings: number | null
+  maxImagesPerListing: number | null
+  maxVideosPerListing: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +77,11 @@ export type PlanMaxAggregateOutputType = {
   price: number | null
   listings: number | null
   featured: boolean | null
+  ads: number | null
+  adsduration: number | null
+  maxFeaturedListings: number | null
+  maxImagesPerListing: number | null
+  maxVideosPerListing: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -77,6 +97,11 @@ export type PlanCountAggregateOutputType = {
   price: number
   listings: number
   featured: number
+  ads: number
+  adsduration: number
+  maxFeaturedListings: number
+  maxImagesPerListing: number
+  maxVideosPerListing: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,11 +111,21 @@ export type PlanCountAggregateOutputType = {
 export type PlanAvgAggregateInputType = {
   price?: true
   listings?: true
+  ads?: true
+  adsduration?: true
+  maxFeaturedListings?: true
+  maxImagesPerListing?: true
+  maxVideosPerListing?: true
 }
 
 export type PlanSumAggregateInputType = {
   price?: true
   listings?: true
+  ads?: true
+  adsduration?: true
+  maxFeaturedListings?: true
+  maxImagesPerListing?: true
+  maxVideosPerListing?: true
 }
 
 export type PlanMinAggregateInputType = {
@@ -104,6 +139,11 @@ export type PlanMinAggregateInputType = {
   price?: true
   listings?: true
   featured?: true
+  ads?: true
+  adsduration?: true
+  maxFeaturedListings?: true
+  maxImagesPerListing?: true
+  maxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -119,6 +159,11 @@ export type PlanMaxAggregateInputType = {
   price?: true
   listings?: true
   featured?: true
+  ads?: true
+  adsduration?: true
+  maxFeaturedListings?: true
+  maxImagesPerListing?: true
+  maxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -134,6 +179,11 @@ export type PlanCountAggregateInputType = {
   price?: true
   listings?: true
   featured?: true
+  ads?: true
+  adsduration?: true
+  maxFeaturedListings?: true
+  maxImagesPerListing?: true
+  maxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -236,6 +286,11 @@ export type PlanGroupByOutputType = {
   price: number
   listings: number | null
   featured: boolean
+  ads: number | null
+  adsduration: number | null
+  maxFeaturedListings: number | null
+  maxImagesPerListing: number | null
+  maxVideosPerListing: number | null
   createdAt: Date
   updatedAt: Date
   _count: PlanCountAggregateOutputType | null
@@ -274,10 +329,16 @@ export type PlanWhereInput = {
   price?: Prisma.IntFilter<"Plan"> | number
   listings?: Prisma.IntNullableFilter<"Plan"> | number | null
   featured?: Prisma.BoolFilter<"Plan"> | boolean
+  ads?: Prisma.IntNullableFilter<"Plan"> | number | null
+  adsduration?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   users?: Prisma.UserListRelationFilter
   subscriptions?: Prisma.SubscriptionListRelationFilter
+  adCampaigns?: Prisma.AdListRelationFilter
 }
 
 export type PlanOrderByWithRelationInput = {
@@ -291,10 +352,16 @@ export type PlanOrderByWithRelationInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
+  ads?: Prisma.SortOrderInput | Prisma.SortOrder
+  adsduration?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   users?: Prisma.UserOrderByRelationAggregateInput
   subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
+  adCampaigns?: Prisma.AdOrderByRelationAggregateInput
 }
 
 export type PlanWhereUniqueInput = Prisma.AtLeast<{
@@ -311,10 +378,16 @@ export type PlanWhereUniqueInput = Prisma.AtLeast<{
   price?: Prisma.IntFilter<"Plan"> | number
   listings?: Prisma.IntNullableFilter<"Plan"> | number | null
   featured?: Prisma.BoolFilter<"Plan"> | boolean
+  ads?: Prisma.IntNullableFilter<"Plan"> | number | null
+  adsduration?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   users?: Prisma.UserListRelationFilter
   subscriptions?: Prisma.SubscriptionListRelationFilter
+  adCampaigns?: Prisma.AdListRelationFilter
 }, "id">
 
 export type PlanOrderByWithAggregationInput = {
@@ -328,6 +401,11 @@ export type PlanOrderByWithAggregationInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
+  ads?: Prisma.SortOrderInput | Prisma.SortOrder
+  adsduration?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlanCountOrderByAggregateInput
@@ -351,6 +429,11 @@ export type PlanScalarWhereWithAggregatesInput = {
   price?: Prisma.IntWithAggregatesFilter<"Plan"> | number
   listings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   featured?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
+  ads?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  adsduration?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  maxFeaturedListings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  maxImagesPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  maxVideosPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
 }
@@ -366,10 +449,16 @@ export type PlanCreateInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateInput = {
@@ -383,10 +472,16 @@ export type PlanUncheckedCreateInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUpdateInput = {
@@ -400,10 +495,16 @@ export type PlanUpdateInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateInput = {
@@ -417,10 +518,16 @@ export type PlanUncheckedUpdateInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateManyInput = {
@@ -434,6 +541,11 @@ export type PlanCreateManyInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -449,6 +561,11 @@ export type PlanUpdateManyMutationInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -464,6 +581,11 @@ export type PlanUncheckedUpdateManyInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -479,6 +601,11 @@ export type PlanCountOrderByAggregateInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
+  ads?: Prisma.SortOrder
+  adsduration?: Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -486,6 +613,11 @@ export type PlanCountOrderByAggregateInput = {
 export type PlanAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  ads?: Prisma.SortOrder
+  adsduration?: Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrder
 }
 
 export type PlanMaxOrderByAggregateInput = {
@@ -499,6 +631,11 @@ export type PlanMaxOrderByAggregateInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
+  ads?: Prisma.SortOrder
+  adsduration?: Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -514,6 +651,11 @@ export type PlanMinOrderByAggregateInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
+  ads?: Prisma.SortOrder
+  adsduration?: Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -521,6 +663,11 @@ export type PlanMinOrderByAggregateInput = {
 export type PlanSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  ads?: Prisma.SortOrder
+  adsduration?: Prisma.SortOrder
+  maxFeaturedListings?: Prisma.SortOrder
+  maxImagesPerListing?: Prisma.SortOrder
+  maxVideosPerListing?: Prisma.SortOrder
 }
 
 export type PlanScalarRelationFilter = {
@@ -583,6 +730,22 @@ export type PlanUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PlanUpdateToOneWithWhereWithoutUsersInput, Prisma.PlanUpdateWithoutUsersInput>, Prisma.PlanUncheckedUpdateWithoutUsersInput>
 }
 
+export type PlanCreateNestedOneWithoutAdCampaignsInput = {
+  create?: Prisma.XOR<Prisma.PlanCreateWithoutAdCampaignsInput, Prisma.PlanUncheckedCreateWithoutAdCampaignsInput>
+  connectOrCreate?: Prisma.PlanCreateOrConnectWithoutAdCampaignsInput
+  connect?: Prisma.PlanWhereUniqueInput
+}
+
+export type PlanUpdateOneWithoutAdCampaignsNestedInput = {
+  create?: Prisma.XOR<Prisma.PlanCreateWithoutAdCampaignsInput, Prisma.PlanUncheckedCreateWithoutAdCampaignsInput>
+  connectOrCreate?: Prisma.PlanCreateOrConnectWithoutAdCampaignsInput
+  upsert?: Prisma.PlanUpsertWithoutAdCampaignsInput
+  disconnect?: Prisma.PlanWhereInput | boolean
+  delete?: Prisma.PlanWhereInput | boolean
+  connect?: Prisma.PlanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PlanUpdateToOneWithWhereWithoutAdCampaignsInput, Prisma.PlanUpdateWithoutAdCampaignsInput>, Prisma.PlanUncheckedUpdateWithoutAdCampaignsInput>
+}
+
 export type PlanCreateWithoutSubscriptionsInput = {
   id: string
   title: string
@@ -594,9 +757,15 @@ export type PlanCreateWithoutSubscriptionsInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutSubscriptionsInput = {
@@ -610,9 +779,15 @@ export type PlanUncheckedCreateWithoutSubscriptionsInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutSubscriptionsInput = {
@@ -642,9 +817,15 @@ export type PlanUpdateWithoutSubscriptionsInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
@@ -658,9 +839,15 @@ export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateWithoutUsersInput = {
@@ -674,9 +861,15 @@ export type PlanCreateWithoutUsersInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutUsersInput = {
@@ -690,9 +883,15 @@ export type PlanUncheckedCreateWithoutUsersInput = {
   price: number
   listings?: number | null
   featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
+  adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutUsersInput = {
@@ -722,9 +921,15 @@ export type PlanUpdateWithoutUsersInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutUsersInput = {
@@ -738,8 +943,118 @@ export type PlanUncheckedUpdateWithoutUsersInput = {
   price?: Prisma.IntFieldUpdateOperationsInput | number
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+  adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
+}
+
+export type PlanCreateWithoutAdCampaignsInput = {
+  id: string
+  title: string
+  title_ar?: string | null
+  title_fr?: string | null
+  description: string
+  description_ar?: string | null
+  description_fr?: string | null
+  price: number
+  listings?: number | null
+  featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
+}
+
+export type PlanUncheckedCreateWithoutAdCampaignsInput = {
+  id: string
+  title: string
+  title_ar?: string | null
+  title_fr?: string | null
+  description: string
+  description_ar?: string | null
+  description_fr?: string | null
+  price: number
+  listings?: number | null
+  featured: boolean
+  ads?: number | null
+  adsduration?: number | null
+  maxFeaturedListings?: number | null
+  maxImagesPerListing?: number | null
+  maxVideosPerListing?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
+}
+
+export type PlanCreateOrConnectWithoutAdCampaignsInput = {
+  where: Prisma.PlanWhereUniqueInput
+  create: Prisma.XOR<Prisma.PlanCreateWithoutAdCampaignsInput, Prisma.PlanUncheckedCreateWithoutAdCampaignsInput>
+}
+
+export type PlanUpsertWithoutAdCampaignsInput = {
+  update: Prisma.XOR<Prisma.PlanUpdateWithoutAdCampaignsInput, Prisma.PlanUncheckedUpdateWithoutAdCampaignsInput>
+  create: Prisma.XOR<Prisma.PlanCreateWithoutAdCampaignsInput, Prisma.PlanUncheckedCreateWithoutAdCampaignsInput>
+  where?: Prisma.PlanWhereInput
+}
+
+export type PlanUpdateToOneWithWhereWithoutAdCampaignsInput = {
+  where?: Prisma.PlanWhereInput
+  data: Prisma.XOR<Prisma.PlanUpdateWithoutAdCampaignsInput, Prisma.PlanUncheckedUpdateWithoutAdCampaignsInput>
+}
+
+export type PlanUpdateWithoutAdCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
+}
+
+export type PlanUncheckedUpdateWithoutAdCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
 }
 
@@ -751,11 +1066,13 @@ export type PlanUncheckedUpdateWithoutUsersInput = {
 export type PlanCountOutputType = {
   users: number
   subscriptions: number
+  adCampaigns: number
 }
 
 export type PlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | PlanCountOutputTypeCountUsersArgs
   subscriptions?: boolean | PlanCountOutputTypeCountSubscriptionsArgs
+  adCampaigns?: boolean | PlanCountOutputTypeCountAdCampaignsArgs
 }
 
 /**
@@ -782,6 +1099,13 @@ export type PlanCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.SubscriptionWhereInput
 }
 
+/**
+ * PlanCountOutputType without action
+ */
+export type PlanCountOutputTypeCountAdCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdWhereInput
+}
+
 
 export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -794,10 +1118,16 @@ export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   price?: boolean
   listings?: boolean
   featured?: boolean
+  ads?: boolean
+  adsduration?: boolean
+  maxFeaturedListings?: boolean
+  maxImagesPerListing?: boolean
+  maxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
   subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
+  adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["plan"]>
 
@@ -812,6 +1142,11 @@ export type PlanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   price?: boolean
   listings?: boolean
   featured?: boolean
+  ads?: boolean
+  adsduration?: boolean
+  maxFeaturedListings?: boolean
+  maxImagesPerListing?: boolean
+  maxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -827,6 +1162,11 @@ export type PlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   price?: boolean
   listings?: boolean
   featured?: boolean
+  ads?: boolean
+  adsduration?: boolean
+  maxFeaturedListings?: boolean
+  maxImagesPerListing?: boolean
+  maxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -842,14 +1182,20 @@ export type PlanSelectScalar = {
   price?: boolean
   listings?: boolean
   featured?: boolean
+  ads?: boolean
+  adsduration?: boolean
+  maxFeaturedListings?: boolean
+  maxImagesPerListing?: boolean
+  maxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "listings" | "featured" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
+export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "listings" | "featured" | "ads" | "adsduration" | "maxFeaturedListings" | "maxImagesPerListing" | "maxVideosPerListing" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
 export type PlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
   subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
+  adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PlanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -860,6 +1206,7 @@ export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     users: Prisma.$UserPayload<ExtArgs>[]
     subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+    adCampaigns: Prisma.$AdPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -872,6 +1219,11 @@ export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     price: number
     listings: number | null
     featured: boolean
+    ads: number | null
+    adsduration: number | null
+    maxFeaturedListings: number | null
+    maxImagesPerListing: number | null
+    maxVideosPerListing: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["plan"]>
@@ -1270,6 +1622,7 @@ export interface Prisma__PlanClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   users<T extends Prisma.Plan$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subscriptions<T extends Prisma.Plan$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adCampaigns<T extends Prisma.Plan$adCampaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$adCampaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1309,6 +1662,11 @@ export interface PlanFieldRefs {
   readonly price: Prisma.FieldRef<"Plan", 'Int'>
   readonly listings: Prisma.FieldRef<"Plan", 'Int'>
   readonly featured: Prisma.FieldRef<"Plan", 'Boolean'>
+  readonly ads: Prisma.FieldRef<"Plan", 'Int'>
+  readonly adsduration: Prisma.FieldRef<"Plan", 'Int'>
+  readonly maxFeaturedListings: Prisma.FieldRef<"Plan", 'Int'>
+  readonly maxImagesPerListing: Prisma.FieldRef<"Plan", 'Int'>
+  readonly maxVideosPerListing: Prisma.FieldRef<"Plan", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Plan", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Plan", 'DateTime'>
 }
@@ -1749,6 +2107,30 @@ export type Plan$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.SubscriptionScalarFieldEnum | Prisma.SubscriptionScalarFieldEnum[]
+}
+
+/**
+ * Plan.adCampaigns
+ */
+export type Plan$adCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ad
+   */
+  select?: Prisma.AdSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ad
+   */
+  omit?: Prisma.AdOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdInclude<ExtArgs> | null
+  where?: Prisma.AdWhereInput
+  orderBy?: Prisma.AdOrderByWithRelationInput | Prisma.AdOrderByWithRelationInput[]
+  cursor?: Prisma.AdWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdScalarFieldEnum | Prisma.AdScalarFieldEnum[]
 }
 
 /**

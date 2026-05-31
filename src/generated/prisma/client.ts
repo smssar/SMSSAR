@@ -92,6 +92,11 @@ export type VerificationToken = Prisma.VerificationTokenModel
  */
 export type Property = Prisma.PropertyModel
 /**
+ * Model Ad
+ * 
+ */
+export type Ad = Prisma.AdModel
+/**
  * Model Favorite
  * 
  */

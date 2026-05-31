@@ -7,6 +7,8 @@ import {
   Ruler,
   Pencil,
   Trash2,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,6 +18,7 @@ import { formatCurrency } from "@/lib/format";
 import type { Locale } from "@/lib/locales";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { getMessages } from "@/lib/messages";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
   locale: Locale,
@@ -31,7 +34,10 @@ type Property = {
   rooms: number;
   bathrooms?: number | null;
   price: number;
+  priceType?: string;
   featured: boolean;
+  adCount?: number;
+  hasRunningAd?: boolean;
   imageUrl?: string | null;
   propertyType?: string;
   amenities?: Array<Record<string, string>>;
@@ -50,6 +56,8 @@ export function SellerPropertyCard({
   onDelete: (id: string, title: string) => void;
   className?: string;
 }) {
+  const messages = getMessages(locale);
+  const adLabel = messages.common.ad;
   const titleText =
     typeof property.title === "string"
       ? property.title
@@ -60,6 +68,18 @@ export function SellerPropertyCard({
     typeof property.description === "string"
       ? property.description
       : (property.description?.[locale] ?? "");
+  const rentLabel =
+    property.priceType?.toUpperCase() === "DAILY"
+      ? t(locale, {
+          en: "Daily rent",
+          ar: "الإيجار اليومي",
+          fr: "Loyer journalier",
+        })
+      : t(locale, {
+          en: "Monthly rent",
+          ar: "الإيجار الشهري",
+          fr: "Loyer mensuel",
+        });
 
   return (
     <Card
@@ -87,15 +107,24 @@ export function SellerPropertyCard({
           />
         ) : null}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.38),transparent_34%),linear-gradient(180deg,rgba(15,23,42,0.08),rgba(15,23,42,0.46))]" />
-        <div className="absolute left-4 top-4 flex items-center gap-2">
+        <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap items-center gap-2">
+          {property.adCount && property.adCount > 0 ? (
+            <Badge
+              variant="secondary"
+              className="flex items-center justify-center rounded-full bg-white/20 p-1"
+            >
+              <Sparkles className="mr-1 h-3.5 w-3.5 mx-1" />
+              {`${adLabel}`}
+            </Badge>
+          ) : null}
           {property.featured ? (
-            <Badge variant="accent">
+            <Badge
+              variant="accent"
+              className="border-white/15 bg-linear-to-r from-violet-600 via-fuchsia-600 to-indigo-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-violet-500/25 backdrop-blur-xl"
+            >
               {t(locale, { en: "Featured", ar: "مميز", fr: "En vedette" })}
             </Badge>
           ) : null}
-          <Badge variant="secondary" className="bg-background/90 backdrop-blur">
-            {property.propertyType}
-          </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
           <div>
@@ -115,6 +144,13 @@ export function SellerPropertyCard({
 
       <CardContent className="space-y-5 p-4 sm:p-6">
         <p className="text-sm leading-6 text-muted-foreground">{descText}</p>
+
+        <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-linear-to-r from-violet-500/10 via-fuchsia-500/10 to-indigo-500/10 px-4 py-2 text-sm font-semibold text-violet-700 shadow-sm shadow-violet-500/10 dark:text-violet-200">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600/15 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300">
+            <Building2 className="h-4 w-4" />
+          </span>
+          <span className="truncate">{property.propertyType}</span>
+        </div>
 
         <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
           <Meta
@@ -149,11 +185,7 @@ export function SellerPropertyCard({
         <div className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              {t(locale, {
-                en: "Monthly rent",
-                ar: "الإيجار الشهري",
-                fr: "Loyer mensuel",
-              })}
+              {rentLabel}
             </div>
             <div className="text-xl font-semibold">
               {formatCurrency(property.price, locale)}
@@ -184,6 +216,20 @@ export function SellerPropertyCard({
           <Pencil className="h-4 w-4" />
           {t(locale, { en: "Edit", ar: "تعديل", fr: "Modifier" })}
         </Link>
+
+        {!property.hasRunningAd ? (
+          <Link
+            href={`/${locale}/dashboard/seller/listings/${property.id}/ads/add`}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:w-auto"
+          >
+            <Star className="h-4 w-4" />
+            {t(locale, {
+              en: "Create Ad",
+              ar: "أنشئ إعلان",
+              fr: "Créer une annonce",
+            })}
+          </Link>
+        ) : null}
 
         <button
           type="button"

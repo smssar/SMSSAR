@@ -24,6 +24,7 @@ import { getVideoThumbnailUrl } from "../../lib/media";
 import type { Locale } from "@/lib/locales";
 import type { Property } from "@/lib/site-data";
 import type { ReactNode } from "react";
+import { getMessages } from "@/lib/messages";
 
 type UploadedAsset = {
   publicId: string;
@@ -110,6 +111,9 @@ export function ListingForm({
   const [listingType, setListingType] = useState<"BUY" | "RENT">(
     (defaultListing?.forSale as boolean) ? "BUY" : "RENT",
   );
+  const [featured, setFeatured] = useState<boolean>(
+    Boolean(defaultListing?.featured),
+  );
   const [propertyType, setPropertyType] = useState<string>(
     (defaultListing?.propertyType as string) ?? propertyTypes[0]?.id ?? "",
   );
@@ -138,6 +142,8 @@ export function ListingForm({
   const [formDescription, setFormDescription] = useState(
     initialValues.description,
   );
+
+  const messages = getMessages(locale);
 
   const getLocalizedLabel = (item: {
     name: string;
@@ -379,44 +385,36 @@ export function ListingForm({
 
             // Title validation
             if (!formTitle || formTitle.trim().length === 0) {
-              const msg =
-                locale === "ar"
-                  ? "يجب إدخال عنوان العقار."
-                  : "Please enter a listing title.";
-              setTitleError(msg);
+              setTitleError(
+                messages.dashboard.seller.validation.title.required,
+              );
               hasErrors = true;
             } else if (formTitle.trim().length < 3) {
-              const msg =
-                locale === "ar"
-                  ? "يجب أن يكون العنوان 3 أحرف على الأقل."
-                  : "Title must be at least 3 characters.";
-              setTitleError(msg);
+              setTitleError(
+                messages.dashboard.seller.validation.title.minLength,
+              );
               hasErrors = true;
             }
 
+            if (!area) {
+              setAreaError(messages.dashboard.seller.validation.area.required);
+              hasErrors = true;
+            }
             // City validation
             if (!city || city.trim().length === 0) {
-              const msg =
-                locale === "ar" ? "يجب إدخال المدينة." : "Please enter a city.";
-              setCityError(msg);
+              setCityError(messages.dashboard.seller.validation.city.required);
               hasErrors = true;
             } else if (city.trim().length < 2) {
-              const msg =
-                locale === "ar"
-                  ? "يجب أن تكون المدينة حرفين على الأقل."
-                  : "City must be at least 2 characters.";
-              setCityError(msg);
+              setCityError(messages.dashboard.seller.validation.city.minLength);
               hasErrors = true;
             }
 
             // Neighborhood validation (optional)
             if (neighborhood && neighborhood.trim().length > 0) {
               if (neighborhood.trim().length < 2) {
-                const msg =
-                  locale === "ar"
-                    ? "يجب أن يكون الحي حرفين على الأقل."
-                    : "Neighborhood must be at least 2 characters.";
-                setNeighborhoodError(msg);
+                setNeighborhoodError(
+                  messages.dashboard.seller.validation.neighborhood.minLength,
+                );
                 hasErrors = true;
               }
             } else {
@@ -428,11 +426,9 @@ export function ListingForm({
             if (area && area.trim().length > 0) {
               const areaNum = Number(area);
               if (isNaN(areaNum) || areaNum <= 0) {
-                const msg =
-                  locale === "ar"
-                    ? "يجب أن تكون المساحة رقماً موجباً."
-                    : "Area must be a positive number.";
-                setAreaError(msg);
+                setAreaError(
+                  messages.dashboard.seller.validation.area.positive,
+                );
                 hasErrors = true;
               }
             }
@@ -443,33 +439,27 @@ export function ListingForm({
               formDescription.trim().length > 0 &&
               formDescription.trim().length < 10
             ) {
-              const msg =
-                locale === "ar"
-                  ? "يجب أن يكون الوصف 10 أحرف على الأقل."
-                  : "Description must be at least 10 characters.";
-              setDescriptionError(msg);
+              setDescriptionError(
+                messages.dashboard.seller.validation.description.minLength,
+              );
               hasErrors = true;
             }
 
             // Price validation
             const priceNum = Number(price);
             if (!price || isNaN(priceNum) || priceNum <= 0) {
-              const msg =
-                locale === "ar"
-                  ? "يجب إدخال سعر صحيح وأكبر من صفر."
-                  : "Please enter a valid price greater than 0.";
-              setPriceError(msg);
+              setPriceError(
+                messages.dashboard.seller.validation.price.required,
+              );
               hasErrors = true;
             }
 
             // If any errors, stop and show them
             if (hasErrors) {
-              const errorMsg =
-                locale === "ar"
-                  ? "يرجى تصحيح الأخطاء أعلاه."
-                  : "Please fix the errors above.";
-              setError(errorMsg);
+              setError(messages.dashboard.seller.validation.fixErrors);
               setSaving(false);
+              // Scroll to top so the user sees the error banner
+              window.scrollTo({ top: 0, behavior: "smooth" });
               return;
             }
 
@@ -496,7 +486,7 @@ export function ListingForm({
               bathrooms: Number(bathrooms),
               price: Number(price),
               propertyTypeId: propertyType,
-              featured: false,
+              featured,
               priceType,
               propertyType: propertyType || undefined,
               forSale: listingType === "BUY",
@@ -515,12 +505,40 @@ export function ListingForm({
 
               const res = await fetch(url, {
                 method,
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-locale": locale,
+                },
                 body: JSON.stringify(body),
               });
 
               const payload = await res.json().catch(() => null);
               if (!res.ok) {
+                // Apply server-returned field errors if present
+                if (payload?.fieldErrors) {
+                  setTitleError(payload.fieldErrors.title ?? null);
+                  setCityError(payload.fieldErrors.city ?? null);
+                  setNeighborhoodError(
+                    payload.fieldErrors.neighborhood ?? null,
+                  );
+                  setAreaError(payload.fieldErrors.area ?? null);
+                  setPriceError(payload.fieldErrors.price ?? null);
+                  setDescriptionError(payload.fieldErrors.description ?? null);
+                  // Show top-level error if present
+                  const top = payload?.error || payload?.message;
+                  const errorMsg =
+                    top ||
+                    (locale === "ar"
+                      ? "تحقق من صحة البيانات المدخلة."
+                      : "Please check the information you entered.");
+                  setSaved(false);
+                  setError(errorMsg);
+                  toast.error(errorMsg);
+                  // Scroll to top to show errors
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  return;
+                }
+
                 const errorMsg =
                   payload?.error ||
                   payload?.message ||
@@ -546,6 +564,7 @@ export function ListingForm({
                 setSaved(false);
                 setError(errorMsg);
                 toast.error(errorMsg);
+                window.scrollTo({ top: 0, behavior: "smooth" });
                 return;
               }
 
@@ -565,6 +584,8 @@ export function ListingForm({
               setSaved(false);
               setError(errorMsg);
               toast.error(errorMsg);
+              // Ensure the error banner is visible to the user
+              window.scrollTo({ top: 0, behavior: "smooth" });
             } finally {
               setSaving(false);
             }
@@ -628,7 +649,8 @@ export function ListingForm({
                 setNeighborhood(e.target.value);
                 setNeighborhoodError(null);
               }}
-              className={neighborhoodError ? "border-red-500" : ""}
+              disabled={!city}
+              className={`${neighborhoodError ? "border-red-500" : ""} ${!city ? "opacity-60 pointer-events-none" : ""}`}
             >
               <option value="">
                 {!city
@@ -741,6 +763,27 @@ export function ListingForm({
                 ? "اختر خياراً واحداً فقط، وسيُحفظ على أنه بيع أو إيجار."
                 : "Choose one option only. It will be saved as either buy or rent."}
             </p>
+          </Field>
+
+          <Field label={locale === "ar" ? "العقار المميز" : "Featured listing"}>
+            <label className="flex cursor-pointer items-start gap-3 rounded-3xl border border-border/70 bg-card/50 p-4 transition hover:border-violet-500/60 hover:bg-muted/40">
+              <input
+                type="checkbox"
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+                className="mt-1 h-4 w-4 accent-violet-600"
+              />
+              <div className="space-y-1">
+                <div className="text-sm font-semibold text-foreground">
+                  {locale === "ar" ? "عرض العقار كـ مميز" : "Mark as featured"}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {locale === "ar"
+                    ? "سيظهر هذا العقار كبطاقة مميزة في القوائم والعرض العام."
+                    : "Show this property as a featured listing in cards and listings."}
+                </p>
+              </div>
+            </label>
           </Field>
 
           {listingType === "RENT" && (
@@ -874,7 +917,7 @@ export function ListingForm({
               ))}
             </Select>
           </Field>
-          <Field label={locale === "ar" ? "المساحة" : "Area"}>
+          <Field label={locale === "ar" ? "المساحة" : "Area"} required>
             <div className="group rounded-3xl border border-border/70 bg-card/50 p-1.5 shadow-sm transition focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500/20">
               <div className="flex items-center gap-2 rounded-2xl bg-background px-4 py-3">
                 <Input

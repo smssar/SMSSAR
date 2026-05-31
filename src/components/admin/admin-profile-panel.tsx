@@ -15,10 +15,17 @@ import {
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  defaultPhoneCountry,
+  formatPhonePreview,
+  phoneCountries,
+  validateAndNormalizePhone,
+} from "@/lib/phone";
 import type { Locale } from "@/lib/locales";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
@@ -133,6 +140,7 @@ type AdminProfile = {
   status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   createdAt: Date | string;
   hasPassword: boolean;
+  phone?: string | null;
 };
 
 export function AdminProfilePanel({
@@ -145,6 +153,8 @@ export function AdminProfilePanel({
   const [admin, setAdmin] = useState(initialAdmin);
   const [name, setName] = useState(initialAdmin.name);
   const [email, setEmail] = useState(initialAdmin.email);
+  const [phone, setPhone] = useState(initialAdmin.phone ?? "");
+  const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -155,6 +165,21 @@ export function AdminProfilePanel({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Validate phone if provided
+    if (phone.trim()) {
+      const phoneValidation = validateAndNormalizePhone(phone, countryCode);
+      if (!phoneValidation.valid) {
+        toast.error(
+          locale === "ar"
+            ? "يرجى إدخال رقم هاتف صحيح."
+            : locale === "fr"
+              ? "Veuillez saisir un numero de telephone valide."
+              : "Please enter a valid phone number.",
+        );
+        return;
+      }
+    }
 
     // If admin already has a password, require current password to change it.
     if (hasPassword && newPassword && !currentPassword) {
@@ -180,12 +205,22 @@ export function AdminProfilePanel({
   const performSave = async () => {
     setLoading(true);
     try {
+      // Normalize phone before sending
+      let normalizedPhone = phone;
+      if (phone.trim()) {
+        const phoneValidation = validateAndNormalizePhone(phone, countryCode);
+        if (phoneValidation.valid) {
+          normalizedPhone = phoneValidation.e164;
+        }
+      }
+
       const response = await fetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           email,
+          phone: normalizedPhone,
           currentPassword: currentPassword || undefined,
           newPassword: newPassword || undefined,
         }),
@@ -205,6 +240,7 @@ export function AdminProfilePanel({
         setAdmin(updated);
         setName(updated.name);
         setEmail(updated.email);
+        setPhone(updated.phone ?? "");
         setHasPassword(Boolean(updated.hasPassword));
       }
       setCurrentPassword("");
@@ -303,6 +339,47 @@ export function AdminProfilePanel({
                   className="h-11"
                   required
                 />
+              </div>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="admin-phone">
+                  {t(locale, {
+                    en: "Phone",
+                    ar: "رقم الهاتف",
+                    fr: "Téléphone",
+                  })}
+                </Label>
+                <div className="grid grid-cols-[128px_1fr] gap-2">
+                  <Select
+                    value={countryCode}
+                    onChange={(event) => setCountryCode(event.target.value)}
+                    disabled={loading}
+                    className="h-11 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3"
+                  >
+                    {phoneCountries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.flag} {country.dialCode}
+                      </option>
+                    ))}
+                  </Select>
+                  <Input
+                    id="admin-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setPhone(formatPhonePreview(nextValue, countryCode));
+                    }}
+                    className="h-11 rounded-r-2xl rounded-l-none"
+                    placeholder={t(locale, {
+                      en: "50 000 0000",
+                      ar: "50 000 0000",
+                      fr: "50 000 0000",
+                    })}
+                  />
+                </div>
               </div>
             </div>
 

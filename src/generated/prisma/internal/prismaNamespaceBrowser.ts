@@ -61,6 +61,7 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Property: 'Property',
+  Ad: 'Ad',
   Favorite: 'Favorite',
   Media: 'Media'
 } as const
@@ -135,6 +136,11 @@ export const PlanScalarFieldEnum = {
   price: 'price',
   listings: 'listings',
   featured: 'featured',
+  ads: 'ads',
+  adsduration: 'adsduration',
+  maxFeaturedListings: 'maxFeaturedListings',
+  maxImagesPerListing: 'maxImagesPerListing',
+  maxVideosPerListing: 'maxVideosPerListing',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -153,6 +159,7 @@ export const SubscriptionScalarFieldEnum = {
   dodoSubscriptionId: 'dodoSubscriptionId',
   localSessionId: 'localSessionId',
   refunded: 'refunded',
+  refund_id: 'refund_id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -176,6 +183,7 @@ export const UserScalarFieldEnum = {
   suspendedBy: 'suspendedBy',
   bannedMessage: 'bannedMessage',
   planId: 'planId',
+  featuredproperties: 'featuredproperties',
   role: 'role',
   status: 'status',
   createdAt: 'createdAt',
@@ -245,6 +253,33 @@ export const PropertyScalarFieldEnum = {
 } as const
 
 export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
+
+
+export const AdScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  planId: 'planId',
+  propertyId: 'propertyId',
+  status: 'status',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  budget: 'budget',
+  spentAmount: 'spentAmount',
+  pricePerDay: 'pricePerDay',
+  impressions: 'impressions',
+  clicks: 'clicks',
+  conversions: 'conversions',
+  featured: 'featured',
+  featuredUntil: 'featuredUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type AdScalarFieldEnum = (typeof AdScalarFieldEnum)[keyof typeof AdScalarFieldEnum]
 
 
 export const FavoriteScalarFieldEnum = {

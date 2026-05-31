@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Edit3, Loader2, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
 
@@ -21,6 +22,11 @@ type PlanRow = {
   price: number;
   listings: number | null;
   featured: boolean;
+  ads: number | null;
+  adsduration: number | null;
+  maxFeaturedListings: number | null;
+  maxImagesPerListing: number | null;
+  maxVideosPerListing: number | null;
 };
 
 type FormState = {
@@ -34,6 +40,11 @@ type FormState = {
   price: string;
   listings: string;
   featured: boolean;
+  ads: string;
+  adsduration: string;
+  maxFeaturedListings: string;
+  maxImagesPerListing: string;
+  maxVideosPerListing: string;
 };
 
 const emptyForm = (): FormState => ({
@@ -47,6 +58,11 @@ const emptyForm = (): FormState => ({
   price: "0",
   listings: "",
   featured: false,
+  ads: "",
+  adsduration: "",
+  maxFeaturedListings: "",
+  maxImagesPerListing: "",
+  maxVideosPerListing: "",
 });
 
 export function AdminPlansPanel({
@@ -56,6 +72,8 @@ export function AdminPlansPanel({
   locale: Locale;
   initialPlans: PlanRow[];
 }) {
+  const messages = getMessages(locale);
+  const t = messages.dashboard.admin.plansPanel;
   const [plans, setPlans] = useState(initialPlans);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -87,10 +105,24 @@ export function AdminPlansPanel({
       price: String(plan.price),
       listings: plan.listings === null ? "" : String(plan.listings),
       featured: plan.featured,
+      ads: plan.ads === null ? "" : String(plan.ads),
+      adsduration: plan.adsduration === null ? "" : String(plan.adsduration),
+      maxFeaturedListings:
+        plan.maxFeaturedListings === null
+          ? ""
+          : String(plan.maxFeaturedListings),
+      maxImagesPerListing:
+        plan.maxImagesPerListing === null
+          ? ""
+          : String(plan.maxImagesPerListing),
+      maxVideosPerListing:
+        plan.maxVideosPerListing === null
+          ? ""
+          : String(plan.maxVideosPerListing),
     });
   };
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const payload = {
@@ -104,12 +136,25 @@ export function AdminPlansPanel({
       price: Number(form.price || 0),
       listings: form.listings.trim() === "" ? null : Number(form.listings),
       featured: form.featured,
+      ads: form.ads.trim() === "" ? null : Number(form.ads),
+      adsduration:
+        form.adsduration.trim() === "" ? null : Number(form.adsduration),
+      maxFeaturedListings:
+        form.maxFeaturedListings.trim() === ""
+          ? null
+          : Number(form.maxFeaturedListings),
+      maxImagesPerListing:
+        form.maxImagesPerListing.trim() === ""
+          ? null
+          : Number(form.maxImagesPerListing),
+      maxVideosPerListing:
+        form.maxVideosPerListing.trim() === ""
+          ? null
+          : Number(form.maxVideosPerListing),
     };
 
     if (!payload.id || !payload.title || !payload.description) {
-      toast.error(
-        locale === "ar" ? "املأ الحقول المطلوبة." : "Fill required fields.",
-      );
+      toast.error(t.fillRequiredFields);
       return;
     }
 
@@ -141,12 +186,10 @@ export function AdminPlansPanel({
       }
 
       reset();
-      toast.success(locale === "ar" ? "تم حفظ الباقة." : "Plan saved.");
+      toast.success(t.saveSuccess);
     } catch (error) {
       console.error("Failed to save plan:", error);
-      toast.error(
-        locale === "ar" ? "تعذر حفظ الباقة." : "Could not save plan.",
-      );
+      toast.error(t.saveError);
     } finally {
       setCreating(false);
       setSaving(false);
@@ -164,12 +207,10 @@ export function AdminPlansPanel({
         throw new Error(body?.error || `Status ${response.status}`);
       }
       setPlans((current) => current.filter((plan) => plan.id !== id));
-      toast.success(locale === "ar" ? "تم حذف الباقة." : "Plan deleted.");
+      toast.success(t.deleteSuccess);
     } catch (error) {
       console.error("Failed to delete plan:", error);
-      toast.error(
-        locale === "ar" ? "تعذر حذف الباقة." : "Could not delete plan.",
-      );
+      toast.error(t.deleteError);
     } finally {
       setPendingDeleteId(null);
       setDeleting(false);
@@ -180,20 +221,12 @@ export function AdminPlansPanel({
     <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
       <Card className="border-border/70">
         <CardHeader>
-          <CardTitle>
-            {editingId
-              ? locale === "ar"
-                ? "تعديل باقة"
-                : "Edit plan"
-              : locale === "ar"
-                ? "إضافة باقة"
-                : "Add a plan"}
-          </CardTitle>
+          <CardTitle>{editingId ? t.editTitle : t.addTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={submit}>
             <div className="space-y-2">
-              <Label htmlFor="plan-id">ID</Label>
+              <Label htmlFor="plan-id">{t.idLabel}</Label>
               <Input
                 id="plan-id"
                 value={form.id}
@@ -201,46 +234,52 @@ export function AdminPlansPanel({
                   setForm((prev) => ({ ...prev, id: e.target.value }))
                 }
                 disabled={Boolean(editingId)}
-                placeholder="free"
+                placeholder={t.idPlaceholder}
                 required
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-title">English title</Label>
+              <Label htmlFor="plan-title">{t.englishTitleLabel}</Label>
               <Input
                 id="plan-title"
                 value={form.title}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Free"
+                placeholder={t.englishTitlePlaceholder}
                 required
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-title-ar">Arabic title</Label>
+              <Label htmlFor="plan-title-ar">{t.arabicTitleLabel}</Label>
               <Input
                 id="plan-title-ar"
                 value={form.titleAr}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, titleAr: e.target.value }))
                 }
-                placeholder="مجاني"
+                placeholder={t.arabicTitlePlaceholder}
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-title-fr">French title</Label>
+              <Label htmlFor="plan-title-fr">{t.frenchTitleLabel}</Label>
               <Input
                 id="plan-title-fr"
                 value={form.titleFr}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, titleFr: e.target.value }))
                 }
-                placeholder="Gratuit"
+                placeholder={t.frenchTitlePlaceholder}
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-description">English description</Label>
+              <Label htmlFor="plan-description">
+                {t.englishDescriptionLabel}
+              </Label>
               <Input
                 id="plan-description"
                 value={form.description}
@@ -250,8 +289,11 @@ export function AdminPlansPanel({
                 required
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-description-ar">Arabic description</Label>
+              <Label htmlFor="plan-description-ar">
+                {t.arabicDescriptionLabel}
+              </Label>
               <Input
                 id="plan-description-ar"
                 value={form.descriptionAr}
@@ -263,8 +305,11 @@ export function AdminPlansPanel({
                 }
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="plan-description-fr">French description</Label>
+              <Label htmlFor="plan-description-fr">
+                {t.frenchDescriptionLabel}
+              </Label>
               <Input
                 id="plan-description-fr"
                 value={form.descriptionFr}
@@ -276,9 +321,10 @@ export function AdminPlansPanel({
                 }
               />
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="plan-price">Price</Label>
+                <Label htmlFor="plan-price">{t.priceLabel}</Label>
                 <Input
                   id="plan-price"
                   type="number"
@@ -291,7 +337,7 @@ export function AdminPlansPanel({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plan-listings">Listings</Label>
+                <Label htmlFor="plan-listings">{t.listingsLabel}</Label>
                 <Input
                   id="plan-listings"
                   type="number"
@@ -304,6 +350,97 @@ export function AdminPlansPanel({
                 />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="plan-ads">{t.adsLabel}</Label>
+              <Input
+                id="plan-ads"
+                type="number"
+                min={0}
+                value={form.ads}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, ads: e.target.value }))
+                }
+                placeholder="0"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="plan-adsduration">{t.adsDurationLabel}</Label>
+                <Input
+                  id="plan-adsduration"
+                  type="number"
+                  min={0}
+                  value={form.adsduration}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      adsduration: e.target.value,
+                    }))
+                  }
+                  placeholder="30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plan-maxFeaturedListings">
+                  {t.maxFeaturedListingsLabel}
+                </Label>
+                <Input
+                  id="plan-maxFeaturedListings"
+                  type="number"
+                  min={0}
+                  value={form.maxFeaturedListings}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      maxFeaturedListings: e.target.value,
+                    }))
+                  }
+                  placeholder="1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="plan-maxImagesPerListing">
+                  {t.maxImagesPerListingLabel}
+                </Label>
+                <Input
+                  id="plan-maxImagesPerListing"
+                  type="number"
+                  min={0}
+                  value={form.maxImagesPerListing}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      maxImagesPerListing: e.target.value,
+                    }))
+                  }
+                  placeholder="10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plan-maxVideosPerListing">
+                  {t.maxVideosPerListingLabel}
+                </Label>
+                <Input
+                  id="plan-maxVideosPerListing"
+                  type="number"
+                  min={0}
+                  value={form.maxVideosPerListing}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      maxVideosPerListing: e.target.value,
+                    }))
+                  }
+                  placeholder="1"
+                />
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <input
                 id="plan-featured"
@@ -313,8 +450,9 @@ export function AdminPlansPanel({
                   setForm((prev) => ({ ...prev, featured: e.target.checked }))
                 }
               />
-              <Label htmlFor="plan-featured">Featured</Label>
+              <Label htmlFor="plan-featured">{t.featuredLabel}</Label>
             </div>
+
             <Button
               type="submit"
               className="w-full gap-2"
@@ -325,14 +463,9 @@ export function AdminPlansPanel({
               ) : (
                 <Plus className="h-4 w-4" />
               )}
-              {editingId
-                ? locale === "ar"
-                  ? "حفظ"
-                  : "Save"
-                : locale === "ar"
-                  ? "إنشاء الباقة"
-                  : "Create plan"}
+              {editingId ? t.saveButton : t.createButton}
             </Button>
+
             {editingId ? (
               <Button
                 type="button"
@@ -342,7 +475,7 @@ export function AdminPlansPanel({
                 disabled={saving}
               >
                 <X className="h-4 w-4" />
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t.cancelButton}
               </Button>
             ) : null}
           </form>
@@ -351,15 +484,11 @@ export function AdminPlansPanel({
 
       <Card className="border-border/70">
         <CardHeader>
-          <CardTitle>
-            {locale === "ar" ? "الباقات الحالية" : "Current plans"}
-          </CardTitle>
+          <CardTitle>{t.currentPlansTitle}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {sortedPlans.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {locale === "ar" ? "لا توجد باقات بعد." : "No plans yet."}
-            </p>
+            <p className="text-sm text-muted-foreground">{t.noPlans}</p>
           ) : (
             sortedPlans.map((plan) => (
               <div
@@ -371,9 +500,7 @@ export function AdminPlansPanel({
                   <div className="text-muted-foreground">
                     {plan.id} •{" "}
                     {plan.price === 0
-                      ? locale === "ar"
-                        ? "مجاني"
-                        : "Free"
+                      ? t.freeLabel
                       : formatCurrency(plan.price, locale)}
                   </div>
                   <div className="text-muted-foreground">
@@ -387,7 +514,7 @@ export function AdminPlansPanel({
                     onClick={() => startEdit(plan)}
                   >
                     <Edit3 className="h-4 w-4" />
-                    {locale === "ar" ? "تعديل" : "Edit"}
+                    {t.editButton}
                   </Button>
                   <Button
                     size="sm"
@@ -395,7 +522,7 @@ export function AdminPlansPanel({
                     onClick={() => confirmDelete(plan.id)}
                   >
                     <Trash2 className="h-4 w-4" />
-                    {locale === "ar" ? "حذف" : "Delete"}
+                    {t.deleteButton}
                   </Button>
                 </div>
               </div>
@@ -408,12 +535,10 @@ export function AdminPlansPanel({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-3xl border border-border/70 bg-card p-6 shadow-2xl">
             <h2 className="text-2xl font-semibold tracking-tight">
-              {locale === "ar" ? "تأكيد الحذف" : "Confirm delete"}
+              {t.confirmDeleteTitle}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {locale === "ar"
-                ? "هل تريد حذف هذه الباقة؟"
-                : "Delete this plan?"}
+              {t.confirmDeleteBody}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <Button
@@ -424,7 +549,7 @@ export function AdminPlansPanel({
                 className="gap-2"
               >
                 <X className="h-4 w-4" />
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t.cancelButton}
               </Button>
               <Button
                 type="button"
@@ -438,7 +563,7 @@ export function AdminPlansPanel({
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                {locale === "ar" ? "حذف" : "Delete"}
+                {t.deleteButton}
               </Button>
             </div>
           </div>

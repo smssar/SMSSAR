@@ -16,9 +16,25 @@ export default async function AdminPropertyTypesPage({
   const { locale } = (await params) as { locale: Locale };
   const messages = getMessages(locale);
   const admin = messages.dashboard.admin as typeof messages.dashboard.admin & {
-    managementPage: { propertyTypes: AdminPropertyTypesCopy };
+    managementPage?: { propertyTypes?: AdminPropertyTypesCopy };
   };
-  const pageCopy = admin.managementPage.propertyTypes;
+  const pageCopy =
+    admin.managementPage?.propertyTypes ??
+    (locale === "ar"
+      ? {
+          title: "أنواع العقارات",
+          intro: "أنشئ أنواع العقارات وادِرها من لوحة الإدارة.",
+        }
+      : locale === "fr"
+        ? {
+            title: "Types de propriétés",
+            intro:
+              "Créez et gérez les types de propriétés depuis le tableau de bord administrateur.",
+          }
+        : {
+            title: "Property Types",
+            intro: "Create and manage property types from the admin dashboard.",
+          });
 
   const propertyTypes = await prisma.propertyType.findMany({
     orderBy: { name: "asc" },

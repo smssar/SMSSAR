@@ -19,6 +19,11 @@ type UpdatePlanBody = {
   price?: number;
   listings?: number | null;
   featured?: boolean;
+  ads?: number | null;
+  adsduration?: number | null;
+  maxFeaturedListings?: number | null;
+  maxImagesPerListing?: number | null;
+  maxVideosPerListing?: number | null;
 };
 
 export async function GET(_: Request, context: RouteContext) {
@@ -71,6 +76,26 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (body.listings !== undefined)
     data.listings = body.listings === null ? null : Number(body.listings);
   if (body.featured !== undefined) data.featured = Boolean(body.featured);
+  if (body.ads !== undefined)
+    data.ads = body.ads === null ? null : Number(body.ads);
+  if (body.adsduration !== undefined)
+    data.adsduration =
+      body.adsduration === null ? null : Number(body.adsduration);
+  if (body.maxFeaturedListings !== undefined)
+    data.maxFeaturedListings =
+      body.maxFeaturedListings === null
+        ? null
+        : Number(body.maxFeaturedListings);
+  if (body.maxImagesPerListing !== undefined)
+    data.maxImagesPerListing =
+      body.maxImagesPerListing === null
+        ? null
+        : Number(body.maxImagesPerListing);
+  if (body.maxVideosPerListing !== undefined)
+    data.maxVideosPerListing =
+      body.maxVideosPerListing === null
+        ? null
+        : Number(body.maxVideosPerListing);
 
   try {
     const plan = await prisma.plan.update({

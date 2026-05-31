@@ -5,14 +5,26 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import {
+  defaultPhoneCountry,
+  formatPhonePreview,
+  getPhoneCountryByCode,
+  phoneCountries,
+  validateAndNormalizePhone,
+} from "@/lib/phone";
 import type { Locale } from "@/lib/locales";
 
 export function BecomeSellerButton({ locale }: { locale: Locale }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+  const [countryCode, setCountryCode] = React.useState(
+    defaultPhoneCountry.code,
+  );
   const [phone, setPhone] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const selectedCountry = getPhoneCountryByCode(countryCode);
 
   const text = {
     title:
@@ -56,7 +68,9 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
   };
 
   async function handleConfirm() {
-    if (phone.trim().length < 6) {
+    const normalized = validateAndNormalizePhone(phone, countryCode);
+
+    if (!normalized.valid) {
       setError(text.invalid);
       return;
     }
@@ -68,7 +82,7 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
       const res = await fetch("/api/users/become-seller", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim() }),
+        body: JSON.stringify({ phone: normalized.e164 }),
       });
 
       if (!res.ok) {
@@ -115,15 +129,38 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
 
             <div className="mt-4 space-y-2">
               <Label htmlFor="become-seller-phone">{text.phone}</Label>
-              <Input
-                id="become-seller-phone"
-                type="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder={text.placeholder}
-                className="h-11"
-                disabled={loading}
-              />
+              <div className="flex gap-2 rtl:flex-row-reverse">
+                <Select
+                  value={countryCode}
+                  onChange={(event) => setCountryCode(event.target.value)}
+                  disabled={loading}
+                  className="h-11 w-32 shrink-0 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3  text-left"
+                >
+                  {phoneCountries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.dialCode}
+                    </option>
+                  ))}
+                </Select>
+                <Input
+                  id="become-seller-phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    setPhone(formatPhonePreview(nextValue, countryCode));
+                    setError(null);
+                  }}
+                  placeholder={text.placeholder}
+                  className="h-11 flex-1 rounded-l-none "
+                  disabled={loading}
+                  inputMode="tel"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {selectedCountry.flag} {selectedCountry.dialCode}{" "}
+                {phone.trim() ? "•" : ""} format checked automatically.
+              </p>
             </div>
 
             {error ? (

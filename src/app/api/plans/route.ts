@@ -20,6 +20,11 @@ type CreatePlanBody = {
   price?: number;
   listings?: number | null;
   featured?: boolean;
+  ads?: number | null;
+  adsduration?: number | null;
+  maxFeaturedListings?: number | null;
+  maxImagesPerListing?: number | null;
+  maxVideosPerListing?: number | null;
 };
 
 export async function GET() {
@@ -76,6 +81,27 @@ const createPlanHandler = async (
             ? null
             : Number(body.listings),
         featured: Boolean(body.featured),
+        ads:
+          body.ads === null || body.ads === undefined ? null : Number(body.ads),
+        adsduration:
+          body.adsduration === null || body.adsduration === undefined
+            ? null
+            : Number(body.adsduration),
+        maxFeaturedListings:
+          body.maxFeaturedListings === null ||
+          body.maxFeaturedListings === undefined
+            ? null
+            : Number(body.maxFeaturedListings),
+        maxImagesPerListing:
+          body.maxImagesPerListing === null ||
+          body.maxImagesPerListing === undefined
+            ? null
+            : Number(body.maxImagesPerListing),
+        maxVideosPerListing:
+          body.maxVideosPerListing === null ||
+          body.maxVideosPerListing === undefined
+            ? null
+            : Number(body.maxVideosPerListing),
       },
     });
 

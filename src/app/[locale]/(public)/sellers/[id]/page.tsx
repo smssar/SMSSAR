@@ -51,6 +51,9 @@ export default async function SellerProfilePage({
           propertyType: {
             select: { name: true },
           },
+          _count: {
+            select: { favorites: true },
+          },
           media: {
             select: { id: true, url: true, type: true, publicId: true },
           },
@@ -80,6 +83,7 @@ export default async function SellerProfilePage({
       price: property.price,
       propertyType: property.propertyType?.name || "Other",
       featured: property.featured,
+      favoriteCount: property._count.favorites,
       seller: seller.name ?? "",
       media: property.media || [],
     }),

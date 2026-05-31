@@ -336,6 +336,7 @@ export type PropertyWhereInput = {
   seller?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   media?: Prisma.MediaListRelationFilter
   favorites?: Prisma.FavoriteListRelationFilter
+  ads?: Prisma.AdListRelationFilter
 }
 
 export type PropertyOrderByWithRelationInput = {
@@ -361,6 +362,7 @@ export type PropertyOrderByWithRelationInput = {
   seller?: Prisma.UserOrderByWithRelationInput
   media?: Prisma.MediaOrderByRelationAggregateInput
   favorites?: Prisma.FavoriteOrderByRelationAggregateInput
+  ads?: Prisma.AdOrderByRelationAggregateInput
 }
 
 export type PropertyWhereUniqueInput = Prisma.AtLeast<{
@@ -389,6 +391,7 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   seller?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   media?: Prisma.MediaListRelationFilter
   favorites?: Prisma.FavoriteListRelationFilter
+  ads?: Prisma.AdListRelationFilter
 }, "id">
 
 export type PropertyOrderByWithAggregationInput = {
@@ -462,6 +465,7 @@ export type PropertyCreateInput = {
   seller: Prisma.UserCreateNestedOneWithoutPropertiesInput
   media?: Prisma.MediaCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUncheckedCreateInput = {
@@ -485,6 +489,7 @@ export type PropertyUncheckedCreateInput = {
   updatedAt?: Date | string
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUpdateInput = {
@@ -508,6 +513,7 @@ export type PropertyUpdateInput = {
   seller?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
   media?: Prisma.MediaUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateInput = {
@@ -531,6 +537,7 @@ export type PropertyUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   media?: Prisma.MediaUncheckedUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyCreateManyInput = {
@@ -681,6 +688,11 @@ export type PropertySumOrderByAggregateInput = {
   price?: Prisma.SortOrder
 }
 
+export type PropertyNullableScalarRelationFilter = {
+  is?: Prisma.PropertyWhereInput | null
+  isNot?: Prisma.PropertyWhereInput | null
+}
+
 export type PropertyScalarRelationFilter = {
   is?: Prisma.PropertyWhereInput
   isNot?: Prisma.PropertyWhereInput
@@ -770,6 +782,22 @@ export type PropertyUncheckedUpdateManyWithoutSellerNestedInput = {
   deleteMany?: Prisma.PropertyScalarWhereInput | Prisma.PropertyScalarWhereInput[]
 }
 
+export type PropertyCreateNestedOneWithoutAdsInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutAdsInput, Prisma.PropertyUncheckedCreateWithoutAdsInput>
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutAdsInput
+  connect?: Prisma.PropertyWhereUniqueInput
+}
+
+export type PropertyUpdateOneWithoutAdsNestedInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutAdsInput, Prisma.PropertyUncheckedCreateWithoutAdsInput>
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutAdsInput
+  upsert?: Prisma.PropertyUpsertWithoutAdsInput
+  disconnect?: Prisma.PropertyWhereInput | boolean
+  delete?: Prisma.PropertyWhereInput | boolean
+  connect?: Prisma.PropertyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PropertyUpdateToOneWithWhereWithoutAdsInput, Prisma.PropertyUpdateWithoutAdsInput>, Prisma.PropertyUncheckedUpdateWithoutAdsInput>
+}
+
 export type PropertyCreateNestedOneWithoutFavoritesInput = {
   create?: Prisma.XOR<Prisma.PropertyCreateWithoutFavoritesInput, Prisma.PropertyUncheckedCreateWithoutFavoritesInput>
   connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutFavoritesInput
@@ -818,6 +846,7 @@ export type PropertyCreateWithoutPropertyTypeInput = {
   seller: Prisma.UserCreateNestedOneWithoutPropertiesInput
   media?: Prisma.MediaCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUncheckedCreateWithoutPropertyTypeInput = {
@@ -840,6 +869,7 @@ export type PropertyUncheckedCreateWithoutPropertyTypeInput = {
   updatedAt?: Date | string
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyCreateOrConnectWithoutPropertyTypeInput = {
@@ -912,6 +942,7 @@ export type PropertyCreateWithoutSellerInput = {
   propertyType?: Prisma.PropertyTypeCreateNestedOneWithoutPropertiesInput
   media?: Prisma.MediaCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUncheckedCreateWithoutSellerInput = {
@@ -934,6 +965,7 @@ export type PropertyUncheckedCreateWithoutSellerInput = {
   updatedAt?: Date | string
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutPropertyInput
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyCreateOrConnectWithoutSellerInput = {
@@ -962,6 +994,114 @@ export type PropertyUpdateManyWithWhereWithoutSellerInput = {
   data: Prisma.XOR<Prisma.PropertyUpdateManyMutationInput, Prisma.PropertyUncheckedUpdateManyWithoutSellerInput>
 }
 
+export type PropertyCreateWithoutAdsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  city: string
+  neighborhood?: string | null
+  area?: number | null
+  rooms: number
+  bathrooms?: number | null
+  price: number
+  forSale?: boolean
+  featured?: boolean
+  priceType?: string
+  imageUrl?: string | null
+  videoUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  propertyType?: Prisma.PropertyTypeCreateNestedOneWithoutPropertiesInput
+  seller: Prisma.UserCreateNestedOneWithoutPropertiesInput
+  media?: Prisma.MediaCreateNestedManyWithoutPropertyInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
+}
+
+export type PropertyUncheckedCreateWithoutAdsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  city: string
+  neighborhood?: string | null
+  area?: number | null
+  rooms: number
+  bathrooms?: number | null
+  price: number
+  propertyTypeId?: string | null
+  forSale?: boolean
+  featured?: boolean
+  priceType?: string
+  imageUrl?: string | null
+  videoUrl?: string | null
+  sellerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  media?: Prisma.MediaUncheckedCreateNestedManyWithoutPropertyInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
+}
+
+export type PropertyCreateOrConnectWithoutAdsInput = {
+  where: Prisma.PropertyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PropertyCreateWithoutAdsInput, Prisma.PropertyUncheckedCreateWithoutAdsInput>
+}
+
+export type PropertyUpsertWithoutAdsInput = {
+  update: Prisma.XOR<Prisma.PropertyUpdateWithoutAdsInput, Prisma.PropertyUncheckedUpdateWithoutAdsInput>
+  create: Prisma.XOR<Prisma.PropertyCreateWithoutAdsInput, Prisma.PropertyUncheckedCreateWithoutAdsInput>
+  where?: Prisma.PropertyWhereInput
+}
+
+export type PropertyUpdateToOneWithWhereWithoutAdsInput = {
+  where?: Prisma.PropertyWhereInput
+  data: Prisma.XOR<Prisma.PropertyUpdateWithoutAdsInput, Prisma.PropertyUncheckedUpdateWithoutAdsInput>
+}
+
+export type PropertyUpdateWithoutAdsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rooms?: Prisma.IntFieldUpdateOperationsInput | number
+  bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  forSale?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  propertyType?: Prisma.PropertyTypeUpdateOneWithoutPropertiesNestedInput
+  seller?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
+  media?: Prisma.MediaUpdateManyWithoutPropertyNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
+}
+
+export type PropertyUncheckedUpdateWithoutAdsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rooms?: Prisma.IntFieldUpdateOperationsInput | number
+  bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  propertyTypeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forSale?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  media?: Prisma.MediaUncheckedUpdateManyWithoutPropertyNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
+}
+
 export type PropertyCreateWithoutFavoritesInput = {
   id?: string
   title: string
@@ -982,6 +1122,7 @@ export type PropertyCreateWithoutFavoritesInput = {
   propertyType?: Prisma.PropertyTypeCreateNestedOneWithoutPropertiesInput
   seller: Prisma.UserCreateNestedOneWithoutPropertiesInput
   media?: Prisma.MediaCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUncheckedCreateWithoutFavoritesInput = {
@@ -1004,6 +1145,7 @@ export type PropertyUncheckedCreateWithoutFavoritesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyCreateOrConnectWithoutFavoritesInput = {
@@ -1042,6 +1184,7 @@ export type PropertyUpdateWithoutFavoritesInput = {
   propertyType?: Prisma.PropertyTypeUpdateOneWithoutPropertiesNestedInput
   seller?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
   media?: Prisma.MediaUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateWithoutFavoritesInput = {
@@ -1064,6 +1207,7 @@ export type PropertyUncheckedUpdateWithoutFavoritesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   media?: Prisma.MediaUncheckedUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyCreateWithoutMediaInput = {
@@ -1086,6 +1230,7 @@ export type PropertyCreateWithoutMediaInput = {
   propertyType?: Prisma.PropertyTypeCreateNestedOneWithoutPropertiesInput
   seller: Prisma.UserCreateNestedOneWithoutPropertiesInput
   favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyUncheckedCreateWithoutMediaInput = {
@@ -1108,6 +1253,7 @@ export type PropertyUncheckedCreateWithoutMediaInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
 }
 
 export type PropertyCreateOrConnectWithoutMediaInput = {
@@ -1146,6 +1292,7 @@ export type PropertyUpdateWithoutMediaInput = {
   propertyType?: Prisma.PropertyTypeUpdateOneWithoutPropertiesNestedInput
   seller?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
   favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateWithoutMediaInput = {
@@ -1168,6 +1315,7 @@ export type PropertyUncheckedUpdateWithoutMediaInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyCreateManyPropertyTypeInput = {
@@ -1210,6 +1358,7 @@ export type PropertyUpdateWithoutPropertyTypeInput = {
   seller?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
   media?: Prisma.MediaUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateWithoutPropertyTypeInput = {
@@ -1232,6 +1381,7 @@ export type PropertyUncheckedUpdateWithoutPropertyTypeInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   media?: Prisma.MediaUncheckedUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateManyWithoutPropertyTypeInput = {
@@ -1294,6 +1444,7 @@ export type PropertyUpdateWithoutSellerInput = {
   propertyType?: Prisma.PropertyTypeUpdateOneWithoutPropertiesNestedInput
   media?: Prisma.MediaUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateWithoutSellerInput = {
@@ -1316,6 +1467,7 @@ export type PropertyUncheckedUpdateWithoutSellerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   media?: Prisma.MediaUncheckedUpdateManyWithoutPropertyNestedInput
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
 export type PropertyUncheckedUpdateManyWithoutSellerInput = {
@@ -1346,11 +1498,13 @@ export type PropertyUncheckedUpdateManyWithoutSellerInput = {
 export type PropertyCountOutputType = {
   media: number
   favorites: number
+  ads: number
 }
 
 export type PropertyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   media?: boolean | PropertyCountOutputTypeCountMediaArgs
   favorites?: boolean | PropertyCountOutputTypeCountFavoritesArgs
+  ads?: boolean | PropertyCountOutputTypeCountAdsArgs
 }
 
 /**
@@ -1377,6 +1531,13 @@ export type PropertyCountOutputTypeCountFavoritesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.FavoriteWhereInput
 }
 
+/**
+ * PropertyCountOutputType without action
+ */
+export type PropertyCountOutputTypeCountAdsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdWhereInput
+}
+
 
 export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1401,6 +1562,7 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   media?: boolean | Prisma.Property$mediaArgs<ExtArgs>
   favorites?: boolean | Prisma.Property$favoritesArgs<ExtArgs>
+  ads?: boolean | Prisma.Property$adsArgs<ExtArgs>
   _count?: boolean | Prisma.PropertyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["property"]>
 
@@ -1477,6 +1639,7 @@ export type PropertyInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   media?: boolean | Prisma.Property$mediaArgs<ExtArgs>
   favorites?: boolean | Prisma.Property$favoritesArgs<ExtArgs>
+  ads?: boolean | Prisma.Property$adsArgs<ExtArgs>
   _count?: boolean | Prisma.PropertyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PropertyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1495,6 +1658,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     seller: Prisma.$UserPayload<ExtArgs>
     media: Prisma.$MediaPayload<ExtArgs>[]
     favorites: Prisma.$FavoritePayload<ExtArgs>[]
+    ads: Prisma.$AdPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1913,6 +2077,7 @@ export interface Prisma__PropertyClient<T, Null = never, ExtArgs extends runtime
   seller<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   media<T extends Prisma.Property$mediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Property$mediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   favorites<T extends Prisma.Property$favoritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Property$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ads<T extends Prisma.Property$adsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Property$adsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2425,6 +2590,30 @@ export type Property$favoritesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.FavoriteScalarFieldEnum | Prisma.FavoriteScalarFieldEnum[]
+}
+
+/**
+ * Property.ads
+ */
+export type Property$adsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ad
+   */
+  select?: Prisma.AdSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ad
+   */
+  omit?: Prisma.AdOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdInclude<ExtArgs> | null
+  where?: Prisma.AdWhereInput
+  orderBy?: Prisma.AdOrderByWithRelationInput | Prisma.AdOrderByWithRelationInput[]
+  cursor?: Prisma.AdWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdScalarFieldEnum | Prisma.AdScalarFieldEnum[]
 }
 
 /**

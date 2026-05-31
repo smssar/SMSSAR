@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Mail, Loader2, ArrowRight, Check } from "lucide-react";
+import { Mail, Loader2, ArrowRight, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { Locale } from "@/lib/locales";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const COOLDOWN_KEY = "forgot_password_cooldown";
 const COOLDOWN_DURATION = 60; // 1 minute in seconds
@@ -22,6 +23,7 @@ export function ForgotPasswordForm({
 }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -69,17 +71,19 @@ export function ForgotPasswordForm({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError("");
 
     const trimmedEmail = email.trim().toLowerCase();
 
     if (!trimmedEmail) {
-      toast.error(
+      const errorMsg =
         locale === "ar"
           ? "الرجاء إدخال عنوان بريد إلكتروني"
           : locale === "fr"
             ? "Veuillez entrer une adresse e-mail"
-            : "Please enter an email address",
-      );
+            : "Please enter an email address";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -92,8 +96,20 @@ export function ForgotPasswordForm({
         body: JSON.stringify({ email: trimmedEmail, locale }),
       });
 
+      const payload = await response.json().catch(() => null);
+
       if (!response.ok) {
-        throw new Error("Failed to send reset link");
+        const errorMsg =
+          payload?.error ||
+          (locale === "ar"
+            ? "فشل الإرسال. يرجى المحاولة مرة أخرى"
+            : locale === "fr"
+              ? "Impossible d'envoyer. Veuillez réessayer"
+              : "Failed to send. Please try again");
+        setError(errorMsg);
+        toast.error(errorMsg);
+        setLoading(false);
+        return;
       }
 
       setSubmitted(true);
@@ -116,13 +132,14 @@ export function ForgotPasswordForm({
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error("Failed to send reset link:", error);
-      toast.error(
+      const errorMsg =
         locale === "ar"
-          ? "فشل الإرسال. يرجى المحاولة مرة أخرى"
+          ? "خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى"
           : locale === "fr"
-            ? "Impossible d'envoyer. Veuillez réessayer"
-            : "Failed to send. Please try again",
-      );
+            ? "Erreur réseau. Veuillez vérifier votre connexion et réessayer"
+            : "Network error. Please check your connection and try again";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -168,6 +185,16 @@ export function ForgotPasswordForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <Alert
+            variant="destructive"
+            className="border-red-500/40 bg-red-500/10"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="ml-2">{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="forgot-email">{emailLabel}</Label>
           <div className="relative">
@@ -179,7 +206,10 @@ export function ForgotPasswordForm({
               placeholder="name@example.com"
               className="pl-11 rtl:pr-11 rtl:pl-4"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
               disabled={isDisabled}
               required
             />

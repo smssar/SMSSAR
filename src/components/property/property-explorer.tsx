@@ -26,8 +26,12 @@ export interface SimpleProperty {
   rooms: number;
   bathrooms: number;
   price: number;
+  priceType?: string;
   propertyType: string;
   featured: boolean;
+  adCount?: number;
+  ads?: Array<{ id: string }>;
+  favoriteCount?: number;
   seller: string;
   media?: Array<{ id: string; url: string; type: string; publicId: string }>;
 }
@@ -184,6 +188,7 @@ export function PropertyExplorer({
   };
 
   const availableNeighborhoods = getAvailableNeighborhoods();
+  const isCitySelected = pendingFilters.city !== "all";
 
   return (
     <div className="space-y-8">
@@ -248,6 +253,7 @@ export function PropertyExplorer({
             </label>
             <Select
               value={pendingFilters.neighborhood}
+              disabled={!isCitySelected}
               onChange={(event) =>
                 setPendingFilters((prev) => ({
                   ...prev,
@@ -256,7 +262,13 @@ export function PropertyExplorer({
               }
             >
               <option value="all">
-                {t(locale, { en: "All", ar: "الكل", fr: "Tous" })}
+                {isCitySelected
+                  ? t(locale, { en: "All", ar: "الكل", fr: "Tous" })
+                  : t(locale, {
+                      en: "Select city first",
+                      ar: "اختر المدينة اولا",
+                      fr: "Choisissez d'abord une ville",
+                    })}
               </option>
               {availableNeighborhoods.map((item) => (
                 <option key={item.name} value={item.name}>

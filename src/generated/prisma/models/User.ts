@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  featuredproperties: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  featuredproperties: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -40,6 +50,7 @@ export type UserMinAggregateOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  featuredproperties: number | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
   createdAt: Date | null
@@ -62,6 +73,7 @@ export type UserMaxAggregateOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  featuredproperties: number | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
   createdAt: Date | null
@@ -84,6 +96,7 @@ export type UserCountAggregateOutputType = {
   suspendedBy: number
   bannedMessage: number
   planId: number
+  featuredproperties: number
   role: number
   status: number
   createdAt: number
@@ -91,6 +104,14 @@ export type UserCountAggregateOutputType = {
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  featuredproperties?: true
+}
+
+export type UserSumAggregateInputType = {
+  featuredproperties?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -108,6 +129,7 @@ export type UserMinAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  featuredproperties?: true
   role?: true
   status?: true
   createdAt?: true
@@ -130,6 +152,7 @@ export type UserMaxAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  featuredproperties?: true
   role?: true
   status?: true
   createdAt?: true
@@ -152,6 +175,7 @@ export type UserCountAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  featuredproperties?: true
   role?: true
   status?: true
   createdAt?: true
@@ -197,6 +221,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -227,6 +263,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -247,11 +285,14 @@ export type UserGroupByOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  featuredproperties: number | null
   role: $Enums.UserRole
   status: $Enums.UserStatus
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -290,6 +331,7 @@ export type UserWhereInput = {
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -300,6 +342,7 @@ export type UserWhereInput = {
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   subscriptions?: Prisma.SubscriptionListRelationFilter
+  ads?: Prisma.AdListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -318,6 +361,7 @@ export type UserOrderByWithRelationInput = {
   suspendedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   bannedMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredproperties?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -328,6 +372,7 @@ export type UserOrderByWithRelationInput = {
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
+  ads?: Prisma.AdOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -349,6 +394,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -359,6 +405,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   subscriptions?: Prisma.SubscriptionListRelationFilter
+  ads?: Prisma.AdListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -377,13 +424,16 @@ export type UserOrderByWithAggregationInput = {
   suspendedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   bannedMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredproperties?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -405,6 +455,7 @@ export type UserScalarWhereWithAggregatesInput = {
   suspendedBy?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   planId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  featuredproperties?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -426,6 +477,7 @@ export type UserCreateInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -436,6 +488,7 @@ export type UserCreateInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -454,6 +507,7 @@ export type UserUncheckedCreateInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -463,6 +517,7 @@ export type UserUncheckedCreateInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -480,6 +535,7 @@ export type UserUpdateInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -490,6 +546,7 @@ export type UserUpdateInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -508,6 +565,7 @@ export type UserUncheckedUpdateInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -517,6 +575,7 @@ export type UserUncheckedUpdateInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -535,6 +594,7 @@ export type UserCreateManyInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -556,6 +616,7 @@ export type UserUpdateManyMutationInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -578,6 +639,7 @@ export type UserUncheckedUpdateManyInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -615,10 +677,15 @@ export type UserCountOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  featuredproperties?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -637,6 +704,7 @@ export type UserMaxOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -659,10 +727,15 @@ export type UserMinOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  featuredproperties?: Prisma.SortOrder
 }
 
 export type UserCreateNestedManyWithoutPlanInput = {
@@ -771,6 +844,20 @@ export type UserUpdateOneRequiredWithoutPropertiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPropertiesInput, Prisma.UserUpdateWithoutPropertiesInput>, Prisma.UserUncheckedUpdateWithoutPropertiesInput>
 }
 
+export type UserCreateNestedOneWithoutAdsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdsInput, Prisma.UserUncheckedCreateWithoutAdsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAdsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdsInput, Prisma.UserUncheckedCreateWithoutAdsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdsInput
+  upsert?: Prisma.UserUpsertWithoutAdsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdsInput, Prisma.UserUpdateWithoutAdsInput>, Prisma.UserUncheckedUpdateWithoutAdsInput>
+}
+
 export type UserCreateNestedOneWithoutFavoritesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutFavoritesInput, Prisma.UserUncheckedCreateWithoutFavoritesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutFavoritesInput
@@ -800,6 +887,7 @@ export type UserCreateWithoutPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -809,6 +897,7 @@ export type UserCreateWithoutPlanInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPlanInput = {
@@ -826,6 +915,7 @@ export type UserUncheckedCreateWithoutPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -835,6 +925,7 @@ export type UserUncheckedCreateWithoutPlanInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPlanInput = {
@@ -882,6 +973,7 @@ export type UserScalarWhereInput = {
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -903,6 +995,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -912,6 +1005,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -930,6 +1024,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -938,6 +1033,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -971,6 +1067,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -980,6 +1077,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -998,6 +1096,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1006,6 +1105,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -1023,6 +1123,7 @@ export type UserCreateWithoutAccountsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1032,6 +1133,7 @@ export type UserCreateWithoutAccountsInput = {
   favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -1050,6 +1152,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1058,6 +1161,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -1091,6 +1195,7 @@ export type UserUpdateWithoutAccountsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1100,6 +1205,7 @@ export type UserUpdateWithoutAccountsInput = {
   favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -1118,6 +1224,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1126,6 +1233,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1143,6 +1251,7 @@ export type UserCreateWithoutSessionsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1152,6 +1261,7 @@ export type UserCreateWithoutSessionsInput = {
   favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1170,6 +1280,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1178,6 +1289,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1211,6 +1323,7 @@ export type UserUpdateWithoutSessionsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1220,6 +1333,7 @@ export type UserUpdateWithoutSessionsInput = {
   favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1238,6 +1352,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1246,6 +1361,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPropertiesInput = {
@@ -1263,6 +1379,7 @@ export type UserCreateWithoutPropertiesInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1272,6 +1389,7 @@ export type UserCreateWithoutPropertiesInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPropertiesInput = {
@@ -1290,6 +1408,7 @@ export type UserUncheckedCreateWithoutPropertiesInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1298,6 +1417,7 @@ export type UserUncheckedCreateWithoutPropertiesInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPropertiesInput = {
@@ -1331,6 +1451,7 @@ export type UserUpdateWithoutPropertiesInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1340,6 +1461,7 @@ export type UserUpdateWithoutPropertiesInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPropertiesInput = {
@@ -1358,10 +1480,140 @@ export type UserUncheckedUpdateWithoutPropertiesInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAdsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  avatar?: string | null
+  phone?: string | null
+  city?: string | null
+  bio?: string | null
+  suspendedAt?: Date | string | null
+  suspendedUntil?: Date | string | null
+  suspendedMessage?: string | null
+  suspendedBy?: string | null
+  bannedMessage?: string | null
+  featuredproperties?: number | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  plan?: Prisma.PlanCreateNestedOneWithoutUsersInput
+  properties?: Prisma.PropertyCreateNestedManyWithoutSellerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAdsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  passwordHash?: string | null
+  avatar?: string | null
+  phone?: string | null
+  city?: string | null
+  bio?: string | null
+  suspendedAt?: Date | string | null
+  suspendedUntil?: Date | string | null
+  suspendedMessage?: string | null
+  suspendedBy?: string | null
+  bannedMessage?: string | null
+  planId?: string | null
+  featuredproperties?: number | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  properties?: Prisma.PropertyUncheckedCreateNestedManyWithoutSellerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAdsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdsInput, Prisma.UserUncheckedCreateWithoutAdsInput>
+}
+
+export type UserUpsertWithoutAdsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAdsInput, Prisma.UserUncheckedUpdateWithoutAdsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdsInput, Prisma.UserUncheckedCreateWithoutAdsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAdsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAdsInput, Prisma.UserUncheckedUpdateWithoutAdsInput>
+}
+
+export type UserUpdateWithoutAdsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.PlanUpdateOneWithoutUsersNestedInput
+  properties?: Prisma.PropertyUpdateManyWithoutSellerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAdsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  properties?: Prisma.PropertyUncheckedUpdateManyWithoutSellerNestedInput
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -1383,6 +1635,7 @@ export type UserCreateWithoutFavoritesInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1392,6 +1645,7 @@ export type UserCreateWithoutFavoritesInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFavoritesInput = {
@@ -1410,6 +1664,7 @@ export type UserUncheckedCreateWithoutFavoritesInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1418,6 +1673,7 @@ export type UserUncheckedCreateWithoutFavoritesInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ads?: Prisma.AdUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFavoritesInput = {
@@ -1451,6 +1707,7 @@ export type UserUpdateWithoutFavoritesInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1460,6 +1717,7 @@ export type UserUpdateWithoutFavoritesInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFavoritesInput = {
@@ -1478,6 +1736,7 @@ export type UserUncheckedUpdateWithoutFavoritesInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1486,6 +1745,7 @@ export type UserUncheckedUpdateWithoutFavoritesInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyPlanInput = {
@@ -1503,6 +1763,7 @@ export type UserCreateManyPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   createdAt?: Date | string
@@ -1524,6 +1785,7 @@ export type UserUpdateWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1533,6 +1795,7 @@ export type UserUpdateWithoutPlanInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlanInput = {
@@ -1550,6 +1813,7 @@ export type UserUncheckedUpdateWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1559,6 +1823,7 @@ export type UserUncheckedUpdateWithoutPlanInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ads?: Prisma.AdUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutPlanInput = {
@@ -1576,6 +1841,7 @@ export type UserUncheckedUpdateManyWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1593,6 +1859,7 @@ export type UserCountOutputType = {
   accounts: number
   sessions: number
   subscriptions: number
+  ads: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1601,6 +1868,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   subscriptions?: boolean | UserCountOutputTypeCountSubscriptionsArgs
+  ads?: boolean | UserCountOutputTypeCountAdsArgs
 }
 
 /**
@@ -1648,6 +1916,13 @@ export type UserCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.SubscriptionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAdsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1665,6 +1940,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  featuredproperties?: boolean
   role?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1675,6 +1951,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   subscriptions?: boolean | Prisma.User$subscriptionsArgs<ExtArgs>
+  ads?: boolean | Prisma.User$adsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1694,6 +1971,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  featuredproperties?: boolean
   role?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1717,6 +1995,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  featuredproperties?: boolean
   role?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1740,13 +2019,14 @@ export type UserSelectScalar = {
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  featuredproperties?: boolean
   role?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "avatar" | "phone" | "city" | "bio" | "suspendedAt" | "suspendedUntil" | "suspendedMessage" | "suspendedBy" | "bannedMessage" | "planId" | "role" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "avatar" | "phone" | "city" | "bio" | "suspendedAt" | "suspendedUntil" | "suspendedMessage" | "suspendedBy" | "bannedMessage" | "planId" | "featuredproperties" | "role" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plan?: boolean | Prisma.User$planArgs<ExtArgs>
   properties?: boolean | Prisma.User$propertiesArgs<ExtArgs>
@@ -1754,6 +2034,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   subscriptions?: boolean | Prisma.User$subscriptionsArgs<ExtArgs>
+  ads?: boolean | Prisma.User$adsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1772,6 +2053,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+    ads: Prisma.$AdPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1789,6 +2071,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     suspendedBy: string | null
     bannedMessage: string | null
     planId: string | null
+    featuredproperties: number | null
     role: $Enums.UserRole
     status: $Enums.UserStatus
     createdAt: Date
@@ -2193,6 +2476,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subscriptions<T extends Prisma.User$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ads<T extends Prisma.User$adsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2237,6 +2521,7 @@ export interface UserFieldRefs {
   readonly suspendedBy: Prisma.FieldRef<"User", 'String'>
   readonly bannedMessage: Prisma.FieldRef<"User", 'String'>
   readonly planId: Prisma.FieldRef<"User", 'String'>
+  readonly featuredproperties: Prisma.FieldRef<"User", 'Int'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2778,6 +3063,30 @@ export type User$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.SubscriptionScalarFieldEnum | Prisma.SubscriptionScalarFieldEnum[]
+}
+
+/**
+ * User.ads
+ */
+export type User$adsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ad
+   */
+  select?: Prisma.AdSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ad
+   */
+  omit?: Prisma.AdOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdInclude<ExtArgs> | null
+  where?: Prisma.AdWhereInput
+  orderBy?: Prisma.AdOrderByWithRelationInput | Prisma.AdOrderByWithRelationInput[]
+  cursor?: Prisma.AdWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdScalarFieldEnum | Prisma.AdScalarFieldEnum[]
 }
 
 /**

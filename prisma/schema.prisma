@@ -75,21 +75,36 @@ model PropertyType {
 }
 
 model Plan {
-  id             String   @id
-  title          String
-  title_ar       String?
-  title_fr       String?
-  description    String
-  description_ar String?
-  description_fr String?
-  price          Int
-  listings       Int? // null = unlimited
-  featured       Boolean
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                  String   @id
+  title               String
+  title_ar            String?
+  title_fr            String?
+  description         String
+  description_ar      String?
+  description_fr      String?
+  price               Int
+  listings            Int? // null = unlimited
+  featured            Boolean
+  ads                 Int?     @default(0)
+  adsduration         Int?
+  maxFeaturedListings Int?
+  maxImagesPerListing Int?
+  maxVideosPerListing Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   users         User[]
   subscriptions Subscription[]
+  adCampaigns   Ad[]
+}
+
+enum AdStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  PAUSED
+  ENDED
+  CANCELLED
 }
 
 model Subscription {
@@ -129,12 +144,13 @@ model User {
   city  String?
   bio   String?
 
-  suspendedAt      DateTime?
-  suspendedUntil   DateTime?
-  suspendedMessage String?
-  suspendedBy      String?
-  bannedMessage    String?
-  planId           String?
+  suspendedAt        DateTime?
+  suspendedUntil     DateTime?
+  suspendedMessage   String?
+  suspendedBy        String?
+  bannedMessage      String?
+  planId             String?
+  featuredproperties Int?      @default(0)
 
   role   UserRole   @default(USER)
   status UserStatus @default(ACTIVE)
@@ -149,6 +165,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   subscriptions Subscription[]
+  ads           Ad[]
 }
 
 model Account {
@@ -218,12 +235,64 @@ model Property {
   seller       User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   media        Media[]
   favorites    Favorite[]
+  ads          Ad[]
 
   @@index([propertyTypeId])
   @@index([city])
   @@index([neighborhood])
   @@index([featured])
   @@index([sellerId])
+}
+
+model Ad {
+  id String @id @default(cuid())
+
+  userId String
+
+  title       String
+  slug        String? @unique
+  description String?
+
+  planId     String?
+  propertyId String?
+
+  status AdStatus @default(DRAFT)
+
+  startAt DateTime?
+  endAt   DateTime?
+
+  budget      Int?
+  spentAmount Int  @default(0)
+  pricePerDay Int?
+
+  impressions Int @default(0)
+  clicks      Int @default(0)
+  conversions Int @default(0)
+
+  featured      Boolean   @default(false)
+  featuredUntil DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan     Plan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // indexes
+  @@index([userId])
+  @@index([planId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([startAt])
+  @@index([endAt])
+  @@index([featured])
+  @@index([featuredUntil])
+  @@index([createdAt])
+  @@index([clicks])
+  @@index([impressions])
 }
 
 model Favorite {

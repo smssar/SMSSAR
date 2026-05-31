@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { jsonError, readJson } from "@/lib/api-utils";
+import { jsonError, readJson, jsonFieldErrors } from "@/lib/api-utils";
+import { getMessages } from "@/lib/messages";
 import {
   withSubscription,
   getActiveSubscription,
@@ -81,6 +82,27 @@ const createPropertyHandler = async (
     );
   }
 
+  const localeHeader = (request.headers as Headers).get
+    ? (request.headers as Headers).get("x-locale") || undefined
+    : undefined;
+  const messages = getMessages(localeHeader);
+  const locale =
+    localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
+
+  const featuredNotAllowedMessage =
+    locale === "ar"
+      ? "الخطة الحالية لا تسمح بالعقارات المميزة."
+      : locale === "fr"
+        ? "Votre forfait actuel n'autorise pas les annonces en vedette."
+        : "Your current plan does not allow featured listings.";
+
+  const featuredLimitReachedMessage = (maxFeatured: number) =>
+    locale === "ar"
+      ? `خطتك تسمح بحد أقصى ${maxFeatured} عقار${maxFeatured === 1 ? "" : "ات"} مميز. لقد وصلت إلى الحد.`
+      : locale === "fr"
+        ? `Votre forfait autorise jusqu'a ${maxFeatured} annonce${maxFeatured === 1 ? "" : "s"} en vedette. Vous avez atteint la limite.`
+        : `Your plan allows up to ${maxFeatured} featured listing${maxFeatured === 1 ? "" : "s"}. You have reached the limit.`;
+
   const body = await readJson<CreatePropertyBody>(request);
   if (!body) {
     return jsonError("Invalid JSON body.");
@@ -94,9 +116,59 @@ const createPropertyHandler = async (
   const imageUrl = body.imageUrl?.trim();
   const videoUrl = body.videoUrl?.trim() ?? body.vedioUrl?.trim();
 
+  // Server-side validation with localized field errors
+  const fieldErrors: Record<string, string | undefined> = {};
+  if (!title || title.length === 0) {
+    fieldErrors.title = messages.dashboard.seller.validation.title.required;
+  } else if (title.length < 3) {
+    fieldErrors.title = messages.dashboard.seller.validation.title.minLength;
+  }
+
+  if (!city || city.length === 0) {
+    fieldErrors.city = messages.dashboard.seller.validation.city.required;
+  } else if (city.length < 2) {
+    fieldErrors.city = messages.dashboard.seller.validation.city.minLength;
+  }
+
+  if (!neighborhood || neighborhood.length === 0) {
+    fieldErrors.neighborhood =
+      messages.dashboard.seller.validation.neighborhood.minLength;
+  } else if (neighborhood.length < 2) {
+    fieldErrors.neighborhood =
+      messages.dashboard.seller.validation.neighborhood.minLength;
+  }
+
+  if (!propertyTypeId || propertyTypeId.length === 0) {
+    fieldErrors.propertyTypeId = "Property type is required.";
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return jsonFieldErrors(
+      fieldErrors,
+      messages.dashboard.seller.validation.fixErrors,
+      400,
+    );
+  }
+
+  // Narrow optional values to required strings for downstream Prisma calls
   if (!title || !city || !neighborhood || !propertyTypeId) {
-    return jsonError(
-      "Fields 'title', 'city', 'neighborhood', and 'propertyTypeId' are required.",
+    return jsonFieldErrors(
+      {
+        title: !title
+          ? messages.dashboard.seller.validation.title.required
+          : undefined,
+        city: !city
+          ? messages.dashboard.seller.validation.city.required
+          : undefined,
+        neighborhood: !neighborhood
+          ? messages.dashboard.seller.validation.neighborhood.minLength
+          : undefined,
+        propertyTypeId: !propertyTypeId
+          ? "Property type is required."
+          : undefined,
+      },
+      messages.dashboard.seller.validation.fixErrors,
+      400,
     );
   }
 
@@ -109,8 +181,12 @@ const createPropertyHandler = async (
   });
 
   if (!neighborhoodExists) {
-    return jsonError(
-      `Neighborhood '${neighborhood}' is not available for city '${city}'.`,
+    return jsonFieldErrors(
+      {
+        neighborhood:
+          messages.dashboard.seller.validation.neighborhood.minLength,
+      },
+      messages.dashboard.seller.validation.fixErrors,
       400,
     );
   }
@@ -135,7 +211,7 @@ const createPropertyHandler = async (
   // Verify seller exists
   const sellerExists = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true },
+    select: { id: true, featuredproperties: true },
   });
 
   if (!sellerExists) {
@@ -148,47 +224,107 @@ const createPropertyHandler = async (
     typeof body.bathrooms !== "number" ||
     typeof body.price !== "number"
   ) {
-    return jsonError(
-      "Fields 'area', 'rooms', 'bathrooms', and 'price' must be numbers.",
+    const numericFieldErrors: Record<string, string | undefined> = {};
+    if (typeof body.area !== "number") {
+      numericFieldErrors.area =
+        messages.dashboard.seller.validation.area.required;
+    }
+    if (typeof body.rooms !== "number")
+      numericFieldErrors.rooms = "Rooms must be a number.";
+    if (typeof body.bathrooms !== "number")
+      numericFieldErrors.bathrooms = "Bathrooms must be a number.";
+    if (typeof body.price !== "number")
+      numericFieldErrors.price =
+        messages.dashboard.seller.validation.price.required;
+    return jsonFieldErrors(
+      numericFieldErrors,
+      messages.dashboard.seller.validation.fixErrors,
+      400,
     );
   }
 
+  const area = body.area;
+  const rooms = body.rooms;
+  const bathrooms = body.bathrooms;
+  const price = body.price;
+
   try {
+    // Check featured property limit if user is trying to feature this property
+    const isFeatured =
+      typeof body.featured === "boolean" ? body.featured : false;
+
+    if (isFeatured) {
+      // A listing can only be featured when the active plan supports featured listings.
+      if (!userPlan.featured) {
+        return jsonError(featuredNotAllowedMessage, 400);
+      }
+
+      const maxFeatured = userPlan.maxFeaturedListings;
+      const currentFeatured = sellerExists.featuredproperties ?? 0;
+
+      if (typeof maxFeatured === "number" && currentFeatured >= maxFeatured) {
+        console.log(
+          "[FEATURED LIMIT] Blocking create: userId=",
+          session.user.id,
+          "currentFeatured=",
+          currentFeatured,
+          "maxFeatured=",
+          maxFeatured,
+        );
+        return jsonError(featuredLimitReachedMessage(maxFeatured), 400);
+      }
+    }
+
     const imageUrlFromBody =
       typeof body.imageUrl === "string" && body.imageUrl.trim().length > 0
         ? body.imageUrl.trim()
         : null;
 
-    const property = await prisma.property.create({
-      data: {
-        title,
-        description,
-        city,
-        neighborhood,
-        area: body.area,
-        rooms: body.rooms,
-        bathrooms: body.bathrooms,
-        price: body.price,
-        propertyTypeId,
-        sellerId: session.user.id,
-        featured: body.featured ?? false,
-        imageUrl: imageUrlFromBody,
-        videoUrl: null,
-        priceType: body.priceType ?? "MONTHLY",
-        forSale: typeof body.forSale === "boolean" ? body.forSale : false,
-      },
-      include: {
-        propertyType: {
-          select: { id: true, name: true, slug: true },
+    const property = await prisma.$transaction(async (tx) => {
+      const created = await tx.property.create({
+        data: {
+          title,
+          description,
+          city,
+          neighborhood,
+          area,
+          rooms,
+          bathrooms,
+          price,
+          propertyTypeId,
+          sellerId: session.user.id,
+          featured: isFeatured,
+          imageUrl: imageUrlFromBody,
+          videoUrl: null,
+          priceType: body.priceType ?? "MONTHLY",
+          forSale: typeof body.forSale === "boolean" ? body.forSale : false,
         },
-        seller: {
-          select: { id: true, name: true, email: true },
+        include: {
+          propertyType: {
+            select: { id: true, name: true, slug: true },
+          },
+          seller: {
+            select: { id: true, name: true, email: true },
+          },
+          media: {
+            select: { id: true, url: true, publicId: true, type: true },
+            orderBy: { createdAt: "asc" },
+          },
         },
-        media: {
-          select: { id: true, url: true, publicId: true, type: true },
-          orderBy: { createdAt: "asc" },
-        },
-      },
+      });
+
+      if (isFeatured) {
+        await tx.user.update({
+          where: { id: session.user.id },
+          data: {
+            featuredproperties: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
+      return created;
     });
 
     // Create media records if images provided

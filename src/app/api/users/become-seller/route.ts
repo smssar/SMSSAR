@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
 import { ensureFreePlan } from "@/lib/ensure-free-plan";
+import { validateAndNormalizePhone } from "@/lib/phone";
 
 type BecomeSellerBody = {
   phone?: string;
@@ -25,8 +26,9 @@ export async function POST(request: Request) {
   }
 
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const phoneValidation = validateAndNormalizePhone(phone);
 
-  if (phone.length < 6) {
+  if (!phoneValidation.valid) {
     return jsonError("Please enter a valid phone number.", 400);
   }
 
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
     where: { id: session.user.id },
     data: {
       role: "SELLER",
-      phone,
+      phone: phoneValidation.e164,
       planId: session.user.planId ?? "plan_free",
     },
     select: {

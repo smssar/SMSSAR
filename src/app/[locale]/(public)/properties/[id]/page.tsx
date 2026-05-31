@@ -35,6 +35,7 @@ type PropertyDisplay = Property & {
     url: string;
     resourceType: "image" | "video";
   }>;
+  hasAd?: boolean;
 };
 
 export default async function PropertyDetailPage({
@@ -80,6 +81,19 @@ export default async function PropertyDetailPage({
       notFound();
     }
 
+    const activeAd = await prisma.ad.findFirst({
+      where: {
+        propertyId: dbProperty.id,
+        status: { in: ["RUNNING", "SCHEDULED"] },
+      },
+      select: { id: true },
+    });
+
+    const normalizedPriceType =
+      (dbProperty.priceType ?? "MONTHLY").toUpperCase() === "DAILY"
+        ? ("DAILY" as "MONTHLY" | "DAILY")
+        : ("MONTHLY" as "MONTHLY" | "DAILY");
+
     // Convert database property to display format
     property = {
       id: dbProperty.id,
@@ -99,6 +113,7 @@ export default async function PropertyDetailPage({
       rooms: dbProperty.rooms,
       bathrooms: dbProperty.bathrooms ?? 0,
       price: dbProperty.price,
+      priceType: normalizedPriceType,
       propertyType: dbProperty.propertyType?.name || "Other",
       featured: dbProperty.featured,
       seller: dbProperty.seller?.name || "Seller",
@@ -106,6 +121,7 @@ export default async function PropertyDetailPage({
       sellerPhone: dbProperty.seller?.phone ?? null,
       sellerBio: dbProperty.seller?.bio ?? null,
       sellerCity: dbProperty.seller?.city ?? null,
+      hasAd: Boolean(activeAd),
       palette: ["from-blue-500", "to-indigo-600"] as [string, string],
       amenities: [],
       // include media for client swiper
@@ -181,7 +197,15 @@ export default async function PropertyDetailPage({
             <div className="mt-4">
               <div className="flex flex-wrap gap-2 items-center">
                 {property.featured ? (
-                  <Badge variant="accent">Featured</Badge>
+                  <Badge variant="accent">{messages.common.featured}</Badge>
+                ) : null}
+                {property.hasAd ? (
+                  <Badge
+                    variant="secondary"
+                    className="bg-white/15 text-muted-foreground"
+                  >
+                    {messages.common.ad}
+                  </Badge>
                 ) : null}
                 <Badge
                   variant="secondary"
@@ -269,10 +293,21 @@ export default async function PropertyDetailPage({
               {property.sellerPhone ? (
                 <a
                   href={`tel:${property.sellerPhone}`}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-violet-500"
+                  className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-sm font-medium text-foreground transition hover:bg-muted/60 hover:border-violet-500/50 active:scale-95"
                 >
-                  <Phone className="h-4 w-4" />
-                  {property.sellerPhone}
+                  <Phone className="h-5 w-5 text-violet-600 shrink-0 ltr:order-1 rtl:order-3" />
+                  {property.sellerPhone.startsWith("+") ? (
+                    <span className="flex items-center ltr:order-2 rtl:order-2">
+                      <span className="text-violet-600 font-semibold">+</span>
+                      <span className="ltr:order-1 rtl:order-2">
+                        {property.sellerPhone.substring(1)}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="ltr:order-2 rtl:order-1">
+                      {property.sellerPhone}
+                    </span>
+                  )}
                 </a>
               ) : null}
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -365,7 +400,17 @@ export default async function PropertyDetailPage({
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <InfoRow
                 label={messages.common.price}
-                value={formatCurrency(property.price, locale)}
+                value={`
+                  ${formatCurrency(property.price, locale)} ${
+                    (property.priceType ?? "MONTHLY").toUpperCase() === "DAILY"
+                      ? locale === "ar"
+                        ? "/اليوم"
+                        : locale === "fr"
+                          ? "/jour"
+                          : "/day"
+                      : messages.common.monthly
+                  }
+                `}
               />
               <InfoRow
                 label={messages.properties.location}

@@ -16,7 +16,10 @@ type Property = {
   rooms: number;
   bathrooms?: number | null;
   price: number;
+  priceType?: string;
   featured: boolean;
+  adCount?: number;
+  hasRunningAd?: boolean;
   imageUrl?: string | null;
   propertyType?: {
     id: string;
@@ -102,7 +105,10 @@ export function SellerListingsPanel({
               rooms: property.rooms,
               bathrooms: property.bathrooms ?? null,
               price: property.price,
+              priceType: property.priceType,
               featured: property.featured,
+              adCount: property.adCount,
+              hasRunningAd: property.hasRunningAd,
               imageUrl: property.imageUrl ?? null,
               propertyType: property.propertyType?.name ?? "other",
               amenities: property.amenities ?? [],

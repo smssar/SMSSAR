@@ -2,6 +2,7 @@ import { AdminListingsPanel } from "@/components/admin/admin-listings-panel";
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { prisma } from "@/lib/prisma";
+import { updateAdStatuses } from "@/lib/ad-utils";
 
 function toPositiveInteger(
   value: string | null | undefined,
@@ -41,6 +42,9 @@ export default async function AdminListingsPage({
   let cities = [];
   let neighborhoods = [];
   let totalCount = 0;
+
+  // Update ad statuses before fetching
+  await updateAdStatuses();
 
   try {
     const q = search.trim().toLowerCase();
@@ -113,7 +117,29 @@ export default async function AdminListingsPage({
     ]);
 
     totalCount = countResult;
-    listings = listingsResult;
+    const adCountMap = new Map<string, number>();
+    const pagePropertyIds = listingsResult.map((item) => item.id);
+    if (pagePropertyIds.length > 0) {
+      const adCountsResult = await prisma.ad.groupBy({
+        by: ["propertyId"],
+        where: {
+          propertyId: { in: pagePropertyIds },
+          deletedAt: null,
+          status: { in: ["RUNNING"] },
+        },
+        _count: { _all: true },
+      });
+
+      for (const entry of adCountsResult) {
+        if (entry.propertyId) {
+          adCountMap.set(entry.propertyId, entry._count._all ?? 0);
+        }
+      }
+    }
+    listings = listingsResult.map((item) => ({
+      ...item,
+      adCount: adCountMap.get(item.id) ?? 0,
+    }));
     propertyTypes = propertyTypesResult;
     cities = citiesResult;
     neighborhoods = neighborhoodsResult;

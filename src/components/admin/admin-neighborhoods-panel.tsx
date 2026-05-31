@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Edit3, Loader2, Plus, Trash2, X } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { Edit3, Loader2, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +49,8 @@ export function AdminNeighborhoodsPanel({
   initialCities: LocalizedCity[];
   initialNeighborhoods: NeighborhoodRow[];
 }) {
+  const router = useRouter();
+  const [isRefreshing, startRefresh] = useTransition();
   const [cities] = useState(initialCities);
   const [neighborhoods, setNeighborhoods] = useState(initialNeighborhoods);
   const [cityId, setCityId] = useState(initialCities[0]?.id ?? "");
@@ -99,6 +102,12 @@ export function AdminNeighborhoodsPanel({
       );
     });
   }, [sortedNeighborhoods, neighborhoodQuery]);
+
+  const reloadData = () => {
+    startRefresh(() => {
+      router.refresh();
+    });
+  };
 
   const resetForm = () => {
     setEditingId(null);
@@ -366,10 +375,32 @@ export function AdminNeighborhoodsPanel({
       </Card>
 
       <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle>
-            {locale === "ar" ? "الأحياء الحالية" : "Current neighborhoods"}
-          </CardTitle>
+        <CardHeader className="flex flex-col gap-3 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>
+              {locale === "ar" ? "الأحياء الحالية" : "Current neighborhoods"}
+            </CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {locale === "ar"
+                ? "عرض وتحديث قائمة الأحياء من قاعدة البيانات."
+                : "View and refresh the neighborhood list from the database."}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={reloadData}
+            disabled={isRefreshing}
+            className="gap-2 self-start"
+          >
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RotateCcw className="h-4 w-4" />
+            )}
+            {locale === "ar" ? "إعادة تحميل" : "Reload"}
+          </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="mb-3">

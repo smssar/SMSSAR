@@ -394,6 +394,7 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Property: 'Property',
+  Ad: 'Ad',
   Favorite: 'Favorite',
   Media: 'Media'
 } as const
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "favorite" | "media"
+    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "ad" | "favorite" | "media"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1155,6 +1156,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Ad: {
+      payload: Prisma.$AdPayload<ExtArgs>
+      fields: Prisma.AdFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AdFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AdFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        findFirst: {
+          args: Prisma.AdFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AdFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        findMany: {
+          args: Prisma.AdFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>[]
+        }
+        create: {
+          args: Prisma.AdCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        createMany: {
+          args: Prisma.AdCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AdCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>[]
+        }
+        delete: {
+          args: Prisma.AdDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        update: {
+          args: Prisma.AdUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        deleteMany: {
+          args: Prisma.AdDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AdUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AdUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>[]
+        }
+        upsert: {
+          args: Prisma.AdUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdPayload>
+        }
+        aggregate: {
+          args: Prisma.AdAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAd>
+        }
+        groupBy: {
+          args: Prisma.AdGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AdCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdCountAggregateOutputType> | number
+        }
+      }
+    }
     Favorite: {
       payload: Prisma.$FavoritePayload<ExtArgs>
       fields: Prisma.FavoriteFieldRefs
@@ -1396,6 +1471,11 @@ export const PlanScalarFieldEnum = {
   price: 'price',
   listings: 'listings',
   featured: 'featured',
+  ads: 'ads',
+  adsduration: 'adsduration',
+  maxFeaturedListings: 'maxFeaturedListings',
+  maxImagesPerListing: 'maxImagesPerListing',
+  maxVideosPerListing: 'maxVideosPerListing',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1414,6 +1494,7 @@ export const SubscriptionScalarFieldEnum = {
   dodoSubscriptionId: 'dodoSubscriptionId',
   localSessionId: 'localSessionId',
   refunded: 'refunded',
+  refund_id: 'refund_id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1437,6 +1518,7 @@ export const UserScalarFieldEnum = {
   suspendedBy: 'suspendedBy',
   bannedMessage: 'bannedMessage',
   planId: 'planId',
+  featuredproperties: 'featuredproperties',
   role: 'role',
   status: 'status',
   createdAt: 'createdAt',
@@ -1506,6 +1588,33 @@ export const PropertyScalarFieldEnum = {
 } as const
 
 export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
+
+
+export const AdScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  planId: 'planId',
+  propertyId: 'propertyId',
+  status: 'status',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  budget: 'budget',
+  spentAmount: 'spentAmount',
+  pricePerDay: 'pricePerDay',
+  impressions: 'impressions',
+  clicks: 'clicks',
+  conversions: 'conversions',
+  featured: 'featured',
+  featuredUntil: 'featuredUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type AdScalarFieldEnum = (typeof AdScalarFieldEnum)[keyof typeof AdScalarFieldEnum]
 
 
 export const FavoriteScalarFieldEnum = {
@@ -1653,6 +1762,20 @@ export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'AdStatus'
+ */
+export type EnumAdStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AdStatus[]'
+ */
+export type ListEnumAdStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1770,6 +1893,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   verificationToken?: Prisma.VerificationTokenOmit
   property?: Prisma.PropertyOmit
+  ad?: Prisma.AdOmit
   favorite?: Prisma.FavoriteOmit
   media?: Prisma.MediaOmit
 }

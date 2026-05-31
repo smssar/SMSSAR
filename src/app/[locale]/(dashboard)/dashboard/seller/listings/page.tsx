@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { getMessages } from "@/lib/messages";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { updateAdStatuses } from "@/lib/ad-utils";
 import type { Locale } from "@/lib/locales";
 import { SellerListingsPanel } from "@/components/seller/seller-listings-panel";
 
@@ -22,6 +23,9 @@ export default async function SellerListingsPage({
     return null;
   }
 
+  // Update ad statuses before fetching counts
+  await updateAdStatuses();
+
   const properties = await prisma.property.findMany({
     where: { sellerId: session.user.id },
     include: {
@@ -31,6 +35,50 @@ export default async function SellerListingsPage({
     },
     orderBy: { createdAt: "desc" },
   });
+
+  // Fetch ad counts for seller properties
+  const adCountMap = new Map<string, number>();
+  const runningAdMap = new Map<string, boolean>();
+  const propertyIds = properties.map((p) => p.id);
+  if (propertyIds.length > 0) {
+    const adCountsResult = await prisma.ad.groupBy({
+      by: ["propertyId"],
+      where: {
+        propertyId: { in: propertyIds },
+        deletedAt: null,
+        status: { in: ["RUNNING", "SCHEDULED"] },
+      },
+      _count: { _all: true },
+    });
+
+    for (const entry of adCountsResult) {
+      if (entry.propertyId) {
+        adCountMap.set(entry.propertyId, entry._count._all ?? 0);
+      }
+    }
+
+    const runningAds = await prisma.ad.findMany({
+      where: {
+        propertyId: { in: propertyIds },
+        deletedAt: null,
+        status: "RUNNING",
+      },
+      select: { propertyId: true },
+      distinct: ["propertyId"],
+    });
+
+    for (const ad of runningAds) {
+      if (ad.propertyId) {
+        runningAdMap.set(ad.propertyId, true);
+      }
+    }
+  }
+
+  const propertiesWithAdCounts = properties.map((property) => ({
+    ...property,
+    adCount: adCountMap.get(property.id) ?? 0,
+    hasRunningAd: runningAdMap.get(property.id) ?? false,
+  }));
 
   return (
     <div className="space-y-6">
@@ -62,7 +110,10 @@ export default async function SellerListingsPage({
           </CardContent>
         </Card>
       ) : (
-        <SellerListingsPanel locale={locale} properties={properties} />
+        <SellerListingsPanel
+          locale={locale}
+          properties={propertiesWithAdCounts}
+        />
       )}
     </div>
   );

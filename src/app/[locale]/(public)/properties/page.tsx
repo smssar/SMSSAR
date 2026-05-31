@@ -2,12 +2,42 @@ import { PropertyExplorer } from "@/components/property/property-explorer";
 import { auth } from "@/auth";
 import { getMessages } from "@/lib/messages";
 import { prisma } from "@/lib/prisma";
+import { updateAdStatuses } from "@/lib/ad-utils";
+import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/locales";
 
 const PAGE_SIZE = 10;
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+function scoreTextMatch(text: string, query: string, tokenList: string[]) {
+  const normalizedText = normalizeSearchText(text);
+  if (!normalizedText) return 0;
+
+  let score = 0;
+
+  if (normalizedText === query) score += 100;
+  if (normalizedText.startsWith(query)) score += 60;
+  if (normalizedText.includes(query)) score += 35;
+
+  for (const token of tokenList) {
+    if (!token) continue;
+    if (normalizedText === token) score += 40;
+    else if (normalizedText.startsWith(token)) score += 18;
+    else if (normalizedText.includes(token)) score += 10;
+  }
+
+  return score;
+}
 
 function getSeoCopy(locale: Locale) {
   if (locale === "ar") {
@@ -40,7 +70,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const seo = getSeoCopy(locale);
-  const canonicalPath = `/${locale}/properties`;
+  const canonicalPath = `${APP_URL.replace(/\/$/, "")}/${locale}/properties`;
 
   return {
     title: seo.title,
@@ -114,61 +144,66 @@ export default async function PropertiesPage({
     ? resolvedSearchParams.maxPrice[0] || ""
     : resolvedSearchParams.maxPrice || "";
 
-  const searchable = query.trim().toLowerCase();
+  const searchable = query.trim();
+  const normalizedQuery = normalizeSearchText(searchable);
+  const queryTokens = normalizedQuery
+    ? normalizedQuery.split(/\s+/).filter(Boolean)
+    : [];
   const numericRooms = rooms === "all" ? null : Number.parseInt(rooms, 10);
   const numericMaxPrice = maxPrice ? Number(maxPrice) : null;
 
-  const matchingSellerIds = searchable
-    ? await prisma.user.findMany({
-        where: {
-          name: { contains: searchable, mode: "insensitive" },
+  // Use relational filter for seller name instead of fetching seller IDs first
+  const sellerNameFilter: Prisma.PropertyWhereInput | undefined = searchable
+    ? {
+        seller: {
+          name: { contains: searchable, mode: "insensitive" as const },
         },
-        select: { id: true },
-      })
-    : [];
+      }
+    : undefined;
 
-  const where = {
+  const searchFilters: Prisma.PropertyWhereInput[] = [
+    { title: { contains: searchable, mode: "insensitive" as const } },
+    {
+      description: {
+        contains: searchable,
+        mode: "insensitive" as const,
+      },
+    },
+    { city: { contains: searchable, mode: "insensitive" as const } },
+    {
+      neighborhood: {
+        contains: searchable,
+        mode: "insensitive" as const,
+      },
+    },
+  ];
+
+  if (sellerNameFilter) {
+    searchFilters.push(sellerNameFilter);
+  }
+
+  const where: Prisma.PropertyWhereInput = {
     ...(city !== "all" ? { city } : {}),
     ...(neighborhood !== "all" ? { neighborhood } : {}),
     ...(numericRooms ? { rooms: numericRooms } : {}),
     ...(propertyType !== "all" ? { propertyTypeId: propertyType } : {}),
     ...(numericMaxPrice !== null ? { price: { lte: numericMaxPrice } } : {}),
-    ...(searchable
-      ? {
-          OR: [
-            { title: { contains: searchable, mode: "insensitive" as const } },
-            {
-              description: {
-                contains: searchable,
-                mode: "insensitive" as const,
-              },
-            },
-            { city: { contains: searchable, mode: "insensitive" as const } },
-            {
-              neighborhood: {
-                contains: searchable,
-                mode: "insensitive" as const,
-              },
-            },
-            ...(matchingSellerIds.length > 0
-              ? [
-                  {
-                    sellerId: {
-                      in: matchingSellerIds.map((seller) => seller.id),
-                    },
-                  },
-                ]
-              : []),
-          ],
-        }
-      : {}),
+    ...(searchable ? { OR: searchFilters } : {}),
   };
 
-  // Fetch properties with seller information from database
+  // DB-level pagination to avoid loading all rows into memory
+  const take = PAGE_SIZE;
+  const skip = (currentPage - 1) * PAGE_SIZE;
+
+  // Update ad statuses before fetching properties
+  await updateAdStatuses();
+
   const [totalCount, properties] = await Promise.all([
     prisma.property.count({ where }),
     prisma.property.findMany({
       where,
+      take,
+      skip,
       select: {
         id: true,
         title: true,
@@ -179,9 +214,13 @@ export default async function PropertiesPage({
         rooms: true,
         bathrooms: true,
         price: true,
+        priceType: true,
         propertyTypeId: true,
         propertyType: {
           select: { id: true, name: true },
+        },
+        _count: {
+          select: { favorites: true },
         },
         featured: true,
         imageUrl: true,
@@ -190,98 +229,173 @@ export default async function PropertiesPage({
         media: {
           select: { id: true, url: true, type: true, publicId: true },
         },
+        ads: {
+          where: {
+            status: "RUNNING",
+            startAt: { lte: new Date() },
+            endAt: { gte: new Date() },
+          },
+          select: { id: true, status: true, startAt: true, endAt: true },
+        },
       },
-      orderBy: { createdAt: "desc" },
-      take: PAGE_SIZE,
-      skip: (currentPage - 1) * PAGE_SIZE,
+
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     }),
   ]);
 
-  const favoritePropertyIds = session?.user?.id
-    ? new Set(
-        (
-          await prisma.favorite.findMany({
-            where: {
-              userId: session.user.id,
-              propertyId: { in: properties.map((property) => property.id) },
-            },
-            select: { propertyId: true },
-          })
-        ).map((item) => item.propertyId),
-      )
-    : new Set<string>();
+  // After fetching the paginated properties, fetch related data in parallel
+  const propertyIds = properties.map((p) => p.id);
 
-  const cities = await prisma.city.findMany({
-    select: {
-      name: true,
-      name_ar: true,
-      name_fr: true,
-    },
-    orderBy: { name: "asc" },
-  });
+  // Use database time as a consistent server reference (avoids Date.now in render)
+  const [{ now: serverNow }] =
+    (await prisma.$queryRaw`SELECT now() as now`) as [{ now: Date }];
 
-  const propertyTypes = await prisma.propertyType.findMany({
-    select: {
-      id: true,
-      name: true,
-      name_ar: true,
-      name_fr: true,
-      slug: true,
-    },
-    orderBy: { name: "asc" },
-  });
+  const [favoriteRows, sellers] = await Promise.all([
+    session?.user?.id
+      ? prisma.favorite.findMany({
+          where: {
+            userId: session.user.id,
+            propertyId: { in: propertyIds },
+          },
+          select: { propertyId: true },
+        })
+      : Promise.resolve([]),
+    prisma.user.findMany({
+      where: { id: { in: [...new Set(properties.map((p) => p.sellerId))] } },
+      select: { id: true, name: true },
+    }),
+  ]);
 
-  const neighborhoods = await prisma.neighborhood.findMany({
-    select: {
-      name: true,
-      name_ar: true,
-      name_fr: true,
-      city: {
-        select: {
-          name: true,
-          name_ar: true,
-          name_fr: true,
-        },
-      },
-    },
-    orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
-  });
-
-  // Fetch seller information for all properties
-  const sellerIds = [...new Set(properties.map((p) => p.sellerId))];
-  const sellers = await prisma.user.findMany({
-    where: { id: { in: sellerIds } },
-    select: { id: true, name: true },
-  });
+  const favoritePropertyIds = new Set(favoriteRows.map((r) => r.propertyId));
 
   const sellerMap = new Map(sellers.map((s) => [s.id, s.name]));
 
-  const transformedProperties = properties.map((property) => ({
-    id: property.id,
-    title: property.title,
-    description: property.description || "",
-    city: property.city,
-    neighborhood: property.neighborhood || undefined,
-    area: property.area || 0,
-    rooms: property.rooms || 0,
-    bathrooms: property.bathrooms || 0,
-    price: property.price || 0,
-    propertyType: property.propertyType?.name || "Other",
-    featured: property.featured,
-    imageUrl: property.imageUrl || undefined,
-    seller: sellerMap.get(property.sellerId) || "Unknown",
-    media: property.media.map((m) => ({
-      id: m.id,
-      url: m.url,
-      type: m.type,
-      publicId: m.publicId,
-    })),
-    isFavorite: favoritePropertyIds.has(property.id),
-    favoriteEnabled: true,
-  }));
+  const promotedCountByProperty = new Map<string, number>();
+  for (const p of properties) {
+    promotedCountByProperty.set(p.id, p.ads?.length ?? 0);
+  }
+
+  const [cities, propertyTypes, neighborhoods] = await Promise.all([
+    prisma.city.findMany({
+      select: {
+        name: true,
+        name_ar: true,
+        name_fr: true,
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.propertyType.findMany({
+      select: {
+        id: true,
+        name: true,
+        name_ar: true,
+        name_fr: true,
+        slug: true,
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.neighborhood.findMany({
+      select: {
+        name: true,
+        name_ar: true,
+        name_fr: true,
+        city: {
+          select: {
+            name: true,
+            name_ar: true,
+            name_fr: true,
+          },
+        },
+      },
+      orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
+    }),
+  ]);
+
+  const transformedProperties = properties.map((property) => {
+    const seller = sellerMap.get(property.sellerId) || "Unknown";
+    const adCount = promotedCountByProperty.get(property.id) ?? 0;
+
+    return {
+      id: property.id,
+      title: property.title,
+      description: property.description || "",
+      city: property.city,
+      neighborhood: property.neighborhood || undefined,
+      area: property.area || 0,
+      rooms: property.rooms || 0,
+      bathrooms: property.bathrooms || 0,
+      price: property.price || 0,
+      priceType: property.priceType,
+      propertyType: property.propertyType?.name || "Other",
+      featured: property.featured,
+      adCount,
+      ads: property.ads?.map((a) => ({ id: a.id })) ?? [],
+      favoriteCount: property._count.favorites,
+      imageUrl: property.imageUrl || undefined,
+      seller,
+      createdAt: property.createdAt,
+      media: property.media.map((m) => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        publicId: m.publicId,
+      })),
+      isFavorite: favoritePropertyIds.has(property.id),
+      favoriteEnabled: true,
+      _score: (() => {
+        const promoted = promotedCountByProperty.get(property.id) ?? 0;
+        const featuredScore = property.featured ? 25 : 0;
+        const textScore = searchable
+          ? [
+              scoreTextMatch(property.title, normalizedQuery, queryTokens),
+              scoreTextMatch(
+                property.description || "",
+                normalizedQuery,
+                queryTokens,
+              ),
+              scoreTextMatch(property.city, normalizedQuery, queryTokens),
+              scoreTextMatch(
+                property.neighborhood || "",
+                normalizedQuery,
+                queryTokens,
+              ),
+              scoreTextMatch(
+                property.propertyType?.name || "",
+                normalizedQuery,
+                queryTokens,
+              ),
+              scoreTextMatch(seller, normalizedQuery, queryTokens),
+            ].reduce((sum, v) => sum + v, 0)
+          : 0;
+
+        const recencyDays = Math.floor(
+          (serverNow.getTime() - property.createdAt.getTime()) / 86400000,
+        );
+        const recencyScore = Math.max(0, 30 - recencyDays);
+
+        // Balanced scoring: promoted > featured > text > recency
+        return promoted * 50 + featuredScore + textScore + recencyScore;
+      })(),
+    };
+  });
+
+  transformedProperties.sort((a, b) => {
+    if (b._score !== a._score) return b._score - a._score;
+    if (b.featured !== a.featured)
+      return Number(b.featured) - Number(a.featured);
+    if (b.adCount !== a.adCount) return b.adCount - a.adCount;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
+
+  // Properties are already fetched with DB pagination (take/skip)
+  const pagedProperties = transformedProperties;
 
   const seo = getSeoCopy(locale);
   const baseUrl = APP_URL.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
+  const currency =
+    process.env.NEXT_PUBLIC_DEFAULT_CURRENCY ||
+    (locale === "ar" ? "MAD" : "USD");
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -291,8 +405,8 @@ export default async function PropertiesPage({
     url: `${baseUrl}/${locale}/properties`,
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: transformedProperties.length,
-      itemListElement: transformedProperties.map((property, index) => ({
+      numberOfItems: pagedProperties.length,
+      itemListElement: pagedProperties.map((property, index) => ({
         "@type": "ListItem",
         position: index + 1,
         item: {
@@ -315,7 +429,7 @@ export default async function PropertiesPage({
           offers: {
             "@type": "Offer",
             price: property.price,
-            priceCurrency: "USD",
+            priceCurrency: currency,
             availability: "https://schema.org/InStock",
           },
         },
@@ -331,7 +445,7 @@ export default async function PropertiesPage({
       />
       <PropertyExplorer
         locale={locale}
-        properties={transformedProperties}
+        properties={pagedProperties}
         cities={cities}
         neighborhoods={neighborhoods}
         propertyTypes={propertyTypes}

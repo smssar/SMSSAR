@@ -9,6 +9,7 @@ import {
   Eye,
   ImagePlus,
   Loader2,
+  Sparkles,
   Save,
   Star,
   Trash2,
@@ -39,6 +40,7 @@ type PropertyRow = {
   price: number;
   propertyTypeId?: string | null;
   featured: boolean;
+  adCount?: number;
   priceType?: string;
   propertyType?:
     | string
@@ -688,15 +690,35 @@ export function AdminListingsPanel({
                     <td className="py-4">{item.price}</td>
                     <td className="py-4">{item.seller.name || "-"}</td>
                     <td className="py-4">
-                      <Badge variant={item.featured ? "accent" : "secondary"}>
-                        {item.featured
-                          ? locale === "ar"
-                            ? "مميز"
-                            : "Featured"
-                          : locale === "ar"
-                            ? "عادي"
-                            : "Standard"}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {item.adCount && item.adCount > 0 ? (
+                          <Badge
+                            variant="secondary"
+                            className="border-amber-400/30 bg-linear-to-r from-amber-500 via-orange-500 to-rose-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-amber-500/25"
+                          >
+                            <Sparkles className="mr-1 h-3.5 w-3.5" />
+                            {locale === "ar"
+                              ? `إعلان ×${item.adCount}`
+                              : `Ad ×${item.adCount}`}
+                          </Badge>
+                        ) : null}
+                        <Badge
+                          variant={item.featured ? "accent" : "secondary"}
+                          className={
+                            item.featured
+                              ? "border-violet-400/30 bg-linear-to-r from-violet-600 via-fuchsia-600 to-indigo-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-violet-500/25"
+                              : "px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                          }
+                        >
+                          {item.featured
+                            ? locale === "ar"
+                              ? "مميز"
+                              : "Featured"
+                            : locale === "ar"
+                              ? "عادي"
+                              : "Standard"}
+                        </Badge>
+                      </div>
                     </td>
                     <td className="py-4">
                       <a
@@ -879,7 +901,13 @@ export function AdminListingsPanel({
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">
-                    {locale === "ar" ? "السعر الشهري" : "MONTHLY RENT"}
+                    {priceType === "DAILY"
+                      ? locale === "ar"
+                        ? "السعر اليومي"
+                        : "DAILY RENT"
+                      : locale === "ar"
+                        ? "السعر الشهري"
+                        : "MONTHLY RENT"}
                   </p>
                   <p className="mt-1 text-2xl font-semibold">
                     {formatCurrency(Number(price), locale)}

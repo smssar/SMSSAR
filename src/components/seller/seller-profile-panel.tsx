@@ -6,10 +6,18 @@ import { Edit3, Loader2, Mail, Save, Shield, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  defaultPhoneCountry,
+  formatPhonePreview,
+  getPhoneCountryByCode,
+  phoneCountries,
+  validateAndNormalizePhone,
+} from "@/lib/phone";
 import type { Locale } from "@/lib/locales";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
@@ -38,6 +46,7 @@ export function SellerProfilePanel({
   const [name, setName] = useState(initialSeller.name);
   const [email, setEmail] = useState(initialSeller.email);
   const [phone, setPhone] = useState(initialSeller.phone ?? "");
+  const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
   const [city, setCity] = useState(initialSeller.city ?? "");
   const [bio, setBio] = useState(initialSeller.bio ?? "");
   const [hasPassword, setHasPassword] = useState(initialSeller.hasPassword);
@@ -50,6 +59,21 @@ export function SellerProfilePanel({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Validate phone if provided
+    if (phone.trim()) {
+      const phoneValidation = validateAndNormalizePhone(phone, countryCode);
+      if (!phoneValidation.valid) {
+        toast.error(
+          locale === "ar"
+            ? "يرجى إدخال رقم هاتف صحيح."
+            : locale === "fr"
+              ? "Veuillez saisir un numero de telephone valide."
+              : "Please enter a valid phone number.",
+        );
+        return;
+      }
+    }
 
     if (hasPassword && newPassword && !currentPassword) {
       toast.error(
@@ -74,13 +98,22 @@ export function SellerProfilePanel({
   const performSave = async () => {
     setLoading(true);
     try {
+      // Normalize phone before sending
+      let normalizedPhone = phone;
+      if (phone.trim()) {
+        const phoneValidation = validateAndNormalizePhone(phone, countryCode);
+        if (phoneValidation.valid) {
+          normalizedPhone = phoneValidation.e164;
+        }
+      }
+
       const response = await fetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           email,
-          phone,
+          phone: normalizedPhone,
           city,
           bio,
           currentPassword: currentPassword || undefined,
@@ -192,18 +225,35 @@ export function SellerProfilePanel({
                     fr: "Téléphone",
                   })}
                 </Label>
-                <Input
-                  id="seller-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  className="h-11"
-                  placeholder={t(locale, {
-                    en: "+971 50 000 0000",
-                    ar: "+971 50 000 0000",
-                    fr: "+971 50 000 0000",
-                  })}
-                />
+                <div className="grid grid-cols-[128px_1fr] gap-2">
+                  <Select
+                    value={countryCode}
+                    onChange={(event) => setCountryCode(event.target.value)}
+                    disabled={loading}
+                    className="h-11 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3"
+                  >
+                    {phoneCountries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.flag} {country.dialCode}
+                      </option>
+                    ))}
+                  </Select>
+                  <Input
+                    id="seller-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setPhone(formatPhonePreview(nextValue, countryCode));
+                    }}
+                    className="h-11 rounded-r-2xl rounded-l-none"
+                    placeholder={t(locale, {
+                      en: "50 000 0000",
+                      ar: "50 000 0000",
+                      fr: "50 000 0000",
+                    })}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

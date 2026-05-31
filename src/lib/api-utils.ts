@@ -4,6 +4,14 @@ export function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
+export function jsonFieldErrors(
+  fieldErrors: Record<string, string | undefined>,
+  message?: string,
+  status = 400,
+) {
+  return NextResponse.json({ error: message, fieldErrors }, { status });
+}
+
 export function getRequestBaseUrl(headers?: Headers): string | null {
   const forwardedProto = headers?.get("x-forwarded-proto")?.trim();
   const forwardedHost = headers?.get("x-forwarded-host")?.trim();
