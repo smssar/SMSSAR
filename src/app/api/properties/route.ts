@@ -88,6 +88,7 @@ const createPropertyHandler = async (
   const messages = getMessages(localeHeader);
   const locale =
     localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
+  const upgradeUrl = `/${locale}/pricing`;
 
   const featuredNotAllowedMessage =
     locale === "ar"
@@ -247,6 +248,51 @@ const createPropertyHandler = async (
   const rooms = body.rooms;
   const bathrooms = body.bathrooms;
   const price = body.price;
+
+  const incomingImages = Array.isArray(body.images)
+    ? body.images.filter((m) => m.type !== "video")
+    : [];
+  const incomingVideos = Array.isArray(body.images)
+    ? body.images.filter((m) => m.type === "video")
+    : [];
+
+  if (
+    typeof userPlan.maxImagesPerListing === "number" &&
+    incomingImages.length > userPlan.maxImagesPerListing
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          locale === "ar"
+            ? `حد الصور في باقتك هو ${userPlan.maxImagesPerListing}.`
+            : locale === "fr"
+              ? `La limite d'images de votre forfait est ${userPlan.maxImagesPerListing}.`
+              : `Your plan image limit is ${userPlan.maxImagesPerListing}.`,
+        code: "PLAN_MEDIA_LIMIT_IMAGES",
+        upgradeUrl,
+      },
+      { status: 400 },
+    );
+  }
+
+  if (
+    typeof userPlan.maxVideosPerListing === "number" &&
+    incomingVideos.length > userPlan.maxVideosPerListing
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          locale === "ar"
+            ? `حد الفيديوهات في باقتك هو ${userPlan.maxVideosPerListing}.`
+            : locale === "fr"
+              ? `La limite de videos de votre forfait est ${userPlan.maxVideosPerListing}.`
+              : `Your plan video limit is ${userPlan.maxVideosPerListing}.`,
+        code: "PLAN_MEDIA_LIMIT_VIDEOS",
+        upgradeUrl,
+      },
+      { status: 400 },
+    );
+  }
 
   try {
     // Check featured property limit if user is trying to feature this property

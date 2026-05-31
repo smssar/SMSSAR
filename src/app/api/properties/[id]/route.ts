@@ -140,6 +140,21 @@ export async function PATCH(request: Request, context: RouteContext) {
     return jsonError("Property not found.", 404);
   }
 
+  const sellerAccount = await prisma.user.findUnique({
+    where: { id: existingProperty.sellerId },
+    select: { planId: true },
+  });
+
+  const sellerPlan = sellerAccount?.planId
+    ? await prisma.plan.findUnique({
+        where: { id: sellerAccount.planId },
+        select: {
+          maxImagesPerListing: true,
+          maxVideosPerListing: true,
+        },
+      })
+    : null;
+
   const data: {
     title?: string;
     description?: string;
@@ -212,6 +227,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const messages = getMessages(localeHeader);
   const locale =
     localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
+  const upgradeUrl = `/${locale}/pricing`;
 
   const featuredNotAllowedMessage =
     locale === "ar"
@@ -334,6 +350,73 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   if (!hasFieldUpdates && !hasMediaUpdates) {
     return jsonError("No valid fields provided for update.");
+  }
+
+  if (sellerPlan) {
+    const retainedExistingIds = new Set(
+      Array.isArray(body.existingMedia)
+        ? body.existingMedia.map((media) => media.id)
+        : existingProperty.media.map((media) => media.id),
+    );
+
+    const retainedExisting = existingProperty.media.filter((media) =>
+      retainedExistingIds.has(media.id),
+    );
+
+    const retainedImageCount = retainedExisting.filter(
+      (m) => m.type !== "video",
+    ).length;
+    const retainedVideoCount = retainedExisting.filter(
+      (m) => m.type === "video",
+    ).length;
+
+    const incomingImages = Array.isArray(body.images)
+      ? body.images.filter((m) => m.type !== "video").length
+      : 0;
+    const incomingVideos = Array.isArray(body.images)
+      ? body.images.filter((m) => m.type === "video").length
+      : 0;
+
+    const nextImageCount = retainedImageCount + incomingImages;
+    const nextVideoCount = retainedVideoCount + incomingVideos;
+
+    if (
+      typeof sellerPlan.maxImagesPerListing === "number" &&
+      nextImageCount > sellerPlan.maxImagesPerListing
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "ar"
+              ? `حد الصور في باقتك هو ${sellerPlan.maxImagesPerListing}.`
+              : locale === "fr"
+                ? `La limite d'images de votre forfait est ${sellerPlan.maxImagesPerListing}.`
+                : `Your plan image limit is ${sellerPlan.maxImagesPerListing}.`,
+          code: "PLAN_MEDIA_LIMIT_IMAGES",
+          upgradeUrl,
+        },
+        { status: 400 },
+      );
+    }
+
+    if (
+      typeof sellerPlan.maxVideosPerListing === "number" &&
+      nextVideoCount > sellerPlan.maxVideosPerListing
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "ar"
+              ? `حد الفيديوهات في باقتك هو ${sellerPlan.maxVideosPerListing}.`
+              : locale === "fr"
+                ? `La limite de videos de votre forfait est ${sellerPlan.maxVideosPerListing}.`
+                : `Your plan video limit is ${sellerPlan.maxVideosPerListing}.`,
+          code: "PLAN_MEDIA_LIMIT_VIDEOS",
+          upgradeUrl,
+        },
+        { status: 400 },
+      );
+    }
   }
 
   try {

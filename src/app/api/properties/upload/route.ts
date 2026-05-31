@@ -9,12 +9,6 @@ export const runtime = "nodejs";
 
 async function getAuthorizedUser() {
   const session = await auth();
-  console.log("[AUTH] Session user:", {
-    id: session?.user?.id,
-    email: session?.user?.email,
-    role: session?.user?.role,
-  });
-
   const userId = session?.user?.id;
   const userEmail = session?.user?.email?.trim().toLowerCase();
 
@@ -91,7 +85,6 @@ export async function POST(request: Request) {
     }`;
 
     const mimeType = file.type || "";
-    console.log(mimeType);
     const isVideo = mimeType.startsWith("video/");
 
     const arrayBuffer = await file.arrayBuffer();
@@ -100,7 +93,6 @@ export async function POST(request: Request) {
     let uploadResult;
 
     if (isVideo) {
-      console.log("Uploading video file to Cloudinary:");
       uploadResult = await new Promise<any>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {

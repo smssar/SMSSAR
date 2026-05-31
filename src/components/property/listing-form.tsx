@@ -3,15 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BadgeDollarSign,
   ImagePlus,
   KeyRound,
   Loader,
+  Trash2,
   Save,
   Star,
   Video,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,11 @@ type UploadedAsset = {
   publicId: string;
   resourceType: "image" | "video" | "raw";
   url: string;
+};
+
+type PlanMediaLimits = {
+  maxImagesPerListing: number | null;
+  maxVideosPerListing: number | null;
 };
 
 function isVideoUrl(url: string) {
@@ -101,6 +107,16 @@ export function ListingForm({
   );
   const [areaError, setAreaError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [planMediaLimits, setPlanMediaLimits] =
+    useState<PlanMediaLimits | null>(null);
+  const [removingAssetIds, setRemovingAssetIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [upgradeDialogMessage, setUpgradeDialogMessage] = useState<string>("");
+  const [upgradeDialogUrl, setUpgradeDialogUrl] = useState<string>(
+    `/${locale}/pricing`,
+  );
   const imageAssetsRef = useRef<UploadedAsset[]>([]);
   const savedRef = useRef(false);
 
@@ -145,6 +161,33 @@ export function ListingForm({
 
   const messages = getMessages(locale);
 
+  const mediaActionsText = {
+    setCover:
+      locale === "ar"
+        ? "تعيين كغلاف"
+        : locale === "fr"
+          ? "Definir la couverture"
+          : "Set cover",
+    cover:
+      locale === "ar" ? "الغلاف" : locale === "fr" ? "Couverture" : "Cover",
+    cannotBeCover:
+      locale === "ar"
+        ? "الفيديو لا يمكن أن يكون غلافاً"
+        : locale === "fr"
+          ? "Une video ne peut pas etre une couverture"
+          : "Video cannot be cover",
+    remove:
+      locale === "ar" ? "إزالة" : locale === "fr" ? "Supprimer" : "Remove",
+    restore:
+      locale === "ar" ? "استرجاع" : locale === "fr" ? "Restaurer" : "Restore",
+    removing:
+      locale === "ar"
+        ? "جاري الإزالة..."
+        : locale === "fr"
+          ? "Suppression..."
+          : "Removing...",
+  };
+
   const getLocalizedLabel = (item: {
     name: string;
     name_ar?: string | null;
@@ -160,9 +203,37 @@ export function ListingForm({
     [neighborhoods, city],
   );
 
-  const totalMediaCount =
-    imageAssets.length +
-    existingMedia.filter((m) => !existingMediaToDelete.has(m.id)).length;
+  const mediaCounts = useMemo(() => {
+    const existing = existingMedia.filter(
+      (m) => !existingMediaToDelete.has(m.id),
+    );
+    const existingImages = existing.filter((m) => m.type !== "video").length;
+    const existingVideos = existing.filter((m) => m.type === "video").length;
+    const uploadedImages = imageAssets.filter(
+      (asset) => asset.resourceType !== "video",
+    ).length;
+    const uploadedVideos = imageAssets.filter(
+      (asset) => asset.resourceType === "video",
+    ).length;
+
+    const imageCount = existingImages + uploadedImages;
+    const videoCount = existingVideos + uploadedVideos;
+
+    return {
+      imageCount,
+      videoCount,
+      totalCount: imageCount + videoCount,
+    };
+  }, [imageAssets, existingMedia, existingMediaToDelete]);
+
+  const imageLimit = planMediaLimits?.maxImagesPerListing ?? null;
+  const videoLimit = planMediaLimits?.maxVideosPerListing ?? null;
+
+  const canUploadMore =
+    imageLimit === null ||
+    mediaCounts.imageCount < imageLimit ||
+    videoLimit === null ||
+    mediaCounts.videoCount < videoLimit;
 
   const getNextCoverUrl = ({
     excludeImageIndex,
@@ -253,24 +324,89 @@ export function ListingForm({
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    const loadPlanLimits = async () => {
+      try {
+        const res = await fetch("/api/users/me/plan", { cache: "no-store" });
+        const payload = await res.json().catch(() => null);
+        if (!active || !res.ok || !payload?.plan) {
+          return;
+        }
+
+        setPlanMediaLimits({
+          maxImagesPerListing:
+            typeof payload.plan.maxImagesPerListing === "number"
+              ? payload.plan.maxImagesPerListing
+              : null,
+          maxVideosPerListing:
+            typeof payload.plan.maxVideosPerListing === "number"
+              ? payload.plan.maxVideosPerListing
+              : null,
+        });
+      } catch {
+        // Keep form usable even if plan lookup fails.
+      }
+    };
+
+    void loadPlanLimits();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
     if (saving) return;
     const newImages = Array.from(files);
-    const remainingSlots = 3 - totalMediaCount;
+    let nextImageCount = mediaCounts.imageCount;
+    let nextVideoCount = mediaCounts.videoCount;
+    const acceptedFiles: File[] = [];
+    let skippedCount = 0;
 
-    if (newImages.length > remainingSlots) {
-      toast.error(
+    for (const file of newImages) {
+      const isVideo = (file.type || "").startsWith("video/");
+
+      if (isVideo) {
+        if (videoLimit !== null && nextVideoCount >= videoLimit) {
+          skippedCount += 1;
+          continue;
+        }
+        nextVideoCount += 1;
+        acceptedFiles.push(file);
+      } else {
+        if (imageLimit !== null && nextImageCount >= imageLimit) {
+          skippedCount += 1;
+          continue;
+        }
+        nextImageCount += 1;
+        acceptedFiles.push(file);
+      }
+    }
+
+    if (skippedCount > 0) {
+      const message =
         locale === "ar"
-          ? `يمكنك تحميل ${remainingSlots} ملف فقط.`
-          : `You can only upload ${remainingSlots} file(s).`,
-      );
+          ? "وصلت إلى حد الخطة الحالي للوسائط. قم بالترقية لإضافة المزيد من الصور أو الفيديوهات."
+          : locale === "fr"
+            ? "Vous avez atteint la limite media de votre forfait actuel. Passez a un forfait superieur pour ajouter plus de fichiers."
+            : "You've reached your current plan media limit. Upgrade your plan to add more images or videos.";
+
+      setUpgradeDialogMessage(message);
+      setUpgradeDialogUrl(`/${locale}/pricing`);
+      setUpgradeDialogOpen(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    if (acceptedFiles.length === 0) {
       return;
     }
 
     setUploading(true);
     try {
-      for (const file of newImages) {
+      for (const file of acceptedFiles) {
         const formData = new FormData();
         formData.append("file", file);
 
@@ -314,31 +450,50 @@ export function ListingForm({
   const removeImage = async (index: number) => {
     const asset = imageAssets[index];
     if (!asset) return;
+    if (removingAssetIds.has(asset.publicId)) return;
 
-    const response = await fetch("/api/properties/upload", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        publicId: asset.publicId,
-        resourceType: asset.resourceType,
-      }),
-    });
-
-    if (!response.ok) {
-      toast.error(
-        locale === "ar" ? "تعذر حذف الصورة." : "Could not delete the image.",
-      );
-      return;
-    }
-
-    setImageAssets((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      if (asset.url === coverUrl) {
-        const nextCover = getNextCoverUrl({ excludeImageIndex: index });
-        setCoverUrl(nextCover);
-      }
+    setRemovingAssetIds((prev) => {
+      const next = new Set(prev);
+      next.add(asset.publicId);
       return next;
     });
+
+    try {
+      const response = await fetch("/api/properties/upload", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          publicId: asset.publicId,
+          resourceType: asset.resourceType,
+        }),
+      });
+
+      if (!response.ok) {
+        toast.error(
+          locale === "ar"
+            ? "تعذر حذف الصورة."
+            : locale === "fr"
+              ? "Impossible de supprimer le fichier."
+              : "Could not delete the file.",
+        );
+        return;
+      }
+
+      setImageAssets((prev) => {
+        const next = prev.filter((_, i) => i !== index);
+        if (asset.url === coverUrl) {
+          const nextCover = getNextCoverUrl({ excludeImageIndex: index });
+          setCoverUrl(nextCover);
+        }
+        return next;
+      });
+    } finally {
+      setRemovingAssetIds((prev) => {
+        const next = new Set(prev);
+        next.delete(asset.publicId);
+        return next;
+      });
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -468,7 +623,6 @@ export function ListingForm({
               publicId: a.publicId,
               type: a.resourceType === "video" ? "video" : "image",
             }));
-
             const existingMediaForBody = existingMedia
               .filter((m) => !existingMediaToDelete.has(m.id))
               .map((m) => ({ id: m.id, url: m.url, type: m.type }));
@@ -514,6 +668,26 @@ export function ListingForm({
 
               const payload = await res.json().catch(() => null);
               if (!res.ok) {
+                if (
+                  payload?.code === "PLAN_MEDIA_LIMIT_IMAGES" ||
+                  payload?.code === "PLAN_MEDIA_LIMIT_VIDEOS"
+                ) {
+                  setUpgradeDialogMessage(
+                    payload?.error ||
+                      (locale === "ar"
+                        ? "لقد وصلت إلى حد الوسائط في الخطة الحالية."
+                        : locale === "fr"
+                          ? "Vous avez atteint la limite media de votre forfait."
+                          : "You reached your plan media limit."),
+                  );
+                  setUpgradeDialogUrl(
+                    payload?.upgradeUrl || `/${locale}/pricing`,
+                  );
+                  setUpgradeDialogOpen(true);
+                  setSaved(false);
+                  return;
+                }
+
                 // Apply server-returned field errors if present
                 if (payload?.fieldErrors) {
                   setTitleError(payload.fieldErrors.title ?? null);
@@ -591,6 +765,42 @@ export function ListingForm({
             }
           }}
         >
+          {upgradeDialogOpen ? (
+            <div className="md:col-span-2 rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
+              <div className="font-semibold">
+                {locale === "ar"
+                  ? "تحتاج إلى ترقية الخطة"
+                  : locale === "fr"
+                    ? "Mise a niveau requise"
+                    : "Upgrade required"}
+              </div>
+              <div className="mt-1">{upgradeDialogMessage}</div>
+              <div className="mt-3 flex items-center gap-2">
+                <Link
+                  href={upgradeDialogUrl}
+                  className="inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+                >
+                  {locale === "ar"
+                    ? "ترقية الخطة"
+                    : locale === "fr"
+                      ? "Mettre a niveau"
+                      : "Upgrade plan"}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setUpgradeDialogOpen(false)}
+                  className="inline-flex items-center rounded-md border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted"
+                >
+                  {locale === "ar"
+                    ? "إغلاق"
+                    : locale === "fr"
+                      ? "Fermer"
+                      : "Close"}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           {error && (
             <div className="md:col-span-2 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
               <div className="font-semibold">
@@ -998,8 +1208,15 @@ export function ListingForm({
           <div className="md:col-span-2">
             <Label className="mb-2 block">
               {locale === "ar" ? "صور ومقاطع الفيديو" : "Photos & Videos"} (
-              {totalMediaCount}/3)
+              {mediaCounts.totalCount})
             </Label>
+            <div className="mb-3 text-xs text-muted-foreground">
+              {locale === "ar"
+                ? `الصور: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • الفيديوهات: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
+                : locale === "fr"
+                  ? `Images: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • Videos: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
+                  : `Images: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • Videos: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`}
+            </div>
 
             {/* Display existing media */}
             {existingMedia.length > 0 && (
@@ -1063,28 +1280,34 @@ export function ListingForm({
                               });
                             }
                           }}
-                          className={`absolute top-1 ${locale === "ar" ? "left-1" : "right-1"} ${
+                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 bg-amber-700 ${
                             isDeleted
-                              ? "bg-blue-500 hover:bg-blue-600"
-                              : "bg-red-500 hover:bg-red-600"
-                          } text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition z-10`}
+                              ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                              : "bg-yellow-600 text-white hover:bg-red-700"
+                          }`}
                         >
                           {isDeleted ? (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <>
+                              <svg
+                                className="h-3.5 w-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                              <span>{mediaActionsText.restore}</span>
+                            </>
                           ) : (
-                            <X className="h-4 w-4" />
+                            <>
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span>{mediaActionsText.remove}</span>
+                            </>
                           )}
                         </button>
                         <button
@@ -1095,20 +1318,24 @@ export function ListingForm({
                             if (coverUrl === media.url) return;
                             setCoverUrl(media.url);
                           }}
-                          className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} bg-black/60 text-white rounded-full px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition z-10`}
+                          className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                            coverUrl === media.url
+                              ? "bg-amber-500 text-black"
+                              : "bg-black/70 text-white hover:bg-black/80"
+                          }`}
                         >
                           {isVideo ? (
                             <span className="flex items-center gap-1">
-                              Video cannot be cover
+                              {mediaActionsText.cannotBeCover}
                             </span>
                           ) : coverUrl === media.url ? (
                             <span className="flex items-center gap-1">
                               <Star className="h-4 w-4 text-yellow-300" />
-                              Cover
+                              {mediaActionsText.cover}
                             </span>
                           ) : (
                             <span className="flex items-center gap-1">
-                              Set cover
+                              {mediaActionsText.setCover}
                             </span>
                           )}
                         </button>
@@ -1120,7 +1347,7 @@ export function ListingForm({
             )}
 
             {/* Upload area for new media */}
-            {totalMediaCount < 3 && (
+            {canUploadMore ? (
               <div>
                 <h3 className="mb-3 text-sm font-medium text-muted-foreground">
                   {locale === "ar" ? "إضافة ملفات جديدة" : "Add new files"}
@@ -1169,6 +1396,28 @@ export function ListingForm({
                   />
                 </label>
               </div>
+            ) : (
+              <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-700 dark:bg-red-950/40 dark:text-red-200">
+                <div>
+                  {locale === "ar"
+                    ? "لقد وصلت إلى الحد الأقصى لعدد الصور والفيديوهات المسموح بها في خطتك الحالية."
+                    : locale === "fr"
+                      ? "Vous avez atteint la limite du nombre d'images et de vidéos autorisées dans votre plan actuel."
+                      : "You have reached the maximum number of allowed images and videos in your current plan."}
+                </div>
+                <div className="mt-3">
+                  <Link
+                    href={`/${locale}/pricing`}
+                    className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700"
+                  >
+                    {locale === "ar"
+                      ? "ترقية الخطة"
+                      : locale === "fr"
+                        ? "Mettre a niveau"
+                        : "Upgrade plan"}
+                  </Link>
+                </div>
+              </div>
             )}
 
             {/* Display newly uploaded media */}
@@ -1185,6 +1434,7 @@ export function ListingForm({
                     const previewUrl = isVideo
                       ? getVideoThumbnailUrl(asset.url)
                       : asset.url;
+                    const isRemoving = removingAssetIds.has(asset.publicId);
                     return (
                       <div
                         key={index}
@@ -1208,9 +1458,24 @@ export function ListingForm({
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className={`absolute top-1 ${locale === "ar" ? "left-1" : "right-1"} bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition z-10`}
+                          disabled={isRemoving}
+                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                            isRemoving
+                              ? "bg-red-300 text-red-100 cursor-not-allowed"
+                              : "bg-red-600 text-white hover:bg-red-700"
+                          }`}
                         >
-                          <X className="h-4 w-4" />
+                          {isRemoving ? (
+                            <>
+                              <Loader className="h-3.5 w-3.5 animate-spin" />
+                              <span>{mediaActionsText.removing}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span>{mediaActionsText.remove}</span>
+                            </>
+                          )}
                         </button>
                         <button
                           type="button"
@@ -1219,20 +1484,24 @@ export function ListingForm({
                             if (coverUrl === asset.url) return;
                             setCoverUrl(asset.url);
                           }}
-                          className={`absolute bottom-1 ${locale === "ar" ? "right-1" : "left-1"} bg-black/60 text-white rounded-full px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition z-10`}
+                          className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                            coverUrl === asset.url
+                              ? "bg-amber-500 text-black"
+                              : "bg-black/70 text-white hover:bg-black/80"
+                          }`}
                         >
                           {isVideo ? (
                             <span className="flex items-center gap-1">
-                              Video cannot be cover
+                              {mediaActionsText.cannotBeCover}
                             </span>
                           ) : coverUrl === asset.url ? (
                             <span className="flex items-center gap-1">
                               <Star className="h-4 w-4 text-yellow-300" />
-                              Cover
+                              {mediaActionsText.cover}
                             </span>
                           ) : (
                             <span className="flex items-center gap-1">
-                              Set cover
+                              {mediaActionsText.setCover}
                             </span>
                           )}
                         </button>

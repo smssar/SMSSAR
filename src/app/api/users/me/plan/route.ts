@@ -36,6 +36,8 @@ export async function GET() {
       title: true,
       adsduration: true,
       ads: true,
+      maxImagesPerListing: true,
+      maxVideosPerListing: true,
     },
   });
 
