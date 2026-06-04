@@ -95,7 +95,6 @@ const createPropertyHandler = async (
   const locale =
     localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
   const upgradeUrl = `/${locale}/pricing`;
-  console.log("Plan limit:", planLimit);
   // Check if user has reached their listing limit
   if (existingCount >= planLimit) {
     if (extraListings > 0) {
@@ -381,16 +380,6 @@ const createPropertyHandler = async (
           maxFeatured === 0
             ? featuredNotAllowedMessage
             : featuredLimitReachedMessage(maxFeatured);
-
-        if (maxFeatured !== 0) {
-          console.log("[FEATURED LIMIT] Blocking create:", {
-            userId: session.user.id,
-            currentFeatured,
-            planFeaturedLimit,
-            featuredPurchases,
-            maxFeatured,
-          });
-        }
 
         return NextResponse.json(
           {

@@ -267,7 +267,6 @@ export function ListingForm({
     mediaCounts.imageCount < imageLimit ||
     videoLimit === null ||
     mediaCounts.videoCount < videoLimit;
-  console.log("planMediaLimits", planMediaLimits, "extraImages:", extraImages);
 
   const getNextCoverUrl = ({
     excludeImageIndex,
@@ -364,16 +363,12 @@ export function ListingForm({
         const res = await fetch("/api/plans/user", { cache: "no-store" });
         const payload = await res.json().catch(() => null);
 
-        console.log("Fetched plan info:", payload);
-
         if (!res.ok || !payload?.data) return;
 
         setPlanMediaLimits({
           maxImagesPerListing: payload.data.maxImagesPerListing,
           maxVideosPerListing: payload.data.maxVideosPerListing,
         });
-
-        console.log("API limits:", payload.data);
       } catch {
         toast.error(
           locale === "ar"

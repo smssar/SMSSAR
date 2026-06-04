@@ -31,7 +31,6 @@ export default async function SellerSubscriptionsPage({
   const { locale } = await params;
   const resolvedSearchParams = await searchParams;
   const messages = getMessages(locale);
-  console.log("Locale:", locale);
 
   const session = await auth();
   if (!session?.user?.id) redirect(`/${locale}/login`);

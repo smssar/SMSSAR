@@ -229,7 +229,6 @@ export async function POST(req: NextRequest) {
       return_url: returnUrlWithSession,
       cancel_url: `${BASE_URL}/${safeLocale}/pricing`,
     };
-    console.log(checkoutPayload);
     const dodoResponse = await fetch(`${DODO_API_BASE_URL}/checkouts`, {
       method: "POST",
       headers: {

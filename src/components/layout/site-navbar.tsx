@@ -109,7 +109,7 @@ export function SiteNavbar({
               <div className="text-base">
                 {t(locale, {
                   en: "Smssar",
-                  ar: "منصة تأجير العقارات",
+                  ar: "سمسار",
                   fr: "Plateforme de location",
                 })}
               </div>
