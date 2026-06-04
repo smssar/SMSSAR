@@ -54,6 +54,13 @@ function isBecomeSellerRoute(pathname: string, locale: Locale): boolean {
   );
 }
 
+function isSellerPurchasesRoute(pathname: string, locale: Locale): boolean {
+  return (
+    pathname === `/${locale}/dashboard/seller/purchases` ||
+    pathname.startsWith(`/${locale}/dashboard/seller/purchases/`)
+  );
+}
+
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const pathnameHasLocale = locales.some(
@@ -86,7 +93,8 @@ export default async function proxy(request: NextRequest) {
         if (
           !activeSubscription &&
           !isCheckPlanRoute(pathname, locale) &&
-          !isBecomeSellerRoute(pathname, locale)
+          !isBecomeSellerRoute(pathname, locale) &&
+          !isSellerPurchasesRoute(pathname, locale)
         ) {
           return NextResponse.redirect(
             new URL(`/${locale}/check-plan`, request.url),

@@ -84,6 +84,19 @@ export function ListingForm({
     };
   }>;
 }) {
+  type PurchaseWithProduct = {
+    id: string;
+    quantity: number;
+    status: string;
+    expiresAt: Date | null;
+    purchaseProduct: {
+      id: string;
+      code: string | null;
+      title: string;
+      title_ar?: string | null;
+      title_fr?: string | null;
+    };
+  };
   const router = useRouter();
   const [imageAssets, setImageAssets] = useState<UploadedAsset[]>([]);
   const [coverUrl, setCoverUrl] = useState<string | undefined>(
@@ -109,6 +122,7 @@ export function ListingForm({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [planMediaLimits, setPlanMediaLimits] =
     useState<PlanMediaLimits | null>(null);
+  const [purchase, setPurchase] = useState<PurchaseWithProduct[] | null>(null);
   const [removingAssetIds, setRemovingAssetIds] = useState<Set<string>>(
     new Set(),
   );
@@ -225,15 +239,35 @@ export function ListingForm({
       totalCount: imageCount + videoCount,
     };
   }, [imageAssets, existingMedia, existingMediaToDelete]);
+  const extraImages = (purchase ?? [])
+    .filter((p) => {
+      return p.purchaseProduct?.code === "EXTRA_IMAGES";
+    })
+    .reduce((sum, p) => sum + p.quantity, 0);
 
-  const imageLimit = planMediaLimits?.maxImagesPerListing ?? null;
-  const videoLimit = planMediaLimits?.maxVideosPerListing ?? null;
+  const extraVideos = (purchase ?? [])
+    .filter((p) => {
+      return p.purchaseProduct?.code === "EXTRA_VIDEOS";
+    })
+    .reduce((sum, p) => sum + p.quantity, 0);
+
+  // Final limits = plan base + purchased extras
+  // null means unlimited (plan has no cap)
+  const imageLimit =
+    planMediaLimits?.maxImagesPerListing != null
+      ? planMediaLimits.maxImagesPerListing + extraImages
+      : null;
+  const videoLimit =
+    planMediaLimits?.maxVideosPerListing != null
+      ? planMediaLimits.maxVideosPerListing + extraVideos
+      : null;
 
   const canUploadMore =
     imageLimit === null ||
     mediaCounts.imageCount < imageLimit ||
     videoLimit === null ||
     mediaCounts.videoCount < videoLimit;
+  console.log("planMediaLimits", planMediaLimits, "extraImages:", extraImages);
 
   const getNextCoverUrl = ({
     excludeImageIndex,
@@ -325,36 +359,47 @@ export function ListingForm({
   }, []);
 
   useEffect(() => {
-    let active = true;
-
     const loadPlanLimits = async () => {
       try {
-        const res = await fetch("/api/users/me/plan", { cache: "no-store" });
+        const res = await fetch("/api/plans/user", { cache: "no-store" });
         const payload = await res.json().catch(() => null);
-        if (!active || !res.ok || !payload?.plan) {
-          return;
-        }
+
+        console.log("Fetched plan info:", payload);
+
+        if (!res.ok || !payload?.data) return;
 
         setPlanMediaLimits({
-          maxImagesPerListing:
-            typeof payload.plan.maxImagesPerListing === "number"
-              ? payload.plan.maxImagesPerListing
-              : null,
-          maxVideosPerListing:
-            typeof payload.plan.maxVideosPerListing === "number"
-              ? payload.plan.maxVideosPerListing
-              : null,
+          maxImagesPerListing: payload.data.maxImagesPerListing,
+          maxVideosPerListing: payload.data.maxVideosPerListing,
         });
+
+        console.log("API limits:", payload.data);
       } catch {
-        // Keep form usable even if plan lookup fails.
+        toast.error(
+          locale === "ar"
+            ? "تعذر جلب معلومات الخطة."
+            : "Could not fetch plan information.",
+        );
+      }
+    };
+
+    const loadPurchase = async () => {
+      try {
+        const res = await fetch("/api/users/purchases", { cache: "no-store" });
+        const payload = await res.json().catch(() => null);
+        if (!res.ok || !payload?.purchases) return;
+        setPurchase(payload.purchases ?? null);
+      } catch {
+        toast.error(
+          locale === "ar"
+            ? "تعذر جلب معلومات المشتريات."
+            : "Could not fetch purchase information.",
+        );
       }
     };
 
     void loadPlanLimits();
-
-    return () => {
-      active = false;
-    };
+    void loadPurchase();
   }, []);
 
   const handleFiles = async (files: FileList | null) => {
@@ -535,10 +580,8 @@ export function ListingForm({
             setError(null);
             setSaved(false);
 
-            // Validate all fields
             let hasErrors = false;
 
-            // Title validation
             if (!formTitle || formTitle.trim().length === 0) {
               setTitleError(
                 messages.dashboard.seller.validation.title.required,
@@ -555,7 +598,6 @@ export function ListingForm({
               setAreaError(messages.dashboard.seller.validation.area.required);
               hasErrors = true;
             }
-            // City validation
             if (!city || city.trim().length === 0) {
               setCityError(messages.dashboard.seller.validation.city.required);
               hasErrors = true;
@@ -564,7 +606,6 @@ export function ListingForm({
               hasErrors = true;
             }
 
-            // Neighborhood validation (optional)
             if (neighborhood && neighborhood.trim().length > 0) {
               if (neighborhood.trim().length < 2) {
                 setNeighborhoodError(
@@ -577,7 +618,6 @@ export function ListingForm({
               setNeighborhoodError(null);
             }
 
-            // Area validation (optional field, but if filled must be valid)
             if (area && area.trim().length > 0) {
               const areaNum = Number(area);
               if (isNaN(areaNum) || areaNum <= 0) {
@@ -588,7 +628,6 @@ export function ListingForm({
               }
             }
 
-            // Description validation (optional but if provided must be meaningful)
             if (
               formDescription &&
               formDescription.trim().length > 0 &&
@@ -600,7 +639,6 @@ export function ListingForm({
               hasErrors = true;
             }
 
-            // Price validation
             const priceNum = Number(price);
             if (!price || isNaN(priceNum) || priceNum <= 0) {
               setPriceError(
@@ -670,21 +708,26 @@ export function ListingForm({
               if (!res.ok) {
                 if (
                   payload?.code === "PLAN_MEDIA_LIMIT_IMAGES" ||
-                  payload?.code === "PLAN_MEDIA_LIMIT_VIDEOS"
+                  payload?.code === "PLAN_MEDIA_LIMIT_VIDEOS" ||
+                  payload?.code === "LISTINGS_LIMIT_REACHED" ||
+                  payload?.code === "LISTINGS_LIMIT_WITH_PURCHASE" ||
+                  payload?.code === "FEATURED_NOT_ALLOWED" ||
+                  payload?.code === "FEATURED_LIMIT_REACHED"
                 ) {
                   setUpgradeDialogMessage(
                     payload?.error ||
                       (locale === "ar"
-                        ? "لقد وصلت إلى حد الوسائط في الخطة الحالية."
+                        ? "لقد وصلت إلى حد الخطة الحالية."
                         : locale === "fr"
-                          ? "Vous avez atteint la limite media de votre forfait."
-                          : "You reached your plan media limit."),
+                          ? "Vous avez atteint la limite de votre forfait."
+                          : "You reached your plan limit."),
                   );
                   setUpgradeDialogUrl(
                     payload?.upgradeUrl || `/${locale}/pricing`,
                   );
                   setUpgradeDialogOpen(true);
                   setSaved(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                   return;
                 }
 
@@ -708,7 +751,6 @@ export function ListingForm({
                   setSaved(false);
                   setError(errorMsg);
                   toast.error(errorMsg);
-                  // Scroll to top to show errors
                   window.scrollTo({ top: 0, behavior: "smooth" });
                   return;
                 }
@@ -758,7 +800,6 @@ export function ListingForm({
               setSaved(false);
               setError(errorMsg);
               toast.error(errorMsg);
-              // Ensure the error banner is visible to the user
               window.scrollTo({ top: 0, behavior: "smooth" });
             } finally {
               setSaving(false);
@@ -769,13 +810,13 @@ export function ListingForm({
             <div className="md:col-span-2 rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
               <div className="font-semibold">
                 {locale === "ar"
-                  ? "تحتاج إلى ترقية الخطة"
+                  ? "تحتاج إلى ترقية أو شراء إضافات"
                   : locale === "fr"
-                    ? "Mise a niveau requise"
-                    : "Upgrade required"}
+                    ? "Mise a niveau ou achat requis"
+                    : "Upgrade or purchase required"}
               </div>
               <div className="mt-1">{upgradeDialogMessage}</div>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Link
                   href={upgradeDialogUrl}
                   className="inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
@@ -785,6 +826,16 @@ export function ListingForm({
                     : locale === "fr"
                       ? "Mettre a niveau"
                       : "Upgrade plan"}
+                </Link>
+                <Link
+                  href={`/${locale}/dashboard/seller/purchases`}
+                  className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                >
+                  {locale === "ar"
+                    ? "شراء إضافات"
+                    : locale === "fr"
+                      ? "Acheter des options"
+                      : "Buy add-ons"}
                 </Link>
                 <button
                   type="button"
@@ -1397,24 +1448,41 @@ export function ListingForm({
                 </label>
               </div>
             ) : (
-              <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-700 dark:bg-red-950/40 dark:text-red-200">
-                <div>
+              <div className="md:col-span-2 rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
+                <div className="font-semibold">
                   {locale === "ar"
-                    ? "لقد وصلت إلى الحد الأقصى لعدد الصور والفيديوهات المسموح بها في خطتك الحالية."
+                    ? "تحتاج إلى ترقية أو شراء إضافات"
                     : locale === "fr"
-                      ? "Vous avez atteint la limite du nombre d'images et de vidéos autorisées dans votre plan actuel."
-                      : "You have reached the maximum number of allowed images and videos in your current plan."}
+                      ? "Mise a niveau ou achat requis"
+                      : "Upgrade or purchase required"}
                 </div>
-                <div className="mt-3">
+                <div className="mt-1">
+                  {locale === "ar"
+                    ? "لقد وصلت إلى حد الخطة الحالية للوسائط. قم بالترقية أو شراء إضافات لإضافة المزيد من الصور أو الفيديوهات."
+                    : locale === "fr"
+                      ? "Vous avez atteint la limite media de votre forfait actuel. Mettez a niveau ou achetez des options pour ajouter plus de fichiers."
+                      : "You've reached your current plan media limit. Upgrade your plan or buy add-ons to add more images or videos."}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Link
                     href={`/${locale}/pricing`}
-                    className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700"
+                    className="inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
                   >
                     {locale === "ar"
                       ? "ترقية الخطة"
                       : locale === "fr"
                         ? "Mettre a niveau"
                         : "Upgrade plan"}
+                  </Link>
+                  <Link
+                    href={`/${locale}/dashboard/seller/purchases`}
+                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                  >
+                    {locale === "ar"
+                      ? "شراء إضافات"
+                      : locale === "fr"
+                        ? "Acheter des options"
+                        : "Buy add-ons"}
                   </Link>
                 </div>
               </div>

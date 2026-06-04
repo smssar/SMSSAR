@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma, SubscriptionStatus } from "@/generated/prisma/client";
+import {
+  Prisma,
+  PurchaseType,
+  SubscriptionStatus,
+} from "@/generated/prisma/client";
 import { Webhooks } from "@dodopayments/nextjs";
 import { cancelSubscriptionInDodo } from "@/app/api/subscriptions/cancel/route";
 import { ensurePlan } from "@/lib/ensure-plan";
@@ -40,7 +44,6 @@ function isSubscriptionStatus(value: string): value is SubscriptionStatus {
   return (Object.values(SubscriptionStatus) as string[]).includes(value);
 }
 
-// Map Dodo product IDs to internal plan IDs
 function mapProductToPlan(productId?: string | null): string | null {
   const proProductId = process.env.DODO_PRODUCT_ID_PRO_PLAN;
   const premiumProductId = process.env.DODO_PRODUCT_ID_PREMIUM_PLAN;
@@ -54,7 +57,6 @@ function mapProductToPlan(productId?: string | null): string | null {
   return null;
 }
 
-// Add subscription duration
 function getPlanEndDate(planId: string) {
   const endDate = new Date();
 
@@ -170,40 +172,36 @@ export const POST = Webhooks({
 
   onPaymentSucceeded: async (payload) => {
     try {
+      const metadata = payload.data?.metadata;
       const customerName =
-        payload.data?.customer?.name ??
-        payload.data?.metadata?.userName ??
-        null;
+        payload.data?.customer?.name ?? metadata?.userName ?? null;
       const productId =
-        payload.data?.metadata?.productId ??
-        payload.data?.product_cart?.[0]?.product_id;
+        metadata?.productId ?? payload.data?.product_cart?.[0]?.product_id;
 
       const planId = mapProductToPlan(productId);
 
       const paymentId = payload.data?.payment_id;
       const dodoSubscriptionId = payload.data?.subscription_id ?? null;
 
-      const metadataUserId = payload.data?.metadata?.userId;
+      const metadataUserId = metadata?.userId;
 
       const customerEmail =
-        payload.data?.customer?.email ?? payload.data?.metadata?.userEmail;
+        payload.data?.customer?.email ?? metadata?.userEmail;
 
-      const activationMode =
-        payload.data?.metadata?.activationMode ?? "immediate";
+      const activationMode = metadata?.activationMode ?? "immediate";
 
       const localSessionId =
-        payload.data?.metadata?.localSessionId ??
-        payload.data?.metadata?.local_session_id ??
-        null;
+        metadata?.localSessionId ?? metadata?.local_session_id ?? null;
 
-      if (!planId) {
-        console.error("Unknown Dodo product ID:", productId);
+      let isPurchases = false;
+      if (!planId && metadata?.purchases) {
+        isPurchases = true;
+      } else if (!planId) {
+        console.error("No planId found in metadata or product cart");
         return;
       }
 
-      // Idempotency guard: Dodo webhooks are at-least-once delivery.
-      // If this payment was already processed, skip duplicate side effects.
-      if (paymentId) {
+      if (paymentId && !isPurchases) {
         const alreadyProcessed = await prisma.subscription.findFirst({
           where: { paymentId },
           select: { id: true },
@@ -259,15 +257,95 @@ export const POST = Webhooks({
         }
       }
 
+      if (isPurchases) {
+        await sendBillingNotification({
+          to: customerEmail,
+          locale: metadata?.locale,
+          kind: "payment_succeeded",
+          userName: user.name,
+          price: resolveMetadataAmount(payload.data?.total_amount),
+          paymentId,
+          purchaseDate: new Date(),
+          createdAt: new Date(),
+        });
+
+        let purchases: Array<{ type: string; quantity: number }> = [];
+        try {
+          purchases = metadata?.purchases ? JSON.parse(metadata.purchases) : [];
+        } catch {
+          console.error(
+            "Failed to parse purchases from metadata:",
+            metadata?.purchases,
+          );
+          return;
+        }
+
+        await prisma.$transaction(async (tx) => {
+          for (const item of purchases) {
+            // Validate quantity
+            if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+              console.error(
+                `Invalid quantity for ${item.type}:`,
+                item.quantity,
+              );
+              continue;
+            }
+
+            const product = await tx.purchaseProduct.findUnique({
+              where: { code: item.type as PurchaseType },
+            });
+
+            if (!product) {
+              console.error(`Product not found: ${item.type}`);
+              continue;
+            }
+
+            const existingPurchase = await tx.purchase.findFirst({
+              where: {
+                userId: user.id,
+                purchaseProductId: product.id,
+              },
+            });
+
+            if (existingPurchase) {
+              await tx.purchase.update({
+                where: { id: existingPurchase.id },
+                data: {
+                  quantity: { increment: item.quantity },
+                  totalPrice: { increment: product.price * item.quantity },
+                  status: "ACTIVE",
+                  // Only set paymentId if not already recorded (field is unique)
+                  ...(existingPurchase.paymentId ? {} : { paymentId }),
+                  updatedAt: new Date(),
+                },
+              });
+            } else {
+              await tx.purchase.create({
+                data: {
+                  userId: user.id,
+                  purchaseProductId: product.id,
+                  quantity: item.quantity,
+                  unitPrice: product.price,
+                  totalPrice: product.price * item.quantity,
+                  paymentId,
+                  status: "ACTIVE",
+                },
+              });
+            }
+          }
+        });
+
+        return;
+      }
       const startDate = new Date();
-      let endDate = getPlanEndDate(planId);
+      let endDate = getPlanEndDate(planId!);
       let subscriptionStatus: "ACTIVE" | "SCHEDULED" = "ACTIVE";
       let subscriptionCreatedAt: Date | null = null;
 
       // Ensure the plan exists in DB to avoid foreign key errors when
       // assigning `planId` to `User` or creating Subscription rows.
       try {
-        await ensurePlan(planId);
+        await ensurePlan(planId!);
       } catch (e) {
         console.error("Failed to ensure plan exists:", planId, e);
       }
@@ -314,11 +392,11 @@ export const POST = Webhooks({
       if (existingPayment) {
         currentSubscriptionId = existingPayment.id;
         subscriptionCreatedAt = existingPayment.createdAt;
-      } else if (subscriptionStatus === "SCHEDULED") {
+      } else if (subscriptionStatus === "SCHEDULED" && planId) {
         const createdSubscription = await prisma.subscription.create({
           data: {
             userId: user.id,
-            planId,
+            planId: planId!,
             status: subscriptionStatus,
             paymentId,
             dodoSubscriptionId,
@@ -329,11 +407,11 @@ export const POST = Webhooks({
         });
         currentSubscriptionId = createdSubscription.id;
         subscriptionCreatedAt = createdSubscription.createdAt;
-      } else {
+      } else if (planId) {
         const createdSubscription = await prisma.subscription.create({
           data: {
             userId: user.id,
-            planId,
+            planId: planId!,
             status: subscriptionStatus,
             paymentId,
             dodoSubscriptionId,
@@ -571,11 +649,9 @@ export const POST = Webhooks({
 
       const hasSubscriptionChange = Boolean(
         existingSubscription &&
-          (
-            (nextStatus && existingSubscription.status !== nextStatus) ||
-            !datesEqual(existingSubscription.startDate, nextStartDate) ||
-            !datesEqual(existingSubscription.endDate, nextEndDate)
-          ),
+        ((nextStatus && existingSubscription.status !== nextStatus) ||
+          !datesEqual(existingSubscription.startDate, nextStartDate) ||
+          !datesEqual(existingSubscription.endDate, nextEndDate)),
       );
 
       if (dodoSubscriptionId && data.cancel_at_next_billing_date) {

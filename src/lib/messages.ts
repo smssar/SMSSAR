@@ -973,7 +973,7 @@ export const messages = {
           price: {
             required: "يجب إدخال سعر صحيح وأكبر من صفر.",
           },
-          fixErrors: "يرجى تصحيح الأخطاء في النموذج.",
+          fixErrors: "يرجى تصحيح الأخطاء أعلاه.",
         },
         editHouse: "تعديل المنزل",
         messages: "الرسائل",

@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { jsonError, readJson, jsonFieldErrors } from "@/lib/api-utils";
 import { getMessages } from "@/lib/messages";
+import {
+  adjustFeaturedPropertiesCount,
+  adjustPurchaseQuantity,
+  getActivePurchasesWithProduct,
+  sumPurchaseQuantityByCode,
+} from "@/lib/purchase-allowances";
 
 export const runtime = "nodejs";
 
@@ -38,16 +44,13 @@ function getCloudinaryPublicIdFromUrl(url: string): string | null {
     const pathname = new URL(url).pathname;
     const uploadIndex = pathname.indexOf("/upload/");
     if (uploadIndex === -1) return null;
-
     const parts = pathname
       .slice(uploadIndex + "/upload/".length)
       .split("/")
       .filter(Boolean);
-
     const versionIndex = parts.findIndex((part) => /^v\d+$/.test(part));
     const publicIdParts =
       versionIndex >= 0 ? parts.slice(versionIndex + 1) : parts;
-
     const withoutExtension = publicIdParts.join("/").replace(/\.[^.]+$/, "");
     return withoutExtension ? decodeURIComponent(withoutExtension) : null;
   } catch {
@@ -59,33 +62,34 @@ function getCloudinaryResourceTypeFromUrl(url: string): "image" | "video" {
   return url.includes("/video/upload/") ? "video" : "image";
 }
 
+function getExtraQuantityDelta(
+  existingCount: number,
+  nextCount: number,
+  planLimit: number | null | undefined,
+) {
+  if (planLimit === null || planLimit === undefined) return 0;
+
+  const previousExtra = Math.max(0, existingCount - planLimit);
+  const nextExtra = Math.max(0, nextCount - planLimit);
+  return previousExtra - nextExtra;
+}
+
 export async function GET(_: Request, context: RouteContext) {
   const { id } = await context.params;
-
   const property = await prisma.property.findUnique({
     where: { id },
     include: {
-      propertyType: {
-        select: { id: true, name: true, slug: true },
-      },
-      seller: {
-        select: { id: true, name: true, email: true },
-      },
+      propertyType: { select: { id: true, name: true, slug: true } },
+      seller: { select: { id: true, name: true, email: true } },
     },
   });
-
-  if (!property) {
-    return jsonError("Property not found.", 404);
-  }
-
+  if (!property) return jsonError("Property not found.", 404);
   return NextResponse.json({ data: property });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return jsonError("Authentication required.", 401);
-  }
+  if (!session?.user?.id) return jsonError("Authentication required.", 401);
 
   const { id } = await context.params;
 
@@ -94,33 +98,23 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id },
       select: { sellerId: true },
     });
-
-    if (!property) {
-      return jsonError("Property not found.", 404);
-    }
-
-    if (property.sellerId !== session.user.id) {
+    if (!property) return jsonError("Property not found.", 404);
+    if (property.sellerId !== session.user.id)
       return jsonError("You can only update your own properties.", 403);
-    }
   } else if (session.user.role !== "ADMIN") {
     return jsonError("Only admins and sellers can update properties.", 403);
   }
 
   const body = await readJson<UpdatePropertyBody>(request);
-
-  if (!body) {
-    return jsonError("Invalid JSON body.");
-  }
+  if (!body) return jsonError("Invalid JSON body.");
 
   const imageUrl = body.imageUrl?.trim();
   const videoUrl = body.videoUrl?.trim() ?? body.vedioUrl?.trim();
-  if (videoUrl) {
-    return jsonError("Video cannot be used as cover.", 400);
-  }
-  if (imageUrl && imageUrl.includes("/video/upload/")) {
+  if (videoUrl) return jsonError("Video cannot be used as cover.", 400);
+  if (imageUrl && imageUrl.includes("/video/upload/"))
     return jsonError("Cover must be an image.", 400);
-  }
 
+  // Fetch existing property + media
   const existingProperty = await prisma.property.findUnique({
     where: { id },
     select: {
@@ -135,92 +129,47 @@ export async function PATCH(request: Request, context: RouteContext) {
       },
     },
   });
+  if (!existingProperty) return jsonError("Property not found.", 404);
 
-  if (!existingProperty) {
-    return jsonError("Property not found.", 404);
-  }
-
+  // -------------------------------------------------------------------------
+  // Load seller plan + active purchases (mirrors POST handler)
+  // -------------------------------------------------------------------------
   const sellerAccount = await prisma.user.findUnique({
     where: { id: existingProperty.sellerId },
-    select: { planId: true },
+    select: { id: true, planId: true, featuredproperties: true },
   });
 
   const sellerPlan = sellerAccount?.planId
     ? await prisma.plan.findUnique({
         where: { id: sellerAccount.planId },
-        select: {
-          maxImagesPerListing: true,
-          maxVideosPerListing: true,
-        },
       })
     : null;
 
-  const data: {
-    title?: string;
-    description?: string;
-    city?: string;
-    neighborhood?: string | null;
-    priceType?: string;
-    area?: number;
-    rooms?: number;
-    bathrooms?: number;
-    price?: number;
-    propertyTypeId?: string | null;
-    featured?: boolean;
-    imageUrl?: string | null;
-    videoUrl?: string | null;
-    forSale?: boolean;
-  } = {};
+  // All ACTIVE purchases for the seller — same query as POST
+  const activePurchases = sellerAccount
+    ? await getActivePurchasesWithProduct(sellerAccount.id)
+    : [];
 
-  if (typeof body.title === "string") {
-    data.title = body.title.trim();
-  }
-  if (typeof body.description === "string") {
-    data.description = body.description.trim();
-  }
-  if (typeof body.city === "string") {
-    data.city = body.city.trim();
-  }
-  if (typeof body.neighborhood === "string") {
-    data.neighborhood = body.neighborhood.trim();
-  }
-  if (typeof body.area === "number") {
-    data.area = body.area;
-  }
-  if (typeof body.rooms === "number") {
-    data.rooms = body.rooms;
-  }
-  if (typeof body.bathrooms === "number") {
-    data.bathrooms = body.bathrooms;
-  }
-  if (typeof body.price === "number") {
-    data.price = body.price;
-  }
-  if (typeof body.propertyTypeId === "string") {
-    data.propertyTypeId = body.propertyTypeId.trim();
-  }
-  if (body.propertyTypeId === null) {
-    data.propertyTypeId = null;
-  }
-  if (typeof body.featured === "boolean") {
-    data.featured = body.featured;
-  }
-  if (typeof body.imageUrl === "string" || body.imageUrl === null) {
-    data.imageUrl = body.imageUrl;
-  }
-  if (typeof body.videoUrl === "string" || body.videoUrl === null) {
-    data.videoUrl = body.videoUrl;
-  } else if (typeof body.vedioUrl === "string" || body.vedioUrl === null) {
-    data.videoUrl = body.vedioUrl;
-  }
-  if (typeof body.forSale === "boolean") {
-    data.forSale = body.forSale;
-  }
+  const extraImages = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_IMAGES",
+  );
 
-  if (typeof body.priceType === "string") {
-    data.priceType = body.priceType.trim();
-  }
+  const extraVideos = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_VIDEOS",
+  );
 
+  const extraFeatured = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_FEATURED_LISTINGS",
+  );
+
+  let shouldConsumeFeaturedPurchase = false;
+
+  // -------------------------------------------------------------------------
+  // Locale helpers
+  // -------------------------------------------------------------------------
   const localeHeader = (request.headers as Headers).get
     ? (request.headers as Headers).get("x-locale") || undefined
     : undefined;
@@ -243,21 +192,69 @@ export async function PATCH(request: Request, context: RouteContext) {
         ? `Votre forfait autorise jusqu'a ${maxFeatured} annonce${maxFeatured === 1 ? "" : "s"} en vedette. Vous avez atteint la limite.`
         : `Your plan allows up to ${maxFeatured} featured listing${maxFeatured === 1 ? "" : "s"}. You have reached the limit.`;
 
-  if (data.title !== undefined && data.title.length === 0) {
+  // -------------------------------------------------------------------------
+  // Build update data object
+  // -------------------------------------------------------------------------
+  const data: {
+    title?: string;
+    description?: string;
+    city?: string;
+    neighborhood?: string | null;
+    priceType?: string;
+    area?: number;
+    rooms?: number;
+    bathrooms?: number;
+    price?: number;
+    propertyTypeId?: string | null;
+    featured?: boolean;
+    imageUrl?: string | null;
+    videoUrl?: string | null;
+    forSale?: boolean;
+  } = {};
+
+  if (typeof body.title === "string") data.title = body.title.trim();
+  if (typeof body.description === "string")
+    data.description = body.description.trim();
+  if (typeof body.city === "string") data.city = body.city.trim();
+  if (typeof body.neighborhood === "string")
+    data.neighborhood = body.neighborhood.trim();
+  if (typeof body.area === "number") data.area = body.area;
+  if (typeof body.rooms === "number") data.rooms = body.rooms;
+  if (typeof body.bathrooms === "number") data.bathrooms = body.bathrooms;
+  if (typeof body.price === "number") data.price = body.price;
+  if (typeof body.propertyTypeId === "string")
+    data.propertyTypeId = body.propertyTypeId.trim();
+  if (body.propertyTypeId === null) data.propertyTypeId = null;
+  if (typeof body.featured === "boolean") data.featured = body.featured;
+  if (typeof body.imageUrl === "string" || body.imageUrl === null)
+    data.imageUrl = body.imageUrl;
+  if (typeof body.videoUrl === "string" || body.videoUrl === null) {
+    data.videoUrl = body.videoUrl;
+  } else if (typeof body.vedioUrl === "string" || body.vedioUrl === null) {
+    data.videoUrl = body.vedioUrl;
+  }
+  if (typeof body.forSale === "boolean") data.forSale = body.forSale;
+  if (typeof body.priceType === "string")
+    data.priceType = body.priceType.trim();
+
+  // -------------------------------------------------------------------------
+  // Field validation
+  // -------------------------------------------------------------------------
+  if (data.title !== undefined && data.title.length === 0)
     return jsonFieldErrors(
       { title: messages.dashboard.seller.validation.title.required },
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
-  }
-  if (data.city !== undefined && data.city.length === 0) {
+
+  if (data.city !== undefined && data.city.length === 0)
     return jsonFieldErrors(
       { city: messages.dashboard.seller.validation.city.required },
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
-  }
-  if (!data.neighborhood || data.neighborhood.length === 0) {
+
+  if (!data.neighborhood || data.neighborhood.length === 0)
     return jsonFieldErrors(
       {
         neighborhood:
@@ -266,32 +263,27 @@ export async function PATCH(request: Request, context: RouteContext) {
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
-  }
+
   if (
     data.propertyTypeId !== undefined &&
     data.propertyTypeId !== null &&
     data.propertyTypeId.length === 0
-  ) {
+  )
     return jsonFieldErrors(
       { propertyTypeId: "Property type is required." },
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
-  }
 
+  // Neighborhood existence check
   const nextCity = data.city ?? existingProperty.city;
   const nextNeighborhood = data.neighborhood ?? existingProperty.neighborhood;
-
   if (nextCity && nextNeighborhood) {
     const neighborhoodExists = await prisma.neighborhood.findFirst({
-      where: {
-        city: { name: nextCity },
-        name: nextNeighborhood,
-      },
+      where: { city: { name: nextCity }, name: nextNeighborhood },
       select: { id: true },
     });
-
-    if (!neighborhoodExists) {
+    if (!neighborhoodExists)
       return jsonFieldErrors(
         {
           neighborhood:
@@ -300,67 +292,71 @@ export async function PATCH(request: Request, context: RouteContext) {
         messages.dashboard.seller.validation.fixErrors,
         400,
       );
-    }
   }
 
-  // Check featured property limit if featured status is being changed or set to true
+  // -------------------------------------------------------------------------
+  // Featured limit check — now includes extraFeatured from purchases
+  // -------------------------------------------------------------------------
   if (data.featured === true && !existingProperty.featured) {
     if (session.user.role === "SELLER") {
-      const sellerAccount = await prisma.user.findUnique({
-        where: { id: existingProperty.sellerId },
-        select: { id: true, featuredproperties: true, planId: true },
-      });
+      if (!sellerPlan) return jsonError("User plan not found.", 500);
 
-      if (!sellerAccount?.planId) {
-        return jsonError("User plan not found.", 500);
-      }
+      const planFeaturedLimit = sellerPlan.maxFeaturedListings ?? 0;
+      const maxFeatured = planFeaturedLimit + extraFeatured; // ← purchases included
+      const currentFeatured = sellerAccount?.featuredproperties ?? 0;
 
-      const sellerPlan = await prisma.plan.findUnique({
-        where: { id: sellerAccount.planId },
-      });
+      if (currentFeatured >= maxFeatured) {
+        const code =
+          maxFeatured === 0 ? "FEATURED_NOT_ALLOWED" : "FEATURED_LIMIT_REACHED";
+        const message =
+          maxFeatured === 0
+            ? featuredNotAllowedMessage
+            : featuredLimitReachedMessage(maxFeatured);
 
-      if (!sellerPlan) {
-        return jsonError("User plan not found.", 500);
-      }
+        if (maxFeatured !== 0) {
+          console.log("[FEATURED LIMIT] Blocking update:", {
+            sellerId: existingProperty.sellerId,
+            currentFeatured,
+            planFeaturedLimit,
+            extraFeatured,
+            maxFeatured,
+          });
+        }
 
-      if (!sellerPlan.featured) {
-        return jsonError(featuredNotAllowedMessage, 400);
-      }
-
-      const maxFeatured = sellerPlan.maxFeaturedListings;
-      const currentFeatured = sellerAccount.featuredproperties ?? 0;
-      if (typeof maxFeatured === "number" && currentFeatured >= maxFeatured) {
-        console.log(
-          "[FEATURED LIMIT] Blocking update: sellerId=",
-          existingProperty.sellerId,
-          "currentFeatured=",
-          currentFeatured,
-          "maxFeatured=",
-          maxFeatured,
+        return NextResponse.json(
+          {
+            error: message,
+            code,
+            upgradeUrl,
+          },
+          { status: 400 },
         );
-        return jsonError(featuredLimitReachedMessage(maxFeatured), 400);
       }
+
+      shouldConsumeFeaturedPurchase =
+        extraFeatured > 0 && currentFeatured >= planFeaturedLimit;
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Media limit check — now includes extraImages / extraVideos from purchases
+  // -------------------------------------------------------------------------
   const hasFieldUpdates = Object.keys(data).length > 0;
   const hasMediaUpdates =
     (Array.isArray(body.deleteMediaIds) && body.deleteMediaIds.length > 0) ||
     (Array.isArray(body.images) && body.images.length > 0);
 
-  if (!hasFieldUpdates && !hasMediaUpdates) {
+  if (!hasFieldUpdates && !hasMediaUpdates)
     return jsonError("No valid fields provided for update.");
-  }
 
   if (sellerPlan) {
     const retainedExistingIds = new Set(
       Array.isArray(body.existingMedia)
-        ? body.existingMedia.map((media) => media.id)
-        : existingProperty.media.map((media) => media.id),
+        ? body.existingMedia.map((m) => m.id)
+        : existingProperty.media.map((m) => m.id),
     );
-
-    const retainedExisting = existingProperty.media.filter((media) =>
-      retainedExistingIds.has(media.id),
+    const retainedExisting = existingProperty.media.filter((m) =>
+      retainedExistingIds.has(m.id),
     );
 
     const retainedImageCount = retainedExisting.filter(
@@ -380,18 +376,25 @@ export async function PATCH(request: Request, context: RouteContext) {
     const nextImageCount = retainedImageCount + incomingImages;
     const nextVideoCount = retainedVideoCount + incomingVideos;
 
+    // Max = plan limit + purchased extras
+    const maxImages = (sellerPlan.maxImagesPerListing ?? 0) + extraImages;
+    const maxVideos =
+      sellerPlan.maxVideosPerListing === null
+        ? Infinity
+        : (sellerPlan.maxVideosPerListing ?? 0) + extraVideos;
+
     if (
       typeof sellerPlan.maxImagesPerListing === "number" &&
-      nextImageCount > sellerPlan.maxImagesPerListing
+      nextImageCount > maxImages
     ) {
       return NextResponse.json(
         {
           error:
             locale === "ar"
-              ? `حد الصور في باقتك هو ${sellerPlan.maxImagesPerListing}.`
+              ? `حد الصور في باقتك هو ${maxImages}.`
               : locale === "fr"
-                ? `La limite d'images de votre forfait est ${sellerPlan.maxImagesPerListing}.`
-                : `Your plan image limit is ${sellerPlan.maxImagesPerListing}.`,
+                ? `La limite d'images de votre forfait est ${maxImages}.`
+                : `Your plan image limit is ${maxImages}.`,
           code: "PLAN_MEDIA_LIMIT_IMAGES",
           upgradeUrl,
         },
@@ -399,18 +402,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       );
     }
 
-    if (
-      typeof sellerPlan.maxVideosPerListing === "number" &&
-      nextVideoCount > sellerPlan.maxVideosPerListing
-    ) {
+    if (nextVideoCount > maxVideos) {
       return NextResponse.json(
         {
           error:
             locale === "ar"
-              ? `حد الفيديوهات في باقتك هو ${sellerPlan.maxVideosPerListing}.`
+              ? `حد الفيديوهات في باقتك هو ${maxVideos === Infinity ? "غير محدود" : maxVideos}.`
               : locale === "fr"
-                ? `La limite de videos de votre forfait est ${sellerPlan.maxVideosPerListing}.`
-                : `Your plan video limit is ${sellerPlan.maxVideosPerListing}.`,
+                ? `La limite de videos de votre forfait est ${maxVideos === Infinity ? "illimitée" : maxVideos}.`
+                : `Your plan video limit is ${maxVideos === Infinity ? "unlimited" : maxVideos}.`,
           code: "PLAN_MEDIA_LIMIT_VIDEOS",
           upgradeUrl,
         },
@@ -422,14 +422,14 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     const retainedExistingMediaIds = new Set(
       Array.isArray(body.existingMedia)
-        ? body.existingMedia.map((media) => media.id)
+        ? body.existingMedia.map((m) => m.id)
         : [],
     );
-
     const explicitDeleteMediaIds = new Set(
       Array.isArray(body.deleteMediaIds) ? body.deleteMediaIds : [],
     );
 
+    // Any media not in retainedExistingMediaIds gets deleted
     for (const media of existingProperty.media) {
       if (!retainedExistingMediaIds.has(media.id)) {
         explicitDeleteMediaIds.add(media.id);
@@ -445,15 +445,14 @@ export async function PATCH(request: Request, context: RouteContext) {
         select: { publicId: true, type: true },
       });
 
-      // attempt to destroy assets in Cloudinary (best-effort)
+      // Best-effort Cloudinary cleanup
       await Promise.all(
-        mediaToDelete.map(async (m: { publicId: string; type: string }) => {
+        mediaToDelete.map(async (m) => {
           try {
             await cloudinary.uploader.destroy(m.publicId, {
               resource_type: m.type === "video" ? "video" : "image",
             });
           } catch (err) {
-            // ignore errors here — we'll still remove DB rows
             console.error(
               "Failed to destroy cloudinary asset",
               m.publicId,
@@ -462,259 +461,272 @@ export async function PATCH(request: Request, context: RouteContext) {
           }
         }),
       );
+    }
 
-      await prisma.media.deleteMany({
-        where: {
-          id: { in: Array.from(explicitDeleteMediaIds) },
-          propertyId: id,
+    const incomingImages = Array.isArray(body.images)
+      ? body.images.filter((m) => m.type !== "video")
+      : [];
+    const incomingVideos = Array.isArray(body.images)
+      ? body.images.filter((m) => m.type === "video")
+      : [];
+
+    const existingImageCount = existingProperty.media.filter(
+      (m) => m.type !== "video",
+    ).length;
+    const existingVideoCount = existingProperty.media.filter(
+      (m) => m.type === "video",
+    ).length;
+
+    const retainedExistingImageCount = existingProperty.media.filter(
+      (m) => retainedExistingMediaIds.has(m.id) && m.type !== "video",
+    ).length;
+    const retainedExistingVideoCount = existingProperty.media.filter(
+      (m) => retainedExistingMediaIds.has(m.id) && m.type === "video",
+    ).length;
+
+    const nextImageCount = retainedExistingImageCount + incomingImages.length;
+    const nextVideoCount = retainedExistingVideoCount + incomingVideos.length;
+
+    const imageQuantityDelta = getExtraQuantityDelta(
+      existingImageCount,
+      nextImageCount,
+      sellerPlan?.maxImagesPerListing,
+    );
+    const videoQuantityDelta = getExtraQuantityDelta(
+      existingVideoCount,
+      nextVideoCount,
+      sellerPlan?.maxVideosPerListing,
+    );
+
+    const property = await prisma.$transaction(async (tx) => {
+      if (explicitDeleteMediaIds.size > 0) {
+        await tx.media.deleteMany({
+          where: {
+            id: { in: Array.from(explicitDeleteMediaIds) },
+            propertyId: id,
+          },
+        });
+      }
+
+      if (incomingImages.length > 0) {
+        await Promise.all(
+          incomingImages.map((image) =>
+            tx.media.create({
+              data: {
+                url: image.url,
+                publicId: image.publicId,
+                type: image.type,
+                propertyId: id,
+              },
+            }),
+          ),
+        );
+      }
+
+      const selectedCoverUrl =
+        typeof body.imageUrl === "string" && body.imageUrl.trim().length > 0
+          ? body.imageUrl.trim()
+          : null;
+
+      if (selectedCoverUrl) {
+        const coverExists = await tx.media.findFirst({
+          where: { propertyId: id, url: selectedCoverUrl },
+          select: { id: true },
+        });
+        if (!coverExists) {
+          const publicId = getCloudinaryPublicIdFromUrl(selectedCoverUrl);
+          if (publicId) {
+            await tx.media.create({
+              data: {
+                url: selectedCoverUrl,
+                publicId,
+                type: getCloudinaryResourceTypeFromUrl(selectedCoverUrl),
+                propertyId: id,
+              },
+            });
+          }
+        }
+      }
+
+      if (
+        existingProperty.imageUrl &&
+        typeof body.imageUrl === "string" &&
+        body.imageUrl.trim() &&
+        body.imageUrl.trim() !== existingProperty.imageUrl
+      ) {
+        const oldCoverUrl = existingProperty.imageUrl;
+        const oldCoverExistsInMedia = existingProperty.media.some(
+          (m) => m.url === oldCoverUrl,
+        );
+        if (!oldCoverExistsInMedia) {
+          const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
+          if (publicId) {
+            await tx.media.create({
+              data: {
+                url: oldCoverUrl,
+                publicId,
+                type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
+                propertyId: id,
+              },
+            });
+          }
+        }
+      }
+
+      if (
+        existingProperty.videoUrl &&
+        typeof (body.videoUrl ?? body.vedioUrl) === "string" &&
+        (body.videoUrl ?? body.vedioUrl)?.trim() &&
+        (body.videoUrl ?? body.vedioUrl)?.trim() !== existingProperty.videoUrl
+      ) {
+        const oldCoverUrl = existingProperty.videoUrl;
+        const oldCoverExistsInMedia = existingProperty.media.some(
+          (m) => m.url === oldCoverUrl,
+        );
+        if (!oldCoverExistsInMedia) {
+          const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
+          if (publicId) {
+            await tx.media.create({
+              data: {
+                url: oldCoverUrl,
+                publicId,
+                type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
+                propertyId: id,
+              },
+            });
+          }
+        }
+      }
+
+      const include = {
+        propertyType: { select: { id: true, name: true, slug: true } },
+        seller: { select: { id: true, name: true, email: true } },
+        media: {
+          select: { id: true, url: true, publicId: true, type: true },
+          orderBy: { createdAt: "asc" as const },
         },
-      });
-    }
+      };
 
-    // Create new media if provided
-    if (Array.isArray(body.images) && body.images.length > 0) {
-      await Promise.all(
-        body.images.map((image) =>
-          prisma.media.create({
-            data: {
-              url: image.url,
-              publicId: image.publicId,
-              type: image.type,
-              propertyId: id,
-            },
-          }),
-        ),
-      );
-    }
+      const willBeFeatured =
+        data.featured === true && !existingProperty.featured;
+      const willBeUnfeatured =
+        data.featured === false && existingProperty.featured;
 
-    const selectedCoverUrl =
-      typeof body.imageUrl === "string" && body.imageUrl.trim().length > 0
-        ? body.imageUrl.trim()
-        : null;
+      let updatedProperty;
 
-    if (selectedCoverUrl) {
-      const selectedCoverAlreadyExists = await prisma.media.findFirst({
-        where: {
-          propertyId: id,
-          url: selectedCoverUrl,
-        },
-        select: { id: true },
-      });
-
-      if (!selectedCoverAlreadyExists) {
-        const publicId = getCloudinaryPublicIdFromUrl(selectedCoverUrl);
-        if (publicId) {
-          await prisma.media.create({
-            data: {
-              url: selectedCoverUrl,
-              publicId,
-              type: getCloudinaryResourceTypeFromUrl(selectedCoverUrl),
-              propertyId: id,
-            },
-          });
-        }
-      }
-    }
-
-    if (
-      existingProperty.imageUrl &&
-      typeof body.imageUrl === "string" &&
-      body.imageUrl.trim() &&
-      body.imageUrl.trim() !== existingProperty.imageUrl
-    ) {
-      const oldCoverUrl = existingProperty.imageUrl;
-      const oldCoverExistsInMedia = existingProperty.media.some(
-        (media: { url: string }) => media.url === oldCoverUrl,
-      );
-
-      if (!oldCoverExistsInMedia) {
-        const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
-        if (publicId) {
-          await prisma.media.create({
-            data: {
-              url: oldCoverUrl,
-              publicId,
-              type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
-              propertyId: id,
-            },
-          });
-        }
-      }
-    }
-
-    if (
-      existingProperty.videoUrl &&
-      typeof (body.videoUrl ?? body.vedioUrl) === "string" &&
-      (body.videoUrl ?? body.vedioUrl)?.trim() &&
-      (body.videoUrl ?? body.vedioUrl)?.trim() !== existingProperty.videoUrl
-    ) {
-      const oldCoverUrl = existingProperty.videoUrl;
-      const oldCoverExistsInMedia = existingProperty.media.some(
-        (media: { url: string }) => media.url === oldCoverUrl,
-      );
-
-      if (!oldCoverExistsInMedia) {
-        const publicId = getCloudinaryPublicIdFromUrl(oldCoverUrl);
-        if (publicId) {
-          await prisma.media.create({
-            data: {
-              url: oldCoverUrl,
-              publicId,
-              type: getCloudinaryResourceTypeFromUrl(oldCoverUrl),
-              propertyId: id,
-            },
-          });
-        }
-      }
-    }
-
-    const include = {
-      propertyType: {
-        select: { id: true, name: true, slug: true },
-      },
-      seller: {
-        select: { id: true, name: true, email: true },
-      },
-      media: {
-        select: { id: true, url: true, publicId: true, type: true },
-        orderBy: { createdAt: "asc" as const },
-      },
-    };
-
-    let property;
-
-    const willBeFeatured = data.featured === true && !existingProperty.featured;
-    const willBeUnfeatured =
-      data.featured === false && existingProperty.featured;
-
-    if (hasFieldUpdates) {
-      if (willBeFeatured || willBeUnfeatured) {
-        property = await prisma.$transaction(async (tx) => {
-          const updated = await tx.property.update({
+      if (hasFieldUpdates) {
+        if (willBeFeatured || willBeUnfeatured) {
+          updatedProperty = await tx.property.update({
             where: { id },
             data,
             include,
           });
-
           if (willBeFeatured) {
-            await tx.user.update({
-              where: { id: existingProperty.sellerId },
-              data: { featuredproperties: { increment: 1 } },
-            });
+            await adjustFeaturedPropertiesCount(
+              tx,
+              existingProperty.sellerId,
+              1,
+            );
+            if (shouldConsumeFeaturedPurchase) {
+              await adjustPurchaseQuantity(
+                tx,
+                existingProperty.sellerId,
+                "EXTRA_FEATURED_LISTINGS",
+                -1,
+              );
+            }
           }
-
           if (willBeUnfeatured) {
-            const user = await tx.user.findUnique({
-              where: { id: existingProperty.sellerId },
-              select: { featuredproperties: true },
-            });
-            const current = user?.featuredproperties ?? 0;
-            const next = Math.max(current - 1, 0);
-            await tx.user.update({
-              where: { id: existingProperty.sellerId },
-              data: { featuredproperties: next },
-            });
+            await adjustFeaturedPropertiesCount(
+              tx,
+              existingProperty.sellerId,
+              -1,
+            );
           }
-
-          return updated;
-        });
+        } else {
+          updatedProperty = await tx.property.update({
+            where: { id },
+            data,
+            include,
+          });
+        }
       } else {
-        property = await prisma.property.update({
+        updatedProperty = await tx.property.findUnique({
           where: { id },
-          data,
           include,
         });
       }
-    } else {
-      property = await prisma.property.findUnique({ where: { id }, include });
-    }
 
-    if (!property) {
-      return jsonError("Property not found.", 404);
-    }
+      if (imageQuantityDelta !== 0) {
+        await adjustPurchaseQuantity(
+          tx,
+          existingProperty.sellerId,
+          "EXTRA_IMAGES",
+          imageQuantityDelta,
+        );
+      }
 
+      if (videoQuantityDelta !== 0) {
+        await adjustPurchaseQuantity(
+          tx,
+          existingProperty.sellerId,
+          "EXTRA_VIDEOS",
+          videoQuantityDelta,
+        );
+      }
+
+      return updatedProperty;
+    });
+
+    if (!property) return jsonError("Property not found.", 404);
     return NextResponse.json({ data: property });
   } catch (error: unknown) {
     console.error("Failed to update property:", error);
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2025"
-    ) {
-      return jsonError("Property not found.", 404);
-    }
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2003"
-    ) {
-      return jsonError(
-        "Invalid relation reference for property type or seller.",
-        400,
-      );
-    }
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2022"
-    ) {
-      return jsonError("Database schema is out of sync.", 500);
+    if (typeof error === "object" && error !== null && "code" in error) {
+      const code = (error as { code: string }).code;
+      if (code === "P2025") return jsonError("Property not found.", 404);
+      if (code === "P2003")
+        return jsonError(
+          "Invalid relation reference for property type or seller.",
+          400,
+        );
+      if (code === "P2022")
+        return jsonError("Database schema is out of sync.", 500);
     }
     return jsonError("Failed to update property.", 500);
   }
 }
 
+// ---------------------------------------------------------------------------
+// DELETE /api/properties/[id]
+// ---------------------------------------------------------------------------
+
 export async function DELETE(_: Request, context: RouteContext) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return jsonError("Authentication required.", 401);
-  }
-  if (session.user.role !== "ADMIN" && session.user.role !== "SELLER") {
+  if (!session?.user?.id) return jsonError("Authentication required.", 401);
+
+  if (session.user.role !== "ADMIN" && session.user.role !== "SELLER")
     return jsonError("Only admins can delete properties.", 403);
-  }
 
   const { id } = await context.params;
 
   try {
-    // Fetch property to know if it was featured and who the seller is
     const propertyToDelete = await prisma.property.findUnique({
       where: { id },
       select: { featured: true, sellerId: true },
     });
+    if (!propertyToDelete) return jsonError("Property not found.", 404);
 
-    if (!propertyToDelete) {
-      return jsonError("Property not found.", 404);
-    }
-
-    // Ensure sellers can only delete their own properties
     if (
       session.user.role === "SELLER" &&
       propertyToDelete.sellerId !== session.user.id
-    ) {
+    )
       return jsonError("You can only delete your own properties.", 403);
-    }
 
-    // Delete property and adjust user's featured count in a transaction
     await prisma.$transaction(async (tx) => {
       await tx.property.delete({ where: { id } });
-
       if (propertyToDelete.featured) {
-        // Read current count and clamp to zero then update
-        const user = await tx.user.findUnique({
-          where: { id: propertyToDelete.sellerId },
-          select: { featuredproperties: true },
-        });
-
-        const current = user?.featuredproperties ?? 0;
-        const next = Math.max(current - 1, 0);
-
-        await tx.user.update({
-          where: { id: propertyToDelete.sellerId },
-          data: { featuredproperties: next },
-        });
+        await adjustFeaturedPropertiesCount(tx, propertyToDelete.sellerId, -1);
       }
     });
 
@@ -724,10 +736,9 @@ export async function DELETE(_: Request, context: RouteContext) {
       typeof error === "object" &&
       error !== null &&
       "code" in error &&
-      error.code === "P2025"
-    ) {
+      (error as { code: string }).code === "P2025"
+    )
       return jsonError("Property not found.", 404);
-    }
     return jsonError("Failed to delete property.", 500);
   }
 }

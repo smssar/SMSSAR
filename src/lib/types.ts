@@ -1,0 +1,8 @@
+export type PurchaseType =
+  | "VERIFIED_SELLER"
+  | "ADSNUMBERS"
+  | "EXTRA_IMAGES"
+  | "ADS_DURATION_PER_DAY"
+  | "EXTRA_VIDEOS"
+  | "EXTRA_LISTINGS"
+  | "EXTRA_FEATURED_LISTINGS";

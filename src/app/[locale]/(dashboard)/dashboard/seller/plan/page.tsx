@@ -1,4 +1,4 @@
-import { Check, Crown } from "lucide-react";
+import { Check, Crown, ShoppingBag } from "lucide-react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
@@ -171,6 +171,40 @@ export default async function SellerPlanPage({
           );
         })}
       </div>
+
+      {/* Purchases Add-ons Card */}
+      <Card className="border-emerald-500/40 bg-linear-to-br from-emerald-500/5 to-teal-500/5">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            <ShoppingBag className="h-6 w-6 text-emerald-600" />
+            <div>
+              <CardTitle>
+                {locale === "ar" ? "شراء الإضافات" : "Purchase Add-ons"}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {locale === "ar"
+                  ? "عزز قائمتك بميزات وأدوات إضافية"
+                  : "Boost your listings with premium features"}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            {locale === "ar"
+              ? "اشتر صور إضافية وفيديوهات وإعلانات وقوائم مميزة حسب احتياجاتك"
+              : "Add extra images, videos, ads, and featured listings on demand"}
+          </p>
+          <ButtonLink
+            href={`/${locale}/dashboard/seller/purchases`}
+            variant="default"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {locale === "ar" ? "اذهب للشراء" : "Shop Now"}
+          </ButtonLink>
+        </CardContent>
+      </Card>
     </div>
   );
 }

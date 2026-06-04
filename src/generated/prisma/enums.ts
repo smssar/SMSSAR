@@ -51,3 +51,27 @@ export const AdStatus = {
 } as const
 
 export type AdStatus = (typeof AdStatus)[keyof typeof AdStatus]
+
+
+export const PurchaseType = {
+  VERIFIED_SELLER: 'VERIFIED_SELLER',
+  ADSNUMBERS: 'ADSNUMBERS',
+  EXTRA_IMAGES: 'EXTRA_IMAGES',
+  ADS_DURATION_PER_DAY: 'ADS_DURATION_PER_DAY',
+  EXTRA_VIDEOS: 'EXTRA_VIDEOS',
+  EXTRA_LISTINGS: 'EXTRA_LISTINGS',
+  EXTRA_FEATURED_LISTINGS: 'EXTRA_FEATURED_LISTINGS'
+} as const
+
+export type PurchaseType = (typeof PurchaseType)[keyof typeof PurchaseType]
+
+
+export const PurchaseStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  ACTIVE: 'ACTIVE'
+} as const
+
+export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus]

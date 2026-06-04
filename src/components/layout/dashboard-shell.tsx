@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
@@ -47,6 +46,14 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Overlay — blurs page content when mobile sidebar is open */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-background/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside
           className={cn(
@@ -55,10 +62,12 @@ export function DashboardShell({
           )}
         >
           <div className="flex h-full flex-col">
+            {/* Sidebar header */}
             <div className="flex items-center justify-between border-b border-border/60 p-5">
               <Link
                 href={`/${locale}`}
                 className="flex items-center gap-3 font-semibold"
+                onClick={() => setOpen(false)}
               >
                 <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-violet-600 to-fuchsia-500 text-white">
                   <Sparkles className="h-5 w-5" />
@@ -78,16 +87,18 @@ export function DashboardShell({
                 <PanelLeftClose className="h-5 w-5" />
               </button>
             </div>
+
+            {/* Nav links */}
             <nav className="flex-1 space-y-1 p-4">
               {items.map((item, index) => {
                 const isActive =
                   pathname === item.href ||
                   (index !== 0 && pathname.startsWith(`${item.href}/`));
-
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => setOpen(false)}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
@@ -110,9 +121,12 @@ export function DashboardShell({
                 );
               })}
             </nav>
+
+            {/* Sidebar footer */}
             <div className="border-t border-border/60 p-4">
               <Link
                 href={`/${locale}`}
+                onClick={() => setOpen(false)}
                 className="mb-2 inline-flex h-11 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-5 text-sm font-medium transition-all hover:bg-muted/60"
               >
                 <span className="flex items-center gap-2">
@@ -125,11 +139,13 @@ export function DashboardShell({
                 </span>
                 <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
               </Link>
-
               <Button
                 variant="outline"
                 className="w-full justify-between"
-                onClick={() => void signOut({ callbackUrl: `/${locale}` })}
+                onClick={() => {
+                  setOpen(false);
+                  void signOut({ callbackUrl: `/${locale}` });
+                }}
               >
                 <span className="flex items-center gap-2">
                   <LogOut className="h-4 w-4" />{" "}
@@ -145,6 +161,7 @@ export function DashboardShell({
           </div>
         </aside>
 
+        {/* Main content */}
         <div className="flex min-w-0 flex-col">
           <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
             <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
@@ -191,7 +208,6 @@ export function DashboardShell({
               </div>
             </div>
           </header>
-
           <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>

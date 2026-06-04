@@ -106,3 +106,13 @@ export type Favorite = Prisma.FavoriteModel
  * 
  */
 export type Media = Prisma.MediaModel
+/**
+ * Model PurchaseProduct
+ * 
+ */
+export type PurchaseProduct = Prisma.PurchaseProductModel
+/**
+ * Model Purchase
+ * 
+ */
+export type Purchase = Prisma.PurchaseModel

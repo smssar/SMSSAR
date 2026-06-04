@@ -47,6 +47,13 @@ export function DashboardShell({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
+        {open ? (
+          <div
+            className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+        ) : null}
+
         <aside
           className={cn(
             "border-border/60 bg-card/90 backdrop-blur-xl lg:border-r",
@@ -88,6 +95,7 @@ export function DashboardShell({
                     key={item.href}
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
+                    onClick={() => setOpen(false)}
                     className={cn(
                       "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
                       isActive
@@ -97,7 +105,7 @@ export function DashboardShell({
                   >
                     <span
                       className={cn(
-                        "absolute inset-y-2 right-2 w-1 rounded-full bg-violet-500 transition-opacity",
+                        "absolute inset-y-2 right-2 w-1 rounded-full bg-primary-500 transition-opacity",
                         isActive
                           ? "opacity-100"
                           : "opacity-0 group-hover:opacity-60",

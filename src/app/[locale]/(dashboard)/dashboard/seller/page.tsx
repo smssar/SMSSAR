@@ -58,7 +58,8 @@ export default async function SellerOverviewPage({
     redirect(`/${locale}/dashboard/seller/plan`);
   }
 
-  const limitReached =
+  // whether the base plan listing limit has been reached (before considering purchased extras)
+  const baseLimitReached =
     typeof plan.listings === "number" ? listingCount >= plan.listings : false;
 
   const sellerProperties = await prisma.property.findMany({
@@ -80,6 +81,31 @@ export default async function SellerOverviewPage({
     sellerProperties.map((property) => property.city),
   ).size;
   const planLimit = plan.listings;
+
+  // fetch user's extra listing purchases (active, quantity > 0)
+  const extraPurchases = await prisma.purchase.findMany({
+    where: {
+      userId: session.user.id,
+      status: "ACTIVE",
+      quantity: { gt: 0 },
+      purchaseProduct: { code: "EXTRA_LISTINGS" },
+    },
+    include: { purchaseProduct: true },
+  });
+
+  const totalExtraListings = extraPurchases.reduce(
+    (sum, p) => sum + p.quantity,
+    0,
+  );
+
+  const extraSlotsUsed =
+    typeof plan.listings === "number"
+      ? Math.max(0, listingCount - plan.listings)
+      : 0;
+  const remainingExtraListings = Math.max(
+    0,
+    totalExtraListings - extraSlotsUsed,
+  );
 
   const statItems = [
     {
@@ -121,10 +147,86 @@ export default async function SellerOverviewPage({
               : "Track performance, leads, and new opportunities."}
           </p>
         </div>
-        {limitReached ? (
+        {/**
+         * Show different notices depending on extras:
+         * - If effective limit reached (base + extras consumed): show upgrade/purchase notice
+         * - If base plan is full but extras remain: show a card allowing the seller to add listings (uses purchased extras)
+         */}
+        {baseLimitReached && totalExtraListings > 0 ? (
+          remainingExtraListings > 0 ? (
+            <Card className="border-violet-300 bg-violet-50 dark:border-violet-700 dark:bg-violet-950/40">
+              <CardContent className="flex flex-col gap-3 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-5 w-5 shrink-0 text-violet-600 dark:text-violet-300">
+                      ⚡
+                    </div>
+                    <div>
+                      <div className="font-semibold text-violet-900 dark:text-violet-100">
+                        {locale === "ar"
+                          ? "لديك قوائم إضافية"
+                          : locale === "fr"
+                            ? "Listes supplémentaires disponibles"
+                            : "Extra listings available"}
+                      </div>
+                      <div className="mt-1 text-sm text-violet-800 dark:text-violet-200">
+                        {locale === "ar"
+                          ? `لديك ${remainingExtraListings} قوائم إضافية متبقية. يمكنك إضافة المزيد من العقارات الآن.`
+                          : locale === "fr"
+                            ? `Vous avez ${remainingExtraListings} listes supplémentaires disponibles. Vous pouvez ajouter davantage d'annonces.`
+                            : `You have ${remainingExtraListings} purchased extra listings remaining. You can add more listings now.`}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/${locale}/dashboard/seller/add`}
+                      className="inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+                    >
+                      {locale === "ar"
+                        ? "أضف عقار"
+                        : locale === "fr"
+                          ? "Ajouter une annonce"
+                          : "Add listing"}
+                    </Link>
+                    <Link
+                      href={`/${locale}/dashboard/seller/purchases`}
+                      className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                    >
+                      {locale === "ar"
+                        ? "إدارة المشتريات"
+                        : locale === "fr"
+                          ? "Gérer les achats"
+                          : "Manage purchases"}
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <SellerLimitNoticeCard
+              title={
+                locale === "ar"
+                  ? "تم استخدام جميع القوائم الإضافية"
+                  : locale === "fr"
+                    ? "Toutes les listes supplémentaires ont été utilisées"
+                    : "All purchased extra listings are used"
+              }
+              description={
+                locale === "ar"
+                  ? "لقد استخدمت جميع القوائم المشتراة. قم بشراء المزيد من الإعلانات أو ترقية خطتك."
+                  : locale === "fr"
+                    ? "Vous avez utilisé toutes les listes achetées. Achetez-en davantage ou passez à un forfait supérieur."
+                    : "You have used all purchased extra listings. Buy more or upgrade your plan."
+              }
+              locale={locale}
+            />
+          )
+        ) : baseLimitReached ? (
           <SellerLimitNoticeCard
             title={messages.dashboard.seller.limitNotice}
             description={messages.common.upgrade}
+            locale={locale}
           />
         ) : null}
       </div>

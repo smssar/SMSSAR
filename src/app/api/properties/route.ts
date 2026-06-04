@@ -7,6 +7,12 @@ import {
   withSubscription,
   getActiveSubscription,
 } from "@/lib/getActiveSubscription";
+import {
+  adjustPurchaseQuantity,
+  buildPlanAllowance,
+  getActivePurchasesWithProduct,
+  sumPurchaseQuantityByCode,
+} from "@/lib/purchase-allowances";
 
 type CreatePropertyBody = {
   title?: string;
@@ -69,19 +75,19 @@ const createPropertyHandler = async (
     return jsonError("User plan not found.", 500);
   }
 
-  const planLimit = userPlan.listings ?? Infinity;
+  const activePurchases = await getActivePurchasesWithProduct(session.user.id);
 
+  const extraListings = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_LISTINGS",
+  );
+
+  const planLimit = buildPlanAllowance(userPlan.listings, extraListings);
   const existingCount = await prisma.property.count({
     where: { sellerId: session.user.id },
   });
 
-  if (existingCount >= planLimit) {
-    return jsonError(
-      `Your ${userPlan.id} plan allows up to ${planLimit === Infinity ? "unlimited" : planLimit} listings. You have reached the limit.`,
-      400,
-    );
-  }
-
+  // Extract locale and messages from request headers
   const localeHeader = (request.headers as Headers).get
     ? (request.headers as Headers).get("x-locale") || undefined
     : undefined;
@@ -89,6 +95,39 @@ const createPropertyHandler = async (
   const locale =
     localeHeader === "ar" || localeHeader === "fr" ? localeHeader : "en";
   const upgradeUrl = `/${locale}/pricing`;
+  console.log("Plan limit:", planLimit);
+  // Check if user has reached their listing limit
+  if (existingCount >= planLimit) {
+    if (extraListings > 0) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "ar"
+              ? "حد الإعلانات المسموح به في الخطة الحالية. يمكنك شراء إعلانات إضافية للمتابعة."
+              : locale === "fr"
+                ? "Limite d'annonces atteinte. Vous pouvez acheter des annonces supplémentaires pour continuer."
+                : "Listing limit reached. You can purchase extra listings to continue.",
+          code: "LISTINGS_LIMIT_WITH_PURCHASE",
+          upgradeUrl,
+        },
+        { status: 400 },
+      );
+    } else {
+      return NextResponse.json(
+        {
+          error:
+            locale === "ar"
+              ? "حد الإعلانات المسموح به في الخطة الحالية. يرجى ترقية الخطة أو شراء إعلانات إضافية."
+              : locale === "fr"
+                ? "Limite d'annonces atteinte. Veuillez mettre à niveau votre forfait ou acheter des annonces supplémentaires."
+                : "Listing limit reached. Please upgrade your plan or buy extra listings.",
+          code: "LISTINGS_LIMIT_REACHED",
+          upgradeUrl,
+        },
+        { status: 400 },
+      );
+    }
+  }
 
   const featuredNotAllowedMessage =
     locale === "ar"
@@ -117,7 +156,6 @@ const createPropertyHandler = async (
   const imageUrl = body.imageUrl?.trim();
   const videoUrl = body.videoUrl?.trim() ?? body.vedioUrl?.trim();
 
-  // Server-side validation with localized field errors
   const fieldErrors: Record<string, string | undefined> = {};
   if (!title || title.length === 0) {
     fieldErrors.title = messages.dashboard.seller.validation.title.required;
@@ -252,41 +290,67 @@ const createPropertyHandler = async (
   const incomingImages = Array.isArray(body.images)
     ? body.images.filter((m) => m.type !== "video")
     : [];
-  const incomingVideos = Array.isArray(body.images)
-    ? body.images.filter((m) => m.type === "video")
-    : [];
+
+  const extraImages = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_IMAGES",
+  );
+
+  const maxImages = buildPlanAllowance(
+    userPlan.maxImagesPerListing,
+    extraImages,
+  );
 
   if (
     typeof userPlan.maxImagesPerListing === "number" &&
-    incomingImages.length > userPlan.maxImagesPerListing
+    incomingImages.length > maxImages
   ) {
     return NextResponse.json(
       {
         error:
           locale === "ar"
-            ? `حد الصور في باقتك هو ${userPlan.maxImagesPerListing}.`
+            ? `حد الصور المتاح لديك هو ${maxImages}.`
             : locale === "fr"
-              ? `La limite d'images de votre forfait est ${userPlan.maxImagesPerListing}.`
-              : `Your plan image limit is ${userPlan.maxImagesPerListing}.`,
+              ? `Votre limite d'images est ${maxImages}.`
+              : `Your image limit is ${maxImages}.`,
         code: "PLAN_MEDIA_LIMIT_IMAGES",
         upgradeUrl,
       },
       { status: 400 },
     );
   }
+  const incomingVideos = Array.isArray(body.images)
+    ? body.images.filter((m) => m.type === "video")
+    : [];
 
-  if (
-    typeof userPlan.maxVideosPerListing === "number" &&
-    incomingVideos.length > userPlan.maxVideosPerListing
-  ) {
+  const extraVideos = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_VIDEOS",
+  );
+
+  const maxVideos = buildPlanAllowance(
+    userPlan.maxVideosPerListing,
+    extraVideos,
+  );
+
+  const extraImagesToConsume = Math.max(
+    0,
+    incomingImages.length - (userPlan.maxImagesPerListing ?? Infinity),
+  );
+  const extraVideosToConsume = Math.max(
+    0,
+    incomingVideos.length - (userPlan.maxVideosPerListing ?? Infinity),
+  );
+
+  if (incomingVideos.length > maxVideos) {
     return NextResponse.json(
       {
         error:
           locale === "ar"
-            ? `حد الفيديوهات في باقتك هو ${userPlan.maxVideosPerListing}.`
+            ? `حد الفيديوهات المتاح لديك هو ${maxVideos}.`
             : locale === "fr"
-              ? `La limite de videos de votre forfait est ${userPlan.maxVideosPerListing}.`
-              : `Your plan video limit is ${userPlan.maxVideosPerListing}.`,
+              ? `Votre limite de vidéos est ${maxVideos}.`
+              : `Your video limit is ${maxVideos}.`,
         code: "PLAN_MEDIA_LIMIT_VIDEOS",
         upgradeUrl,
       },
@@ -295,30 +359,51 @@ const createPropertyHandler = async (
   }
 
   try {
-    // Check featured property limit if user is trying to feature this property
     const isFeatured =
       typeof body.featured === "boolean" ? body.featured : false;
 
-    if (isFeatured) {
-      // A listing can only be featured when the active plan supports featured listings.
-      if (!userPlan.featured) {
-        return jsonError(featuredNotAllowedMessage, 400);
-      }
+    let shouldConsumeFeaturedPurchase = false;
 
-      const maxFeatured = userPlan.maxFeaturedListings;
+    if (isFeatured) {
+      const featuredPurchases = sumPurchaseQuantityByCode(
+        activePurchases,
+        "EXTRA_FEATURED_LISTINGS",
+      );
+
+      const planFeaturedLimit = userPlan.maxFeaturedListings ?? 0;
+      const maxFeatured = planFeaturedLimit + featuredPurchases;
       const currentFeatured = sellerExists.featuredproperties ?? 0;
 
-      if (typeof maxFeatured === "number" && currentFeatured >= maxFeatured) {
-        console.log(
-          "[FEATURED LIMIT] Blocking create: userId=",
-          session.user.id,
-          "currentFeatured=",
-          currentFeatured,
-          "maxFeatured=",
-          maxFeatured,
+      if (currentFeatured >= maxFeatured) {
+        const code =
+          maxFeatured === 0 ? "FEATURED_NOT_ALLOWED" : "FEATURED_LIMIT_REACHED";
+        const message =
+          maxFeatured === 0
+            ? featuredNotAllowedMessage
+            : featuredLimitReachedMessage(maxFeatured);
+
+        if (maxFeatured !== 0) {
+          console.log("[FEATURED LIMIT] Blocking create:", {
+            userId: session.user.id,
+            currentFeatured,
+            planFeaturedLimit,
+            featuredPurchases,
+            maxFeatured,
+          });
+        }
+
+        return NextResponse.json(
+          {
+            error: message,
+            code,
+            upgradeUrl,
+          },
+          { status: 400 },
         );
-        return jsonError(featuredLimitReachedMessage(maxFeatured), 400);
       }
+
+      shouldConsumeFeaturedPurchase =
+        featuredPurchases > 0 && currentFeatured >= planFeaturedLimit;
     }
 
     const imageUrlFromBody =
@@ -368,12 +453,42 @@ const createPropertyHandler = async (
             },
           },
         });
+
+        if (shouldConsumeFeaturedPurchase) {
+          await adjustPurchaseQuantity(
+            tx,
+            session.user.id,
+            "EXTRA_FEATURED_LISTINGS",
+            -1,
+          );
+        }
+      }
+
+      if (extraImagesToConsume > 0) {
+        await adjustPurchaseQuantity(
+          tx,
+          session.user.id,
+          "EXTRA_IMAGES",
+          -extraImagesToConsume,
+        );
+      }
+
+      if (extraVideosToConsume > 0) {
+        await adjustPurchaseQuantity(
+          tx,
+          session.user.id,
+          "EXTRA_VIDEOS",
+          -extraVideosToConsume,
+        );
+      }
+
+      if (extraListings > 0) {
+        await adjustPurchaseQuantity(tx, session.user.id, "EXTRA_LISTINGS", -1);
       }
 
       return created;
     });
 
-    // Create media records if images provided
     if (Array.isArray(body.images) && body.images.length > 0) {
       await Promise.all(
         body.images.map((image) =>

@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import {
   properties,
+  propertyTypes as fallbackPropertyTypes,
   stats,
   testimonials,
   plans as fallbackPlans,
@@ -48,13 +49,16 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
   ]);
 
   const dbPropertyTypes =
-    propertyTypesResult.status === "fulfilled" ? propertyTypesResult.value : [];
-
-  if (propertyTypesResult.status === "rejected") {
-    console.error("Failed to load property types for landing page", {
-      error: propertyTypesResult.reason,
-    });
-  }
+    propertyTypesResult.status === "fulfilled" &&
+    propertyTypesResult.value.length > 0
+      ? propertyTypesResult.value
+      : fallbackPropertyTypes.map((type) => ({
+          id: type.id,
+          name: type.title.en,
+          name_ar: type.title.ar,
+          name_fr: type.title.fr ?? type.title.en,
+          _count: { properties: type.count },
+        }));
 
   const dbPlans =
     plansResult.status === "fulfilled" && plansResult.value.length > 0

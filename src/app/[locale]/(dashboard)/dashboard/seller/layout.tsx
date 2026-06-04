@@ -7,6 +7,7 @@ import {
   CreditCard,
   Settings2,
   UserRound,
+  ShoppingBag,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { getMessages } from "@/lib/messages";
@@ -68,6 +69,11 @@ export default async function SellerDashboardLayout({
       label: messages.dashboard.seller.plan,
       href: `/${locale}/dashboard/seller/plan`,
       icon: <Settings2 className="h-4 w-4" />,
+    },
+    {
+      label: locale === "ar" ? "الشراء" : "Purchases",
+      href: `/${locale}/dashboard/seller/purchases`,
+      icon: <ShoppingBag className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.profile,
