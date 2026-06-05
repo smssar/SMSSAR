@@ -110,7 +110,7 @@ export function SiteNavbar({
                 {t(locale, {
                   en: "Smssar",
                   ar: "سمسار",
-                  fr: "Plateforme de location",
+                  fr: "Smssar",
                 })}
               </div>
               <div className="text-xs text-muted-foreground">

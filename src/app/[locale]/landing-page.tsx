@@ -6,6 +6,8 @@ import { SectionHeading } from "@/components/section-heading";
 import { StatGrid } from "@/components/dashboard/stat-grid";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteNavbar } from "@/components/layout/site-navbar";
+import { AnimatedHeroText } from "@/components/animated-hero-text";
+import { SectionReveal } from "@/components/ui/section-reveal";
 import {
   properties,
   propertyTypes as fallbackPropertyTypes,
@@ -102,23 +104,32 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
     <div className="min-h-screen bg-background">
       <SiteNavbar locale={locale} messages={messages} session={session} />
       <main>
-        <section className="relative overflow-hidden">
+        <SectionReveal className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_24%)]" />
           <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:py-24">
             <div className="space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start">
-                <BadgeCheck className="h-4 w-4 text-violet-800" />
+                <BadgeCheck className="h-4 w-4 text-green-500" />
                 {t(locale, {
                   en: "Verified, multilingual rental marketplace",
                   ar: "منصة موثقة ومتعددة اللغات",
                   fr: "Marketplace de location vérifié et multilingue",
                 })}
               </div>
-              <div className="space-y-5">
-                <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-balance md:text-6xl">
-                  {messages.home.heroTitle}
-                </h1>
-                <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
+              <div className="space-y-5 w-full">
+                <AnimatedHeroText
+                  items={
+                    (messages.home.heroRotatingTitles as readonly string[]) || [
+                      messages.home.heroTitle,
+                    ]
+                  }
+                  className={`${
+                    locale === "ar"  ? "text-right" : "text-left"
+                  } max-w-3xl text-2xl font-semibold tracking-tight text-balance md:text-3xl text-center`}
+                />
+                <p
+                  className={` ${locale === "ar" ? "text-right" : "text-left"} max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl`}
+                >
                   {messages.home.heroDescription}
                 </p>
               </div>
@@ -196,9 +207,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               </CardContent>
             </Card>
           </div>
-        </section>
+        </SectionReveal>
 
-        <section className="section-anchor mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
+        <SectionReveal className="section-anchor mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Top picks",
@@ -222,9 +233,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               />
             ))}
           </div>
-        </section>
+        </SectionReveal>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
+        <SectionReveal className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Explore by type",
@@ -284,9 +295,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               fr: "Voir tous les types de propriete",
             })}
           </Link>
-        </section>
+        </SectionReveal>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
+        <SectionReveal className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, { en: "Plans", ar: "الخطط", fr: "Forfaits" })}
             title={messages.home.plansTitle}
@@ -353,9 +364,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               );
             })}
           </div>
-        </section>
+        </SectionReveal>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
+        <SectionReveal className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading
             eyebrow={t(locale, {
               en: "Testimonials",
@@ -387,9 +398,9 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               </Card>
             ))}
           </div>
-        </section>
+        </SectionReveal>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <SectionReveal className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <Card className="overflow-hidden border-violet-500/20 bg-linear-to-r from-violet-500 to-fuchsia-600 text-white shadow-2xl shadow-violet-500/20">
             <CardContent className="grid gap-8 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
               <div className="text-center lg:text-left">
@@ -416,7 +427,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
               </ButtonLink>
             </CardContent>
           </Card>
-        </section>
+        </SectionReveal>
       </main>
       <SiteFooter locale={locale} messages={messages} />
     </div>

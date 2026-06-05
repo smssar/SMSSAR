@@ -52,8 +52,13 @@ export const messages = {
     },
     home: {
       heroTitle: "Find a home that feels like it was made for you",
+      heroRotatingTitles: [
+        "Find a home that feels like it was made for you",
+        "Discover verified rentals with AI-powered search",
+        "Browse elegant homes and connect with trusted sellers",
+      ],
       heroDescription:
-        "Browse elegant rental homes, compare pricing, and connect directly with verified sellers in Arabic or English.",
+        "Browse elegant rental homes, compare pricing, and connect directly with verified sellers.",
       heroCta: "Browse houses",
       heroSecondary: "Become a seller",
       searchTitle: "Search houses by city, price, and rooms",
@@ -542,9 +547,9 @@ export const messages = {
         },
       },
       about: {
-        metaTitle: "À propos | Plateforme de location",
+        metaTitle: "À propos | Smssar",
         metaDescription:
-          "Découvrez l’histoire de la plateforme de location et ce qui la rend simple, fiable et agréable pour les locataires et vendeurs.",
+          "Découvrez l’histoire de la Smssar et ce qui la rend simple, fiable et agréable pour les locataires et vendeurs.",
         badge: "À propos des personnes derrière la plateforme",
         heroTitle:
           "Une façon plus calme et plus agréable de trouver un logement",
@@ -788,8 +793,13 @@ export const messages = {
     },
     home: {
       heroTitle: "اعثر على منزل يشبه ما تخيلته تماماً",
+      heroRotatingTitles: [
+        "اعثر على منزل يشبه ما تخيلته تماماً",
+        "اكتشف عقارات موثوقة باستخدام بحث مدعوم بالذكاء الاصطناعي",
+        "تصفح منازل أنيقة وتواصل مع بائعين موثوقين",
+      ],
       heroDescription:
-        "تصفح منازل أنيقة للإيجار، قارن الأسعار، وتواصل مباشرة مع بائعين موثقين بالعربية أو الإنجليزية.",
+        "تصفح منازل أنيقة للإيجار، قارن الأسعار، وتواصل مباشرة مع بائعين موثقين.",
       heroCta: "تصفح العقارات",
       heroSecondary: "أنشئ حساب بائع",
       searchTitle: "ابحث حسب المدينة والسعر وعدد الغرف",
@@ -1213,8 +1223,13 @@ export const messages = {
     },
     home: {
       heroTitle: "Trouvez une maison qui semble avoir été conçue pour vous",
+      heroRotatingTitles: [
+        "Trouvez une maison qui semble avoir été conçue pour vous",
+        "Découvrez des locations vérifiées grâce à la recherche IA",
+        "Parcourez des logements élégants et contactez des vendeurs fiables",
+      ],
       heroDescription:
-        "Parcourez de superbes logements à louer, comparez les prix et contactez directement des vendeurs vérifiés en arabe, anglais ou français.",
+        "Parcourez de superbes logements à louer, comparez les prix et contactez directement des vendeurs vérifiés",
       heroCta: "Parcourir les biens",
       heroSecondary: "Devenir vendeur",
       searchTitle: "Rechercher par ville, prix et nombre de chambres",
