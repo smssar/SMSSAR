@@ -63,6 +63,12 @@ export async function POST(request: Request) {
   try {
     await ensureFreePlan();
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser) {
+      return NextResponse.json({ error: "email_exists" }, { status: 409 });
+    }
+
     const user = await prisma.user.create({
       data: {
         name,

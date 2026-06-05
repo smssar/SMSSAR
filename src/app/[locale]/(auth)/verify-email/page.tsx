@@ -92,7 +92,8 @@ export default async function VerifyEmailPage({
                   type="email"
                   defaultValue={email ?? ""}
                   placeholder="name@example.com"
-                  className="pl-11 rtl:pr-11 rtl:pl-4"
+                  className="pl-11 rtl:pr-11 rtl:pl-4 bg-muted/50 cursor-not-allowed"
+                  readOnly
                   required
                 />
               </div>

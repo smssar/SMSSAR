@@ -23,8 +23,11 @@ export async function registerAction(formData: FormData, locale: string) {
     redirect(`/${locale}/register?error=server_error`);
   }
 
+  let response: Response;
+  let result: { error?: string };
+
   try {
-    const response = await fetch(`${baseUrl}/api/auth/register`, {
+    response = await fetch(`${baseUrl}/api/auth/register`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -41,22 +44,15 @@ export async function registerAction(formData: FormData, locale: string) {
       }),
     });
 
-    if (!response.ok) {
-      let errorCode = "server_error";
-
-      try {
-        const payload = (await response.json()) as { error?: string };
-        if (payload?.error) {
-          errorCode = payload.error;
-        }
-      } catch {
-        errorCode = "server_error";
-      }
-
-      redirect(`/${locale}/register?error=${errorCode}`);
-    }
+    result = await response.json();
   } catch {
     redirect(`/${locale}/register?error=server_error`);
+  }
+
+  if (!response.ok || result?.error) {
+    const errorCode = result?.error ?? "server_error";
+
+    redirect(`/${locale}/register?error=${encodeURIComponent(errorCode)}`);
   }
 
   redirect(`/${locale}/verify-email?email=${encodeURIComponent(email)}`);

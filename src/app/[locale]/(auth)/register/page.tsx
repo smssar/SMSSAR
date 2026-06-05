@@ -53,13 +53,19 @@ export default async function RegisterPage({
               : locale === "fr"
                 ? "Le numéro de téléphone est requis pour un compte vendeur."
                 : "Phone number is required for seller accounts."
-            : error === "server_error"
+            : error === "email_exists"
               ? locale === "ar"
-                ? "حدث خطأ غير متوقع. حاول مرة أخرى."
+                ? "يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل."
                 : locale === "fr"
-                  ? "Une erreur inattendue s'est produite. Veuillez réessayer."
-                  : "Something went wrong. Please try again."
-              : null;
+                  ? "Un compte existe déjà avec cet e-mail."
+                  : "An account with this email already exists."
+              : error === "server_error"
+                ? locale === "ar"
+                  ? "حدث خطأ غير متوقع. حاول مرة أخرى."
+                  : locale === "fr"
+                    ? "Une erreur inattendue s'est produite. Veuillez réessayer."
+                    : "Something went wrong. Please try again."
+                : null;
 
   return (
     <div className="grid w-full gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
