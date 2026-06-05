@@ -42,7 +42,7 @@ export default function ContactPage() {
       accent: "from-pink-500 to-rose-500",
       hoverRing: "hover:ring-pink-200",
       hoverText: "group-hover:text-pink-600",
-      link: "https://instagram.com"
+      link: "https://instagram.com",
     },
     {
       label: t.social.twitter,
@@ -50,7 +50,7 @@ export default function ContactPage() {
       accent: "from-black to-gray-800",
       hoverRing: "hover:ring-gray-600",
       hoverText: "group-hover:text-gray-600",
-      link: "https://twitter.com"
+      link: "https://twitter.com",
     },
     {
       label: t.social.facebook,
@@ -58,7 +58,7 @@ export default function ContactPage() {
       accent: "from-blue-600 to-indigo-600",
       hoverRing: "hover:ring-blue-200",
       hoverText: "group-hover:text-blue-600",
-      link: "https://facebook.com"
+      link: "https://facebook.com",
     },
     {
       label: locale === "fr" ? "YouTube" : "YouTube",
@@ -66,7 +66,7 @@ export default function ContactPage() {
       accent: "from-red-500 to-orange-500",
       hoverRing: "hover:ring-red-200",
       hoverText: "group-hover:text-red-600",
-      link: "https://youtube.com"
+      link: "https://youtube.com",
     },
   ] as const;
 
@@ -248,7 +248,7 @@ export default function ContactPage() {
                   type="tel"
                   name="phone"
                   placeholder={t.phonePlaceholder}
-                  value={formData.phone}
+                  value={formData.phone || session?.user?.phone || ""}
                   onChange={handleChange}
                   className="h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />

@@ -11,6 +11,7 @@ declare module "next-auth" {
     role: "USER" | "SELLER" | "ADMIN";
     planId: string;
     image?: string | null;
+    phone?: string | null;
   }
 
   interface Session {
@@ -18,6 +19,7 @@ declare module "next-auth" {
       id: string;
       role: "USER" | "SELLER" | "ADMIN";
       planId: string;
+      phone: string | null;
     } & DefaultSession["user"];
   }
 }
@@ -28,6 +30,7 @@ declare module "@auth/core/jwt" {
     role?: "USER" | "SELLER" | "ADMIN";
     planId?: string;
     picture?: string | null;
+    phone?: string | null;
   }
 }
 
@@ -88,6 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: user.role,
           planId: user.planId ?? "plan_free",
           image: user.avatar,
+          phone: user.phone,
         };
       },
     }),
@@ -218,6 +222,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.planId = dbUser.planId ?? "plan_free";
           token.picture = dbUser.avatar;
           token.email = dbUser.email ?? token.email;
+          token.phone = dbUser.phone ?? token.phone;
           return token;
         }
       }
@@ -231,6 +236,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role = dbUser.role;
           token.planId = dbUser.planId ?? "plan_free";
           token.picture = dbUser.avatar;
+          token.phone = dbUser.phone ?? token.phone;
         }
       } else if (token.email && (!token.id || !token.role || !token.planId)) {
         const dbUser = await prisma.user.findUnique({
@@ -242,6 +248,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role = dbUser.role;
           token.planId = dbUser.planId ?? "plan_free";
           token.picture = dbUser.avatar;
+          token.phone = dbUser.phone ?? token.phone;
         }
       }
       return token;
@@ -260,6 +267,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           typeof token.picture === "string"
             ? token.picture
             : session.user.image;
+        session.user.phone =
+          typeof token.phone === "string" ? token.phone : session.user.phone;
       }
       return session;
     },

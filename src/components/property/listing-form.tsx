@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import CityNeighborhoodSelector from "@/components/property/city-neighborhood-selector";
 import { Textarea } from "@/components/ui/textarea";
 import { getVideoThumbnailUrl } from "../../lib/media";
 import type { Locale } from "@/lib/locales";
@@ -211,11 +212,6 @@ export function ListingForm({
     if (locale === "fr") return item.name_fr || item.name;
     return item.name;
   };
-
-  const availableNeighborhoods = useMemo(
-    () => neighborhoods.filter((item) => item.city.name === city),
-    [neighborhoods, city],
-  );
 
   const mediaCounts = useMemo(() => {
     const existing = existingMedia.filter(
@@ -873,72 +869,43 @@ export function ListingForm({
               </div>
             )}
           </Field>
-          <Field label={locale === "ar" ? "المدينة" : "City"} required>
-            <Select
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
+          <Field
+            label={
+              locale === "ar"
+                ? "المدينة والحي"
+                : locale === "fr"
+                  ? "Ville et quartier"
+                  : "City & Neighborhood"
+            }
+            required
+          >
+            <CityNeighborhoodSelector
+              cities={cities}
+              neighborhoods={neighborhoods}
+              cityName={city}
+              neighborhoodId={neighborhood}
+              onCityChange={(name) => {
+                setCity(name);
                 setNeighborhood("");
                 setCityError(null);
               }}
-              className={cityError ? "border-red-500" : ""}
-            >
-              <option value="">
-                {locale === "ar" ? "اختر مدينة" : "Select a city"}
-              </option>
-              {cities.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {getLocalizedLabel(c)}
-                </option>
-              ))}
-            </Select>
+              onNeighborhoodChange={(id) => {
+                const found = neighborhoods.find((item) => item.id === id);
+                setNeighborhood(found ? found.name : "");
+                setNeighborhoodError(null);
+              }}
+              locale={locale}
+            />
             {cityError && (
               <div className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {cityError}
               </div>
             )}
-          </Field>
-          <Field label={locale === "ar" ? "الحي" : "Neighborhood"}>
-            <Select
-              value={neighborhood}
-              onChange={(e) => {
-                setNeighborhood(e.target.value);
-                setNeighborhoodError(null);
-              }}
-              disabled={!city}
-              className={`${neighborhoodError ? "border-red-500" : ""} ${!city ? "opacity-60 pointer-events-none" : ""}`}
-            >
-              <option value="">
-                {!city
-                  ? locale === "ar"
-                    ? "اختر المدينة أولاً"
-                    : "Select a city first"
-                  : availableNeighborhoods.length === 0
-                    ? locale === "ar"
-                      ? "لا توجد أحياء لهذه المدينة"
-                      : "No neighborhoods for this city"
-                    : locale === "ar"
-                      ? "اختر الحي"
-                      : "Select a neighborhood"}
-              </option>
-              {availableNeighborhoods.map((item) => (
-                <option key={item.id} value={item.name}>
-                  {getLocalizedLabel(item)}
-                </option>
-              ))}
-            </Select>
             {neighborhoodError && (
               <div className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {neighborhoodError}
               </div>
             )}
-            {city && availableNeighborhoods.length === 0 ? (
-              <div className="mt-1 text-xs text-muted-foreground">
-                {locale === "ar"
-                  ? "أضف الأحياء لهذه المدينة من لوحة الإدارة أولاً."
-                  : "Add neighborhoods for this city from the admin dashboard first."}
-              </div>
-            ) : null}
           </Field>
 
           <Field
