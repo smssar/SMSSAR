@@ -185,7 +185,7 @@ export async function POST(request: Request) {
     const adminEmail = buildAdminEmail(body, contact);
     const userEmail = buildUserEmail(body, contact);
 
-    // Send email to admin/support
+    // Send email
     try {
       if (!resend) {
         console.error("Resend client not configured (RESEND_API_KEY missing)");
