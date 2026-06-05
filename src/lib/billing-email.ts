@@ -3,6 +3,7 @@ import { isLocale, type Locale } from "@/lib/locales";
 
 export type BillingEmailKind =
   | "payment_succeeded"
+  | "purchase_succeeded"
   | "subscription_scheduled"
   | "subscription_cancelled"
   | "refund_succeeded";
@@ -36,6 +37,19 @@ const copy = {
         "If you did not make this payment, please contact support immediately.",
       payementIdLabel: "Payment ID",
       purchaseDateLabel: "Payment date",
+    },
+    purchase_succeeded: {
+      subject: "Payment received — your purchase is complete",
+      title: "Purchase confirmed",
+      subtitle: "Your payment has been processed successfully.",
+      badge: "Completed",
+      intro:
+        "Thank you for your purchase. Your credits and products are now available in your account.",
+      cta: "Go to home page",
+      footer:
+        "If you did not make this payment, please contact support immediately.",
+      payementIdLabel: "Payment ID",
+      purchaseDateLabel: "Purchase date",
     },
     subscription_scheduled: {
       subject: "Subscription scheduled — your plan will start later",
@@ -90,6 +104,17 @@ const copy = {
       payementIdLabel: "معرّف الدفع",
       purchaseDateLabel: "تاريخ الدفع",
     },
+    purchase_succeeded: {
+      subject: "تم استلام الدفع — تم استكمال الشراء",
+      title: "تم تأكيد الشراء",
+      subtitle: "تمت معالجة دفعتك بنجاح.",
+      badge: "مكتمل",
+      intro: "شكراً لشرائك. تم تفعيل المنتجات والرصيد في حسابك.",
+      cta: "الذهاب إلى الصفحة الرئيسية",
+      footer: "إذا لم تقم بهذا الدفع، يرجى التواصل مع الدعم فوراً.",
+      payementIdLabel: "معرّف الدفع",
+      purchaseDateLabel: "تاريخ الشراء",
+    },
     subscription_scheduled: {
       subject: "تمت جدولة الاشتراك — ستبدأ خطتك لاحقاً",
       title: "تمت جدولة الاشتراك",
@@ -140,6 +165,19 @@ const copy = {
         "Si vous n'êtes pas à l'origine de ce paiement, contactez le support immédiatement.",
       payementIdLabel: "ID de paiement",
       purchaseDateLabel: "Date de paiement",
+    },
+    purchase_succeeded: {
+      subject: "Paiement reçu — votre achat est terminé",
+      title: "Achat confirmé",
+      subtitle: "Votre paiement a été traité avec succès.",
+      badge: "Terminé",
+      intro:
+        "Merci pour votre achat. Vos crédits et produits sont maintenant disponibles dans votre compte.",
+      cta: "Aller à la page d'accueil",
+      footer:
+        "Si vous n'êtes pas à l'origine de ce paiement, contactez le support immédiatement.",
+      payementIdLabel: "ID de paiement",
+      purchaseDateLabel: "Date d'achat",
     },
     subscription_scheduled: {
       subject: "Abonnement planifié — votre formule démarrera plus tard",
@@ -232,6 +270,8 @@ function actionAccent(kind: BillingEmailKind) {
   switch (kind) {
     case "payment_succeeded":
       return { border: "#16a34a", badgeBg: "#dcfce7", badgeText: "#166534" };
+    case "purchase_succeeded":
+      return { border: "#0f766e", badgeBg: "#d1fae5", badgeText: "#115e59" };
     case "subscription_scheduled":
       return { border: "#d97706", badgeBg: "#fef3c7", badgeText: "#92400e" };
     case "subscription_cancelled":
@@ -257,9 +297,20 @@ export function buildBillingEmail(input: BillingEmailInput) {
   const locale = resolveLocale(input.locale);
   const pack = copy[locale][input.kind];
   const dir = locale === "ar" ? "rtl" : "ltr";
-  const planTitle =
-    input.planTitle?.trim() ||
-    (locale === "ar" ? "الخطة" : locale === "fr" ? "Formule" : "Plan");
+  const defaultPlanLabel =
+    input.kind === "purchase_succeeded"
+      ? locale === "ar"
+        ? "الشراء"
+        : locale === "fr"
+          ? "Achat"
+          : "Purchase"
+      : locale === "ar"
+        ? "الخطة"
+        : locale === "fr"
+          ? "Formule"
+          : "Plan";
+
+  const planTitle = input.planTitle?.trim() || defaultPlanLabel;
   const accent = actionAccent(input.kind);
   const link = buildActionLink(locale, input.kind);
   const startDate = formatDate(input.startDate, locale);

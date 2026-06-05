@@ -101,9 +101,11 @@ async function sendBillingNotification(params: {
   locale?: string | null;
   kind:
     | "payment_succeeded"
+    | "purchase_succeeded"
     | "subscription_scheduled"
     | "subscription_cancelled"
     | "refund_succeeded";
+  isPurchases?: boolean;
   userName?: string | null;
   planId?: string | null;
   price?: number | null;
@@ -145,10 +147,15 @@ async function sendBillingNotification(params: {
           : plan.title
       : null;
 
+    const kind =
+      params.isPurchases && params.kind === "payment_succeeded"
+        ? "purchase_succeeded"
+        : params.kind;
+
     await sendBillingEmail({
       to: params.to,
       locale,
-      kind: params.kind,
+      kind,
       userName: params.userName,
       planTitle,
       planPrice: params.price ?? (plan?.price ? plan?.price * 100 : null),
@@ -262,6 +269,7 @@ export const POST = Webhooks({
           to: customerEmail,
           locale: metadata?.locale,
           kind: "payment_succeeded",
+          isPurchases: true,
           userName: user.name,
           price: resolveMetadataAmount(payload.data?.total_amount),
           paymentId,
