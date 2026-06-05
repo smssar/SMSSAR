@@ -8,6 +8,7 @@ type SectionRevealProps = {
   className?: string;
   delay?: number;
   threshold?: number;
+  isOnce?: boolean;
 };
 
 const sectionVariants = {
@@ -21,14 +22,15 @@ export function SectionReveal({
   children,
   className,
   delay = 0,
-  threshold = 0.2,
+  threshold = 0.4,
+  isOnce = false,
 }: SectionRevealProps) {
   return (
     <MotionSection
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: threshold }}
+      viewport={{ once: isOnce, amount: threshold }}
       transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1], delay }}
       variants={sectionVariants}
     >

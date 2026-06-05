@@ -45,7 +45,7 @@ export function AnimatedHeroText({
         className ?? "text-8xl md:text-5xl font-bold leading-tight max-w-4xl"
       }
     >
-      <span className="whitespace-normal break-words">
+      <span className="whitespace-normal wrap-break-word">
         {currentText.slice(0, charIndex)}
         <span className="animate-pulse">|</span>
       </span>
