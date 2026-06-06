@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import type { Locale } from "@/lib/locales";
 import { getMessages } from "@/lib/messages";
 import { resendVerificationAction, verifyEmailAction } from "./actions";
+import LoadingForm from "@/components/auth/loading-form";
 
 export default async function VerifyEmailPage({
   params,
@@ -75,7 +76,7 @@ export default async function VerifyEmailPage({
             </div>
           ) : null}
 
-          <form
+          <LoadingForm
             action={async (formData) => {
               "use server";
               await verifyEmailAction(formData, locale);
@@ -123,9 +124,9 @@ export default async function VerifyEmailPage({
                   ? "Vérifier"
                   : "Verify"}
             </Button>
-          </form>
+          </LoadingForm>
 
-          <form
+          <LoadingForm
             action={async (formData) => {
               "use server";
               await resendVerificationAction(formData, locale);
@@ -141,7 +142,7 @@ export default async function VerifyEmailPage({
                   ? "Renvoyer le code"
                   : "Resend code"}
             </Button>
-          </form>
+          </LoadingForm>
 
           <p className="text-center text-sm text-muted-foreground">
             <Link

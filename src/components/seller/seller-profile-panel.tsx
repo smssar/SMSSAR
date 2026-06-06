@@ -18,7 +18,10 @@ import {
   phoneCountries,
   validateAndNormalizePhone,
 } from "@/lib/phone";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import type { Locale } from "@/lib/locales";
+import { isLocale } from "@/lib/locales";
+import { messages } from "@/lib/messages";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
   locale: Locale,
@@ -45,7 +48,18 @@ export function SellerProfilePanel({
 }) {
   const [name, setName] = useState(initialSeller.name);
   const [email, setEmail] = useState(initialSeller.email);
-  const [phone, setPhone] = useState(initialSeller.phone ?? "");
+  const initialPhoneDisplay = (() => {
+    const raw = initialSeller.phone ?? "";
+    if (!raw) return "";
+    try {
+      const parsed = parsePhoneNumberFromString(raw as string);
+      return parsed ? parsed.formatNational() : raw.replace(/^\+/, "");
+    } catch {
+      return raw.replace(/^\+/, "");
+    }
+  })();
+
+  const [phone, setPhone] = useState(initialPhoneDisplay);
   const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
   const [city, setCity] = useState(initialSeller.city ?? "");
   const [bio, setBio] = useState(initialSeller.bio ?? "");
@@ -57,6 +71,13 @@ export function SellerProfilePanel({
     null,
   );
 
+  function resolveMsgs(loc: string) {
+    if (isLocale(loc)) return messages[loc as Locale];
+    const short = String(loc).slice(0, 2);
+    if (isLocale(short)) return messages[short as Locale];
+    return messages.en;
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -64,25 +85,20 @@ export function SellerProfilePanel({
     if (phone.trim()) {
       const phoneValidation = validateAndNormalizePhone(phone, countryCode);
       if (!phoneValidation.valid) {
-        toast.error(
-          locale === "ar"
-            ? "يرجى إدخال رقم هاتف صحيح."
-            : locale === "fr"
-              ? "Veuillez saisir un numero de telephone valide."
-              : "Please enter a valid phone number.",
-        );
+        const localized = resolveMsgs(locale);
+        const msg =
+          localized.errors.invalidPhone ?? messages.en.errors.invalidPhone;
+        toast.error(msg);
         return;
       }
     }
 
     if (hasPassword && newPassword && !currentPassword) {
-      toast.error(
-        locale === "ar"
-          ? "يرجى إدخال كلمة المرور الحالية لتغييرها."
-          : locale === "fr"
-            ? "Veuillez entrer votre mot de passe actuel pour le modifier."
-            : "Please enter your current password to change it.",
-      );
+      const localized = resolveMsgs(locale);
+      const msg =
+        localized.errors.currentPasswordRequired ??
+        messages.en.errors.currentPasswordRequired;
+      toast.error(msg);
       return;
     }
 
@@ -95,8 +111,41 @@ export function SellerProfilePanel({
     });
   };
 
+  function hasChanges() {
+    if (name !== initialSeller.name) return true;
+    if (email !== initialSeller.email) return true;
+    if ((initialSeller.city ?? "") !== city) return true;
+    if ((initialSeller.bio ?? "") !== bio) return true;
+    if (newPassword && newPassword.length > 0) return true;
+
+    const initialPhoneNorm = (() => {
+      if (!initialSeller.phone) return "";
+      const v = validateAndNormalizePhone(initialSeller.phone as string);
+      return v && v.valid
+        ? (v.e164 ?? initialSeller.phone ?? "")
+        : (initialSeller.phone ?? "");
+    })();
+
+    const currentPhoneNorm = (() => {
+      if (!phone.trim()) return "";
+      const v = validateAndNormalizePhone(phone, countryCode);
+      return v && v.valid ? (v.e164 ?? phone) : phone;
+    })();
+
+    if ((initialPhoneNorm ?? "") !== (currentPhoneNorm ?? "")) return true;
+
+    return false;
+  }
+
   const performSave = async () => {
     setLoading(true);
+    const localized = resolveMsgs(locale);
+    if (!hasChanges()) {
+      const msg = localized.common?.noChanges ?? messages.en.common.noChanges;
+      toast(msg);
+      setLoading(false);
+      return;
+    }
     try {
       // Normalize phone before sending
       let normalizedPhone = phone;
@@ -109,7 +158,7 @@ export function SellerProfilePanel({
 
       const response = await fetch("/api/users/me", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-locale": locale },
         body: JSON.stringify({
           name,
           email,
@@ -123,14 +172,22 @@ export function SellerProfilePanel({
 
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(payload?.error || `Status ${response.status}`);
+        const serverMsg = payload?.error || `Status ${response.status}`;
+        throw new Error(serverMsg);
       }
 
       const updated = payload?.data as SellerProfile | undefined;
       if (updated) {
         setName(updated.name);
         setEmail(updated.email);
-        setPhone(updated.phone ?? "");
+        try {
+          const parsed = updated.phone
+            ? parsePhoneNumberFromString(updated.phone as string)
+            : null;
+          setPhone(parsed ? parsed.formatNational() : (updated.phone ?? ""));
+        } catch {
+          setPhone(updated.phone ?? "");
+        }
         setCity(updated.city ?? "");
         setBio(updated.bio ?? "");
         setHasPassword(Boolean(updated.hasPassword));
@@ -148,18 +205,22 @@ export function SellerProfilePanel({
       );
     } catch (error) {
       console.error("Failed to update seller profile:", error);
-      toast.error(
-        t(locale, {
-          en: "Could not update the profile.",
-          ar: "تعذر تحديث الملف الشخصي.",
-          fr: "Impossible de mettre à jour le profil.",
-        }),
-      );
+      const serverMsg =
+        error instanceof Error && error.message
+          ? error.message
+          : t(locale, {
+              en: "Could not update the profile.",
+              ar: "تعذر تحديث الملف الشخصي.",
+              fr: "Impossible de mettre à jour le profil.",
+            });
+      toast.error(serverMsg);
     } finally {
       setLoading(false);
       setPendingAction(null);
     }
   };
+
+  const selectedCountry = getPhoneCountryByCode(countryCode);
 
   return (
     <div className="space-y-6">
@@ -225,12 +286,30 @@ export function SellerProfilePanel({
                     fr: "Téléphone",
                   })}
                 </Label>
-                <div className="grid grid-cols-[128px_1fr] gap-2">
+                <div className="flex gap-2 rtl:flex-row-reverse">
                   <Select
                     value={countryCode}
-                    onChange={(event) => setCountryCode(event.target.value)}
+                    onChange={(event) => {
+                      const newCode = event.target.value;
+                      setCountryCode(newCode);
+
+                      // Reformat current phone for the newly selected country
+                      try {
+                        const formatted = formatPhonePreview(phone, newCode);
+                        // If formatted includes the dial code at start, strip it
+                        const dial = getPhoneCountryByCode(
+                          newCode,
+                        ).dialCode.replace("+", "");
+                        const stripped = formatted
+                          .replace(new RegExp("^\\+?" + dial), "")
+                          .trim();
+                        setPhone(stripped);
+                      } catch {
+                        // ignore
+                      }
+                    }}
                     disabled={loading}
-                    className="h-11 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3"
+                    className="h-11 w-32 shrink-0 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3  text-left"
                   >
                     {phoneCountries.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -244,9 +323,20 @@ export function SellerProfilePanel({
                     value={phone}
                     onChange={(event) => {
                       const nextValue = event.target.value;
-                      setPhone(formatPhonePreview(nextValue, countryCode));
+                      const formatted = formatPhonePreview(
+                        nextValue,
+                        countryCode,
+                      );
+                      // remove leading dial code if present so input doesn't show it
+                      const dial = getPhoneCountryByCode(
+                        countryCode,
+                      ).dialCode.replace("+", "");
+                      const stripped = formatted
+                        .replace(new RegExp("^\\+?" + dial), "")
+                        .trim();
+                      setPhone(stripped);
                     }}
-                    className="h-11 rounded-r-2xl rounded-l-none"
+                    className="h-11 flex-1 rounded-l-none"
                     placeholder={t(locale, {
                       en: "50 000 0000",
                       ar: "50 000 0000",
@@ -254,6 +344,10 @@ export function SellerProfilePanel({
                     })}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {selectedCountry.flag} {selectedCountry.dialCode}{" "}
+                  {phone.trim() ? "•" : ""} format checked automatically.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -387,7 +481,11 @@ export function SellerProfilePanel({
               </div>
             </div>
 
-            <Button type="submit" className="h-11 gap-2" disabled={loading}>
+            <Button
+              type="submit"
+              className="h-11 gap-2"
+              disabled={loading || !hasChanges()}
+            >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

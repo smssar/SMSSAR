@@ -49,6 +49,18 @@ export const messages = {
       statistics: "Statistics",
       listingCount: "Listing count",
       free: "Free",
+      noChanges: "No changes to save.",
+    },
+
+    errors: {
+      authRequired: "Authentication required.",
+      adminCannotBecomeSeller: "Admins cannot be converted to seller.",
+      invalidJson: "Invalid JSON body.",
+      invalidPhone: "Please enter a valid phone number.",
+      currentPasswordRequired:
+        "Please enter your current password to change it.",
+      phoneTaken:
+        "This phone number is already associated with another seller.",
     },
     home: {
       heroTitle: "Find a home that feels like it was made for you",
@@ -790,6 +802,15 @@ export const messages = {
       overview: "نظرة عامة",
       statistics: "الإحصاءات",
       listingCount: "عدد العقارات",
+      noChanges: "لا تغييرات للحفظ.",
+    },
+    errors: {
+      authRequired: "المصادقة مطلوبة.",
+      adminCannotBecomeSeller: "لا يمكن للمسؤولين التحول إلى بائع.",
+      invalidJson: "جسم JSON غير صالح.",
+      invalidPhone: "يرجى إدخال رقم هاتف صالح.",
+      currentPasswordRequired: "يرجى إدخال كلمة المرور الحالية لتغييرها.",
+      phoneTaken: "هذا الرقم مرتبط ببائع آخر.",
     },
     home: {
       heroTitle: "اعثر على منزل يشبه ما تخيلته تماماً",
@@ -1220,6 +1241,17 @@ export const messages = {
       overview: "Aperçu",
       statistics: "Statistiques",
       listingCount: "Nombre d'annonces",
+      noChanges: "Aucun changement à enregistrer.",
+    },
+    errors: {
+      authRequired: "Authentification requise.",
+      adminCannotBecomeSeller:
+        "Les administrateurs ne peuvent pas devenir vendeurs.",
+      invalidJson: "Corps JSON invalide.",
+      invalidPhone: "Veuillez saisir un numéro de téléphone valide.",
+      currentPasswordRequired:
+        "Veuillez entrer votre mot de passe actuel pour le modifier.",
+      phoneTaken: "Ce numéro de téléphone est déjà associé à un autre vendeur.",
     },
     home: {
       heroTitle: "Trouvez une maison qui semble avoir été conçue pour vous",

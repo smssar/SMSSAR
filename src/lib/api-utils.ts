@@ -1,7 +1,49 @@
 import { NextResponse } from "next/server";
+import { messages } from "./messages";
+import { defaultLocale, isLocale, type Locale } from "./locales";
 
-export function jsonError(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status });
+function resolveMessage(keyPath: string, locale: Locale): string {
+  const parts = keyPath.split(".");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let current: any = (messages as any)[locale];
+  for (const p of parts) {
+    if (!current) return keyPath;
+    current = current[p];
+  }
+  return typeof current === "string" ? current : keyPath;
+}
+
+export function getLocaleFromHeaders(headers?: Headers): Locale {
+  try {
+    const header = headers?.get("x-locale") || headers?.get("x-local") || "";
+    if (header && isLocale(header)) return header as Locale;
+
+    const accept = headers?.get("accept-language") || "";
+    if (accept) {
+      const first = accept.split(",")[0].split("-")[0];
+      if (isLocale(first)) return first as Locale;
+    }
+  } catch {
+    // fallthrough
+  }
+
+  return defaultLocale;
+}
+
+export function jsonError(
+  messageOrKey: string | { key: string; locale?: Locale },
+  status = 400,
+) {
+  if (typeof messageOrKey === "string") {
+    return NextResponse.json({ error: messageOrKey }, { status });
+  }
+
+  const locale = messageOrKey.locale ?? defaultLocale;
+  const msg = resolveMessage(
+    messageOrKey.key,
+    isLocale(locale) ? locale : defaultLocale,
+  );
+  return NextResponse.json({ error: msg }, { status });
 }
 
 export function jsonFieldErrors(
