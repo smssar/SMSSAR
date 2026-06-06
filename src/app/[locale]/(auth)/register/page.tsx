@@ -22,10 +22,16 @@ export default async function RegisterPage({
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ error?: string; role?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    role?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+  }>;
 }) {
   const { locale } = await params;
-  const { error, role } = await searchParams;
+  const { error, role, name, email, phone } = await searchParams;
   const messages = getMessages(locale);
   const initialRole = role === "seller" ? "seller" : "user";
   const errorText =
@@ -114,6 +120,7 @@ export default async function RegisterPage({
                   id="name"
                   name="name"
                   placeholder={locale === "ar" ? "محمد أحمد" : "John Doe"}
+                  defaultValue={name ?? undefined}
                   className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                   required
                 />
@@ -131,13 +138,18 @@ export default async function RegisterPage({
                   name="email"
                   type="email"
                   placeholder="name@example.com"
+                  defaultValue={email ?? undefined}
                   className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                   required
                 />
               </div>
             </div>
 
-            <RegisterFields locale={locale} initialRole={initialRole} />
+            <RegisterFields
+              locale={locale}
+              initialRole={initialRole}
+              initialPhone={phone}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="password">

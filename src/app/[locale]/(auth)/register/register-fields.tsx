@@ -18,9 +18,11 @@ type RegisterRole = "user" | "seller";
 export function RegisterFields({
   locale,
   initialRole = "user",
+  initialPhone,
 }: {
   locale: Locale;
   initialRole?: RegisterRole;
+  initialPhone?: string;
 }) {
   const [role, setRole] = useState<RegisterRole>(initialRole);
 
@@ -96,6 +98,7 @@ export function RegisterFields({
                     ar: "+971 50 000 0000",
                     fr: "+971 50 000 0000",
                   })}
+                  defaultValue={initialPhone ?? undefined}
                   className="h-11 rounded-2xl border-violet-500/20 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                 />
               </div>

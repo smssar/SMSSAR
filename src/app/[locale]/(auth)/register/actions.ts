@@ -13,11 +13,21 @@ export async function registerAction(formData: FormData, locale: string) {
   const phone = formData.get("phone")?.toString().trim();
 
   if (!email || !password) {
-    redirect(`/${locale}/register?error=missing_fields`);
+    const qs = new URLSearchParams();
+    if (name) qs.set("name", name);
+    if (email) qs.set("email", email);
+    if (roleValue) qs.set("role", roleValue);
+    if (phone) qs.set("phone", phone);
+    qs.set("error", "missing_fields");
+
+    redirect(`/${locale}/register?${qs.toString()}`);
   }
 
   const requestHeaders = await headers();
-  const baseUrl = getRequestBaseUrl(requestHeaders);
+  const baseUrl =
+    process.env.NEXTAUTH_URL ??
+    process.env.NEXT_PUBLIC_BASE_URL ??
+    getRequestBaseUrl(requestHeaders);
 
   if (!baseUrl) {
     redirect(`/${locale}/register?error=server_error`);
@@ -46,13 +56,26 @@ export async function registerAction(formData: FormData, locale: string) {
 
     result = await response.json();
   } catch {
-    redirect(`/${locale}/register?error=server_error`);
+    const qs = new URLSearchParams();
+    if (name) qs.set("name", name);
+    if (email) qs.set("email", email);
+    if (roleValue) qs.set("role", roleValue);
+    if (phone) qs.set("phone", phone);
+    qs.set("error", "server_error");
+
+    redirect(`/${locale}/register?${qs.toString()}`);
   }
 
   if (!response.ok || result?.error) {
     const errorCode = result?.error ?? "server_error";
+    const qs = new URLSearchParams();
+    if (name) qs.set("name", name);
+    if (email) qs.set("email", email);
+    if (roleValue) qs.set("role", roleValue);
+    if (phone) qs.set("phone", phone);
+    qs.set("error", errorCode);
 
-    redirect(`/${locale}/register?error=${encodeURIComponent(errorCode)}`);
+    redirect(`/${locale}/register?${qs.toString()}`);
   }
 
   redirect(`/${locale}/verify-email?email=${encodeURIComponent(email)}`);
