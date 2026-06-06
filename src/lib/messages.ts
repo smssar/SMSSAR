@@ -61,6 +61,8 @@ export const messages = {
         "Please enter your current password to change it.",
       phoneTaken:
         "This phone number is already associated with another seller.",
+      uploadAuth: "Only admins and sellers can upload files.",
+      deleteAuth: "Only admins and sellers can delete files.",
     },
     home: {
       heroTitle: "Find a home that feels like it was made for you",
@@ -811,6 +813,8 @@ export const messages = {
       invalidPhone: "يرجى إدخال رقم هاتف صالح.",
       currentPasswordRequired: "يرجى إدخال كلمة المرور الحالية لتغييرها.",
       phoneTaken: "هذا الرقم مرتبط ببائع آخر.",
+      uploadAuth: "فقط المسؤولون والبائعون يمكنهم رفع الملفات.",
+      deleteAuth: "فقط المسؤولون والبائعون يمكنهم حذف الملفات.",
     },
     home: {
       heroTitle: "اعثر على منزل يشبه ما تخيلته تماماً",
@@ -1252,6 +1256,10 @@ export const messages = {
       currentPasswordRequired:
         "Veuillez entrer votre mot de passe actuel pour le modifier.",
       phoneTaken: "Ce numéro de téléphone est déjà associé à un autre vendeur.",
+      uploadAuth:
+        "Seuls les administrateurs et les vendeurs peuvent télécharger des fichiers.",
+      deleteAuth:
+        "Seuls les administrateurs et les vendeurs peuvent supprimer des fichiers.",
     },
     home: {
       heroTitle: "Trouvez une maison qui semble avoir été conçue pour vous",

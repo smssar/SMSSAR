@@ -135,6 +135,11 @@ export function ListingForm({
   const imageAssetsRef = useRef<UploadedAsset[]>([]);
   const savedRef = useRef(false);
 
+  // video durations map: keys are `existing-<id>` for existingMedia and `asset-<publicId>` for uploaded assets
+  const [videoDurations, setVideoDurations] = useState<
+    Record<string, string | null>
+  >({});
+
   const [priceType, setPriceType] = useState<"MONTHLY" | "DAILY">(
     (defaultListing?.priceType as "MONTHLY" | "DAILY") ?? "MONTHLY",
   );
@@ -305,6 +310,90 @@ export function ListingForm({
     imageAssetsRef.current = imageAssets;
   }, [imageAssets]);
 
+  // format seconds into H:MM:SS or M:SS
+  const formatDuration = (seconds: number) => {
+    if (!isFinite(seconds) || seconds <= 0) return null;
+    const sec = Math.round(seconds);
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    const two = (n: number) => n.toString().padStart(2, "0");
+    return h > 0 ? `${h}:${two(m)}:${two(s)}` : `${m}:${two(s)}`;
+  };
+
+  // load durations for video URLs (existing + uploaded)
+  useEffect(() => {
+    let cancelled = false;
+
+    const toLoad: Array<{ key: string; url: string }> = [];
+
+    for (const m of existingMedia) {
+      if (m.type === "video") {
+        const key = `existing-${m.id}`;
+        if (!videoDurations[key]) toLoad.push({ key, url: m.url });
+      }
+    }
+
+    for (const a of imageAssets) {
+      if (a.resourceType === "video") {
+        const key = `asset-${a.publicId}`;
+        if (!videoDurations[key]) toLoad.push({ key, url: a.url });
+      }
+    }
+
+    if (toLoad.length === 0) return;
+
+    const pendingUpdates: Record<string, string | null> = {};
+
+    for (const item of toLoad) {
+      try {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        // avoid CORS issues by attempting to load; many Cloudinary urls allow metadata.
+        video.src = item.url;
+
+        const onLoaded = () => {
+          try {
+            const d = formatDuration(video.duration as number);
+            if (!cancelled) {
+              setVideoDurations((prev) => ({ ...prev, [item.key]: d }));
+            }
+          } catch {
+            if (!cancelled) pendingUpdates[item.key] = null;
+          } finally {
+            video.removeEventListener("loadedmetadata", onLoaded);
+            video.remove();
+          }
+        };
+
+        const onError = () => {
+          if (!cancelled) pendingUpdates[item.key] = null;
+          video.removeEventListener("error", onError);
+          video.remove();
+        };
+
+        video.addEventListener("loadedmetadata", onLoaded);
+        video.addEventListener("error", onError);
+      } catch {
+        // ignore per-video errors
+        pendingUpdates[item.key] = null;
+      }
+    }
+
+    if (!cancelled && Object.keys(pendingUpdates).length > 0) {
+      // defer the state update to avoid synchronous setState inside the effect
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setVideoDurations((prev) => ({ ...prev, ...pendingUpdates }));
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingMedia, imageAssets]);
+
   useEffect(() => {
     if (coverUrl && !isVideoUrl(coverUrl)) return;
 
@@ -397,13 +486,27 @@ export function ListingForm({
     if (!files) return;
     if (saving) return;
     const newImages = Array.from(files);
+    // client-side size limits to provide immediate feedback
+    const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
+    const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB
     let nextImageCount = mediaCounts.imageCount;
     let nextVideoCount = mediaCounts.videoCount;
     const acceptedFiles: File[] = [];
     let skippedCount = 0;
+    const tooLargeFiles: File[] = [];
 
     for (const file of newImages) {
       const isVideo = (file.type || "").startsWith("video/");
+
+      // client-side size validations
+      if (isVideo && file.size > MAX_VIDEO_BYTES) {
+        tooLargeFiles.push(file);
+        continue;
+      }
+      if (!isVideo && file.size > MAX_IMAGE_BYTES) {
+        tooLargeFiles.push(file);
+        continue;
+      }
 
       if (isVideo) {
         if (videoLimit !== null && nextVideoCount >= videoLimit) {
@@ -436,6 +539,24 @@ export function ListingForm({
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    if (tooLargeFiles.length > 0) {
+      const names = tooLargeFiles
+        .map((f) => f.name)
+        .slice(0, 3)
+        .join(", ");
+      const more =
+        tooLargeFiles.length > 3 ? ` (+${tooLargeFiles.length - 3})` : "";
+      const tooLargeMsg =
+        locale === "ar"
+          ? `بعض الملفات كبيرة جدًا: ${names}${more}. يرجى تصغيرها ثم حاول مرة أخرى.`
+          : locale === "fr"
+            ? `Certains fichiers sont trop volumineux: ${names}${more}. Veuillez les compresser et réessayer.`
+            : `Some files are too large: ${names}${more}. Please reduce their size and try again.`;
+      setError(tooLargeMsg);
+      toast.error(tooLargeMsg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     if (acceptedFiles.length === 0) {
       return;
     }
@@ -451,15 +572,35 @@ export function ListingForm({
           body: formData,
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
+          const serverCode = data?.code ?? data?.error ?? data?.message;
+          const isPayloadTooLarge =
+            response.status === 413 ||
+            serverCode === "FUNCTION_PAYLOAD_TOO_LARGE" ||
+            (typeof serverCode === "string" &&
+              serverCode.includes("FUNCTION_PAYLOAD_TOO_LARGE"));
+
+          if (isPayloadTooLarge) {
+            const tooLargeMsg =
+              locale === "ar"
+                ? "حجم الملف كبير جدًا. يرجى رفع ملفات أصغر أو ضغط الملف ومحاولة مرة أخرى."
+                : locale === "fr"
+                  ? "Le fichier est trop volumineux. Veuillez télécharger des fichiers plus petits ou compresser le fichier et réessayer."
+                  : "File is too large. Please upload smaller files or compress the file and try again.";
+            toast.error(tooLargeMsg);
+            setUploading(false);
+            return;
+          }
+
           const errorMsg =
             data?.error ||
             data?.message ||
             `Upload failed with status ${response.status}`;
           throw new Error(errorMsg);
         }
+
         setImageAssets((prev) => [
           ...prev,
           {
@@ -471,13 +612,30 @@ export function ListingForm({
       }
     } catch (error) {
       console.error("Upload error:", error);
-      const errorMsg =
-        error instanceof Error
-          ? error.message
-          : locale === "ar"
-            ? "تعذر رفع الملفات."
-            : "Could not upload files.";
-      toast.error(errorMsg);
+
+      const isPayloadTooLargeErr =
+        error instanceof Error &&
+        (error.message.includes("FUNCTION_PAYLOAD_TOO_LARGE") ||
+          error.message.toLowerCase().includes("payload") ||
+          error.message.includes("413"));
+
+      if (isPayloadTooLargeErr) {
+        const tooLargeMsg =
+          locale === "ar"
+            ? "حجم الملف كبير جدًا. يرجى رفع ملفات أصغر أو ضغط الملف ومحاولة مرة أخرى."
+            : locale === "fr"
+              ? "Le fichier est trop volumineux. Veuillez télécharger des fichiers plus petits ou compresser le fichier et réessayer."
+              : "File is too large. Please upload smaller files or compress the file and try again.";
+        toast.error(tooLargeMsg);
+      } else {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : locale === "ar"
+              ? "تعذر رفع الملفات."
+              : "Could not upload files.";
+        toast.error(errorMsg);
+      }
     } finally {
       setUploading(false);
     }
@@ -1265,9 +1423,21 @@ export function ListingForm({
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         {isVideo && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/25">
-                            <Video className="h-6 w-6 text-white" />
-                          </div>
+                          <>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                              <Video className="h-6 w-6 text-white" />
+                            </div>
+                            {videoDurations[`existing-${media.id}`] ? (
+                              <div
+                                className={`absolute bottom-2 ${
+                                  locale === "ar" ? "left-2" : "right-2"
+                                } rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
+                                aria-hidden
+                              >
+                                {videoDurations[`existing-${media.id}`]}
+                              </div>
+                            ) : null}
+                          </>
                         )}
                         <button
                           type="button"
@@ -1485,6 +1655,17 @@ export function ListingForm({
                             <Video className="h-6 w-6 text-white" />
                           </div>
                         )}
+                        {isVideo &&
+                        videoDurations[`asset-${asset.publicId}`] ? (
+                          <div
+                            className={`absolute bottom-2 ${
+                              locale === "ar" ? "left-2" : "right-2"
+                            } rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
+                            aria-hidden
+                          >
+                            {videoDurations[`asset-${asset.publicId}`]}
+                          </div>
+                        ) : null}
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
