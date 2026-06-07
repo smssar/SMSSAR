@@ -290,26 +290,28 @@ export default async function PropertyDetailPage({
                   {locale === "ar" ? "المدينة" : "City"}: {property.sellerCity}
                 </div>
               ) : null}
-              {property.sellerPhone ? (
-                <a
-                  href={`tel:${property.sellerPhone}`}
-                  className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-sm font-medium text-foreground transition hover:bg-muted/60 hover:border-violet-500/50 active:scale-95"
-                >
-                  <Phone className="h-5 w-5 text-violet-600 shrink-0 ltr:order-1 rtl:order-3" />
-                  {property.sellerPhone.startsWith("+") ? (
-                    <span className="flex items-center ltr:order-2 rtl:order-2">
-                      <span className="text-violet-600 font-semibold">+</span>
-                      <span className="ltr:order-1 rtl:order-2">
-                        {property.sellerPhone.substring(1)}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="ltr:order-2 rtl:order-1">
-                      {property.sellerPhone}
-                    </span>
-                  )}
-                </a>
-              ) : null}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {locale === "ar" ? "السيرة الذاتية للبائع" : "Seller bio"}:
+                {property.sellerBio ? (
+                  <span className="text-foreground">{property.sellerBio}</span>
+                ) : (
+                  <span className="text-foreground">
+                    {locale === "ar" ? "غير متوفرة" : "Not available"}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="ltr:text-right rtl:rotate-270 h-5 w-5 text-violet-600 shrink-0" />
+                :
+                {property.sellerPhone ? (
+                  <a
+                    href={`tel:${property.sellerPhone}`}
+                    className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-sm font-medium text-foreground transition hover:bg-muted/60 hover:border-violet-500/50 active:scale-95"
+                  >
+                    <span dir="ltr">{property.sellerPhone}</span>
+                  </a>
+                ) : null}
+              </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 {locale === "ar"

@@ -303,13 +303,16 @@ export const POST = Webhooks({
             });
 
             if (existingPurchase) {
+              console.log(
+                "Updating existing purchase record for product:",
+                item.quantity,
+              );
               await tx.purchase.update({
                 where: { id: existingPurchase.id },
                 data: {
                   quantity: { increment: item.quantity },
                   totalPrice: { increment: product.price * item.quantity },
                   status: "ACTIVE",
-                  // Only set paymentId if not already recorded (field is unique)
                   ...(existingPurchase.paymentId ? {} : { paymentId }),
                   updatedAt: new Date(),
                 },
@@ -328,6 +331,16 @@ export const POST = Webhooks({
               });
             }
           }
+          await sendBillingNotification({
+            to: customerEmail,
+            locale: payload.data?.metadata?.locale,
+            kind: "purchase_succeeded",
+            userName: customerName,
+            paymentId: paymentId ?? undefined,
+            price: resolveMetadataAmount(payload.data?.total_amount),
+            purchaseDate: new Date(),
+            createdAt: new Date(),
+          });
         });
 
         return;

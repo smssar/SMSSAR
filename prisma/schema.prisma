@@ -370,7 +370,7 @@ model Purchase {
   userId            String
   purchaseProductId String
 
-  quantity   Int @default(1)
+  quantity   Int 
   unitPrice  Int
   totalPrice Int
 

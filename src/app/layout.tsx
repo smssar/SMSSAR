@@ -14,10 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Smssar",
-    template: "%s | Smssar",
-  },
+  title: "Smssar",
   description:
     "A premium multilingual Smssar for users, sellers, and administrators.",
 };

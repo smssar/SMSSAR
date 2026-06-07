@@ -46,7 +46,6 @@ export async function resetPasswordAction(formData: FormData, locale: string) {
   }
 
   const passwordHash = await hash(password, 12);
-
   await prisma.user.update({ where: { email }, data: { passwordHash } });
 
   await prisma.verificationToken.deleteMany({ where: { identifier } });

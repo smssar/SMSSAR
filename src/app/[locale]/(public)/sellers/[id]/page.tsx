@@ -158,10 +158,10 @@ export default async function SellerProfilePage({
               {seller.phone ? (
                 <a
                   href={`tel:${seller.phone}`}
-                  className="inline-flex items-center gap-2 font-medium text-foreground transition hover:text-violet-500"
+                  className="inline-flex flex-row items-center gap-2 font-medium text-foreground transition hover:text-violet-500"
                 >
                   <Phone className="h-4 w-4" />
-                  {seller.phone}
+                  <span dir="ltr">{seller.phone}</span>
                 </a>
               ) : null}
 
@@ -200,12 +200,6 @@ export default async function SellerProfilePage({
                   : "Browse all properties published by this seller."}
               </p>
             </div>
-
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              {locale === "ar"
-                ? `${listingCount} إعلان`
-                : `${listingCount} listings`}
-            </Badge>
           </div>
 
           {sellerProperties.length > 0 ? (

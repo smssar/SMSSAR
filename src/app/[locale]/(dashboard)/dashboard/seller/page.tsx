@@ -10,6 +10,10 @@ import { formatCompactNumber } from "@/lib/format";
 import { getMessages } from "@/lib/messages";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
+import {
+  getActivePurchasesWithProduct,
+  sumPurchaseQuantityByCode,
+} from "@/lib/purchase-allowances";
 
 const getLocalizedPlanText = (
   locale: Locale,
@@ -59,8 +63,17 @@ export default async function SellerOverviewPage({
   }
 
   // whether the base plan listing limit has been reached (before considering purchased extras)
+
+  const activePurchases = await getActivePurchasesWithProduct(session.user.id);
+
+  const extraListings = sumPurchaseQuantityByCode(
+    activePurchases,
+    "EXTRA_LISTINGS",
+  );
   const baseLimitReached =
-    typeof plan.listings === "number" ? listingCount >= plan.listings : false;
+    typeof plan.listings === "number"
+      ? listingCount >= plan.listings + extraListings
+      : false;
 
   const sellerProperties = await prisma.property.findMany({
     where: { sellerId: session.user.id },
@@ -80,7 +93,11 @@ export default async function SellerOverviewPage({
   const uniqueCities = new Set(
     sellerProperties.map((property) => property.city),
   ).size;
-  const planLimit = plan.listings;
+  const planLimit = plan.listings
+    ? plan.listings + extraListings
+    : plan.listings == null
+      ? null
+      : extraListings;
 
   // fetch user's extra listing purchases (active, quantity > 0)
   const extraPurchases = await prisma.purchase.findMany({
@@ -240,7 +257,7 @@ export default async function SellerOverviewPage({
         }))}
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{messages.dashboard.seller.listings}</CardTitle>
@@ -291,18 +308,55 @@ export default async function SellerOverviewPage({
                 fr: plan.description_fr,
               })}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-violet-300 bg-violet-50 dark:border-violet-700 dark:bg-violet-950/40">
+          <CardContent className="flex flex-col gap-3 p-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 h-5 w-5 shrink-0 text-violet-600 dark:text-violet-300">
+                ⚡
+              </div>
+              <div>
+                <div className="font-semibold text-violet-900 dark:text-violet-100">
+                  {locale === "ar"
+                    ? "حد العقارات"
+                    : locale === "fr"
+                      ? "Limite de listes"
+                      : "Listing limit"}
+                </div>
+                <div className="mt-1 text-sm text-violet-800 dark:text-violet-200">
+                  {locale === "ar"
+                    ? "عدد العقارات التي يمكنك نشرها بناءً على خطتك الحالية."
+                    : locale === "fr"
+                      ? "Le nombre de listes que vous pouvez publier avec votre forfait actuel."
+                      : "The number of listings you can publish based on your current plan."}
+                </div>
+              </div>
+            </div>
             <div className="text-sm text-muted-foreground">
               {listingCount}/{planLimit === null ? "∞" : planLimit}{" "}
               {messages.common.listingCount}
             </div>
             <div className="h-2 rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 transition-all"
-                style={{
-                  width: `${planLimit === null ? 100 : Math.min(100, (listingCount / planLimit) * 100)}%`,
-                }}
-              />
+              <div className="h-full rounded-full bg-white transition-all">
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 transition-all"
+                  style={{
+                    width: `${planLimit === null ? 100 : Math.min(100, (listingCount / planLimit) * 100)}%`,
+                  }}
+                />
+              </div>
             </div>
+            {baseLimitReached && (
+              <div className="text-sm text-red-600 dark:text-red-400">
+                {locale === "ar"
+                  ? "لقد وصلت إلى حد قوائم خطتك الأساسية."
+                  : locale === "fr"
+                    ? "Vous avez atteint la limite de votre forfait de base."
+                    : "You have reached your base plan listing limit."}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

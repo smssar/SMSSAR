@@ -3,7 +3,6 @@ import { getRequestBaseUrl } from "@/lib/api-utils";
 import { NextRequest, NextResponse } from "next/server";
 import type { Locale } from "@/lib/locales";
 import { prisma } from "@/lib/prisma";
-import { sendBillingNotification } from "../../webhooks/dodo/route";
 
 // ---------------------------------------------------------------------------
 // Request / Response types
@@ -100,13 +99,6 @@ export async function POST(req: NextRequest) {
     const body: PurchaseCheckoutRequest = await req.json();
 
     if (process.env.NODE_ENV === "development") {
-      console.log("Purchase checkout request:", {
-        userId: session.user.id,
-        purchaseTypes: body.purchases?.map((p) => p.type),
-        purchaseQuantities: body.purchases?.map((p) => p.quantity),
-        amount: body.amount,
-        locale: body.locale,
-      });
     }
 
     const { purchases: rawPurchases, amount, locale, email } = body;
@@ -261,18 +253,6 @@ export async function POST(req: NextRequest) {
     }
 
     const checkoutSession: DodoCheckoutResponse = await dodoResponse.json();
-
-    if (customerEmail) {
-      await sendBillingNotification({
-        to: customerEmail,
-        locale: safeLocale,
-        kind: "purchase_succeeded",
-        userName: customerName,
-        price: safeAmount !== undefined ? safeAmount : undefined,
-        purchaseDate: new Date(),
-        createdAt: new Date(),
-      });
-    }
 
     return NextResponse.json({
       checkoutUrl: checkoutSession.checkout_url || checkoutSession.url,

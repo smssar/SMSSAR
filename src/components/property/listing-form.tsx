@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -6,13 +7,16 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   BadgeDollarSign,
-  ImagePlus,
   KeyRound,
   Loader,
   Trash2,
   Save,
   Star,
   Video,
+  Upload,
+  AlertTriangle,
+  ArrowRight,
+  HardDrive,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,6 +41,20 @@ type UploadedAsset = {
 type PlanMediaLimits = {
   maxImagesPerListing: number | null;
   maxVideosPerListing: number | null;
+};
+
+type PurchaseWithProduct = {
+  id: string;
+  quantity: number;
+  status: string;
+  expiresAt: Date | null;
+  purchaseProduct: {
+    id: string;
+    code: string | null;
+    title: string;
+    title_ar?: string | null;
+    title_fr?: string | null;
+  };
 };
 
 function isVideoUrl(url: string) {
@@ -80,24 +98,9 @@ export function ListingForm({
     name: string;
     name_ar?: string | null;
     name_fr?: string | null;
-    city: {
-      name: string;
-    };
+    city: { name: string };
   }>;
 }) {
-  type PurchaseWithProduct = {
-    id: string;
-    quantity: number;
-    status: string;
-    expiresAt: Date | null;
-    purchaseProduct: {
-      id: string;
-      code: string | null;
-      title: string;
-      title_ar?: string | null;
-      title_fr?: string | null;
-    };
-  };
   const router = useRouter();
   const [imageAssets, setImageAssets] = useState<UploadedAsset[]>([]);
   const [coverUrl, setCoverUrl] = useState<string | undefined>(
@@ -108,9 +111,7 @@ export function ListingForm({
   const [existingMediaToDelete, setExistingMediaToDelete] = useState<
     Set<string>
   >(new Set());
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
@@ -132,18 +133,17 @@ export function ListingForm({
   const [upgradeDialogUrl, setUpgradeDialogUrl] = useState<string>(
     `/${locale}/pricing`,
   );
-  const imageAssetsRef = useRef<UploadedAsset[]>([]);
-  const savedRef = useRef(false);
-
-  // video durations map: keys are `existing-<id>` for existingMedia and `asset-<publicId>` for uploaded assets
+  const [widgetLoading, setWidgetLoading] = useState(false);
   const [videoDurations, setVideoDurations] = useState<
     Record<string, string | null>
   >({});
 
+  const imageAssetsRef = useRef<UploadedAsset[]>([]);
+  const savedRef = useRef(false);
+
   const [priceType, setPriceType] = useState<"MONTHLY" | "DAILY">(
     (defaultListing?.priceType as "MONTHLY" | "DAILY") ?? "MONTHLY",
   );
-
   const [listingType, setListingType] = useState<"BUY" | "RENT">(
     (defaultListing?.forSale as boolean) ? "BUY" : "RENT",
   );
@@ -186,7 +186,7 @@ export function ListingForm({
       locale === "ar"
         ? "تعيين كغلاف"
         : locale === "fr"
-          ? "Definir la couverture"
+          ? "Définir la couverture"
           : "Set cover",
     cover:
       locale === "ar" ? "الغلاف" : locale === "fr" ? "Couverture" : "Cover",
@@ -194,7 +194,7 @@ export function ListingForm({
       locale === "ar"
         ? "الفيديو لا يمكن أن يكون غلافاً"
         : locale === "fr"
-          ? "Une video ne peut pas etre une couverture"
+          ? "Une vidéo ne peut pas être une couverture"
           : "Video cannot be cover",
     remove:
       locale === "ar" ? "إزالة" : locale === "fr" ? "Supprimer" : "Remove",
@@ -218,56 +218,152 @@ export function ListingForm({
     return item.name;
   };
 
-  const mediaCounts = useMemo(() => {
-    const existing = existingMedia.filter(
-      (m) => !existingMediaToDelete.has(m.id),
-    );
-    const existingImages = existing.filter((m) => m.type !== "video").length;
-    const existingVideos = existing.filter((m) => m.type === "video").length;
-    const uploadedImages = imageAssets.filter(
-      (asset) => asset.resourceType !== "video",
-    ).length;
-    const uploadedVideos = imageAssets.filter(
-      (asset) => asset.resourceType === "video",
-    ).length;
+  const existing = existingMedia.filter(
+    (m) => !existingMediaToDelete.has(m.id),
+  );
+  const existingImages = existing.filter((m) => m.type !== "video").length;
+  const existingVideos = existing.filter((m) => m.type === "video").length;
+  const uploadedImages = imageAssets.filter(
+    (a) => a.resourceType !== "video",
+  ).length;
+  const uploadedVideos = imageAssets.filter(
+    (a) => a.resourceType === "video",
+  ).length;
 
-    const imageCount = existingImages + uploadedImages;
-    const videoCount = existingVideos + uploadedVideos;
-
-    return {
-      imageCount,
-      videoCount,
-      totalCount: imageCount + videoCount,
-    };
-  }, [imageAssets, existingMedia, existingMediaToDelete]);
+  const mediaCounts = {
+    imageCount: existingImages + uploadedImages,
+    videoCount: existingVideos + uploadedVideos,
+    totalCount:
+      existingImages + uploadedImages + existingVideos + uploadedVideos,
+  };
   const extraImages = (purchase ?? [])
-    .filter((p) => {
-      return p.purchaseProduct?.code === "EXTRA_IMAGES";
-    })
+    .filter((p) => p.purchaseProduct?.code === "EXTRA_IMAGES")
     .reduce((sum, p) => sum + p.quantity, 0);
 
   const extraVideos = (purchase ?? [])
-    .filter((p) => {
-      return p.purchaseProduct?.code === "EXTRA_VIDEOS";
-    })
+    .filter((p) => p.purchaseProduct?.code === "EXTRA_VIDEOS")
     .reduce((sum, p) => sum + p.quantity, 0);
 
-  // Final limits = plan base + purchased extras
-  // null means unlimited (plan has no cap)
   const imageLimit =
     planMediaLimits?.maxImagesPerListing != null
       ? planMediaLimits.maxImagesPerListing + extraImages
       : null;
+
   const videoLimit =
     planMediaLimits?.maxVideosPerListing != null
       ? planMediaLimits.maxVideosPerListing + extraVideos
       : null;
 
   const canUploadMore =
-    imageLimit === null ||
-    mediaCounts.imageCount < imageLimit ||
     videoLimit === null ||
-    mediaCounts.videoCount < videoLimit;
+    mediaCounts.videoCount < videoLimit ||
+    imageLimit === null ||
+    mediaCounts.imageCount < imageLimit;
+
+  const openCloudinaryWidget = async () => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      toast.error("Cloudinary not configured");
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    // ---- load widget if needed
+    if (!(window as any).cloudinary?.createUploadWidget) {
+      setWidgetLoading(true);
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://widget.cloudinary.com/v2.0/global/all.js";
+          s.async = true;
+          s.onload = () => resolve();
+          s.onerror = () => reject();
+          document.head.appendChild(s);
+        });
+      } catch {
+        toast.error("Failed to load widget");
+        setWidgetLoading(false);
+        return;
+      } finally {
+        setWidgetLoading(false);
+      }
+    }
+
+    const getCounts = () => {
+      const images = imageAssets.filter(
+        (a) => a.resourceType === "image",
+      ).length;
+      const videos = imageAssets.filter(
+        (a) => a.resourceType === "video",
+      ).length;
+      return { images, videos };
+    };
+
+    try {
+      const widget = (window as any).cloudinary.createUploadWidget(
+        {
+          cloudName,
+          uploadPreset,
+          multiple: true,
+          resourceType: "auto",
+          sources: ["local", "url", "camera"],
+          allowedFormats: ["jpg", "jpeg", "png", "mp4", "mov", "avi", "mkv"],
+        },
+        (error: any, result: any) => {
+          if (error) {
+            console.error(error);
+            toast.error("Upload error");
+            return;
+          }
+
+          // 🔥 IMPORTANT: handle EACH file individually
+          if (result?.event === "success") {
+            const info = result.info;
+
+            const type = info.resource_type === "video" ? "video" : "image";
+
+            const { images, videos } = getCounts();
+
+            // ---- per-file strict check
+            if (
+              type === "image" &&
+              imageLimit !== null &&
+              images >= imageLimit
+            ) {
+              toast.error("Image limit reached");
+              return; // 🚫 reject this file only
+            }
+
+            if (
+              type === "video" &&
+              videoLimit !== null &&
+              videos >= videoLimit
+            ) {
+              toast.error("Video limit reached");
+              return; // 🚫 reject this file only
+            }
+
+            // ---- accept file
+            setImageAssets((prev) => [
+              ...prev,
+              {
+                url: info.secure_url,
+                publicId: info.public_id,
+                resourceType: type,
+              },
+            ]);
+          }
+        },
+      );
+
+      widget.open();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const getNextCoverUrl = ({
     excludeImageIndex,
@@ -277,19 +373,18 @@ export function ListingForm({
     excludeExistingMediaId?: string;
   }) => {
     const remainingExisting = existingMedia.filter(
-      (media) =>
-        !existingMediaToDelete.has(media.id) &&
-        media.id !== excludeExistingMediaId &&
-        media.type !== "video",
+      (m) =>
+        !existingMediaToDelete.has(m.id) &&
+        m.id !== excludeExistingMediaId &&
+        m.type !== "video",
     );
-    const remainingImages = imageAssets.filter(
-      (asset, index) =>
-        index !== excludeImageIndex && asset.resourceType !== "video",
-    );
-
+    const remainingImages = imageAssets
+      .filter((_, index) => index !== excludeImageIndex)
+      .filter((a) => a.resourceType !== "video");
     return remainingExisting[0]?.url ?? remainingImages[0]?.url;
   };
 
+  // Cleanup unsaved uploads on unmount / page exit
   async function cleanupUnsavedImages(keepalive = false) {
     await Promise.all(
       imageAssetsRef.current.map((asset) =>
@@ -310,7 +405,7 @@ export function ListingForm({
     imageAssetsRef.current = imageAssets;
   }, [imageAssets]);
 
-  // format seconds into H:MM:SS or M:SS
+  // Format seconds → M:SS or H:MM:SS
   const formatDuration = (seconds: number) => {
     if (!isFinite(seconds) || seconds <= 0) return null;
     const sec = Math.round(seconds);
@@ -321,10 +416,9 @@ export function ListingForm({
     return h > 0 ? `${h}:${two(m)}:${two(s)}` : `${m}:${two(s)}`;
   };
 
-  // load durations for video URLs (existing + uploaded)
+  // Load video durations
   useEffect(() => {
     let cancelled = false;
-
     const toLoad: Array<{ key: string; url: string }> = [];
 
     for (const m of existingMedia) {
@@ -333,59 +427,28 @@ export function ListingForm({
         if (!videoDurations[key]) toLoad.push({ key, url: m.url });
       }
     }
-
     for (const a of imageAssets) {
       if (a.resourceType === "video") {
         const key = `asset-${a.publicId}`;
         if (!videoDurations[key]) toLoad.push({ key, url: a.url });
       }
     }
-
     if (toLoad.length === 0) return;
 
-    const pendingUpdates: Record<string, string | null> = {};
-
     for (const item of toLoad) {
-      try {
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        // avoid CORS issues by attempting to load; many Cloudinary urls allow metadata.
-        video.src = item.url;
-
-        const onLoaded = () => {
-          try {
-            const d = formatDuration(video.duration as number);
-            if (!cancelled) {
-              setVideoDurations((prev) => ({ ...prev, [item.key]: d }));
-            }
-          } catch {
-            if (!cancelled) pendingUpdates[item.key] = null;
-          } finally {
-            video.removeEventListener("loadedmetadata", onLoaded);
-            video.remove();
-          }
-        };
-
-        const onError = () => {
-          if (!cancelled) pendingUpdates[item.key] = null;
-          video.removeEventListener("error", onError);
-          video.remove();
-        };
-
-        video.addEventListener("loadedmetadata", onLoaded);
-        video.addEventListener("error", onError);
-      } catch {
-        // ignore per-video errors
-        pendingUpdates[item.key] = null;
-      }
-    }
-
-    if (!cancelled && Object.keys(pendingUpdates).length > 0) {
-      // defer the state update to avoid synchronous setState inside the effect
-      queueMicrotask(() => {
-        if (cancelled) return;
-        setVideoDurations((prev) => ({ ...prev, ...pendingUpdates }));
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.src = item.url;
+      video.addEventListener("loadedmetadata", () => {
+        if (!cancelled) {
+          setVideoDurations((prev) => ({
+            ...prev,
+            [item.key]: formatDuration(video.duration),
+          }));
+        }
+        video.remove();
       });
+      video.addEventListener("error", () => video.remove());
     }
 
     return () => {
@@ -394,23 +457,18 @@ export function ListingForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingMedia, imageAssets]);
 
+  // Auto-set cover to first image
   useEffect(() => {
     if (coverUrl && !isVideoUrl(coverUrl)) return;
-
     const firstExisting = existingMedia.find(
       (m) => !existingMediaToDelete.has(m.id) && m.type !== "video",
     );
-    const firstUploadedImage = imageAssets.find(
-      (asset) => asset.resourceType !== "video",
-    );
-    const next = firstExisting?.url ?? firstUploadedImage?.url;
+    const firstUploaded = imageAssets.find((a) => a.resourceType !== "video");
+    const next = firstExisting?.url ?? firstUploaded?.url;
     if (!next) {
-      if (coverUrl) {
-        Promise.resolve().then(() => setCoverUrl(undefined));
-      }
+      if (coverUrl) Promise.resolve().then(() => setCoverUrl(undefined));
       return;
     }
-
     Promise.resolve().then(() => setCoverUrl(next));
   }, [existingMedia, imageAssets, existingMediaToDelete, coverUrl]);
 
@@ -421,7 +479,6 @@ export function ListingForm({
   useEffect(() => {
     return () => {
       if (savedRef.current || imageAssetsRef.current.length === 0) return;
-
       void cleanupUnsavedImages(true);
     };
   }, []);
@@ -429,37 +486,29 @@ export function ListingForm({
   useEffect(() => {
     const handlePageExit = () => {
       if (savedRef.current || imageAssetsRef.current.length === 0) return;
-
       void cleanupUnsavedImages(true);
     };
-
     window.addEventListener("beforeunload", handlePageExit);
     window.addEventListener("pagehide", handlePageExit);
-
     return () => {
       window.removeEventListener("beforeunload", handlePageExit);
       window.removeEventListener("pagehide", handlePageExit);
     };
   }, []);
 
+  // Load plan limits + purchases
   useEffect(() => {
     const loadPlanLimits = async () => {
       try {
         const res = await fetch("/api/plans/user", { cache: "no-store" });
         const payload = await res.json().catch(() => null);
-
         if (!res.ok || !payload?.data) return;
-
         setPlanMediaLimits({
           maxImagesPerListing: payload.data.maxImagesPerListing,
           maxVideosPerListing: payload.data.maxVideosPerListing,
         });
       } catch {
-        toast.error(
-          locale === "ar"
-            ? "تعذر جلب معلومات الخطة."
-            : "Could not fetch plan information.",
-        );
+        // Keep form usable even if plan lookup fails
       }
     };
 
@@ -470,11 +519,7 @@ export function ListingForm({
         if (!res.ok || !payload?.purchases) return;
         setPurchase(payload.purchases ?? null);
       } catch {
-        toast.error(
-          locale === "ar"
-            ? "تعذر جلب معلومات المشتريات."
-            : "Could not fetch purchase information.",
-        );
+        // Keep form usable even if purchase lookup fails
       }
     };
 
@@ -482,175 +527,12 @@ export function ListingForm({
     void loadPurchase();
   }, []);
 
-  const handleFiles = async (files: FileList | null) => {
-    if (!files) return;
-    if (saving) return;
-    const newImages = Array.from(files);
-    // client-side size limits to provide immediate feedback
-    const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
-    const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB
-    let nextImageCount = mediaCounts.imageCount;
-    let nextVideoCount = mediaCounts.videoCount;
-    const acceptedFiles: File[] = [];
-    let skippedCount = 0;
-    const tooLargeFiles: File[] = [];
-
-    for (const file of newImages) {
-      const isVideo = (file.type || "").startsWith("video/");
-
-      // client-side size validations
-      if (isVideo && file.size > MAX_VIDEO_BYTES) {
-        tooLargeFiles.push(file);
-        continue;
-      }
-      if (!isVideo && file.size > MAX_IMAGE_BYTES) {
-        tooLargeFiles.push(file);
-        continue;
-      }
-
-      if (isVideo) {
-        if (videoLimit !== null && nextVideoCount >= videoLimit) {
-          skippedCount += 1;
-          continue;
-        }
-        nextVideoCount += 1;
-        acceptedFiles.push(file);
-      } else {
-        if (imageLimit !== null && nextImageCount >= imageLimit) {
-          skippedCount += 1;
-          continue;
-        }
-        nextImageCount += 1;
-        acceptedFiles.push(file);
-      }
-    }
-
-    if (skippedCount > 0) {
-      const message =
-        locale === "ar"
-          ? "وصلت إلى حد الخطة الحالي للوسائط. قم بالترقية لإضافة المزيد من الصور أو الفيديوهات."
-          : locale === "fr"
-            ? "Vous avez atteint la limite media de votre forfait actuel. Passez a un forfait superieur pour ajouter plus de fichiers."
-            : "You've reached your current plan media limit. Upgrade your plan to add more images or videos.";
-
-      setUpgradeDialogMessage(message);
-      setUpgradeDialogUrl(`/${locale}/pricing`);
-      setUpgradeDialogOpen(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    if (tooLargeFiles.length > 0) {
-      const names = tooLargeFiles
-        .map((f) => f.name)
-        .slice(0, 3)
-        .join(", ");
-      const more =
-        tooLargeFiles.length > 3 ? ` (+${tooLargeFiles.length - 3})` : "";
-      const tooLargeMsg =
-        locale === "ar"
-          ? `بعض الملفات كبيرة جدًا: ${names}${more}. يرجى تصغيرها ثم حاول مرة أخرى.`
-          : locale === "fr"
-            ? `Certains fichiers sont trop volumineux: ${names}${more}. Veuillez les compresser et réessayer.`
-            : `Some files are too large: ${names}${more}. Please reduce their size and try again.`;
-      setError(tooLargeMsg);
-      toast.error(tooLargeMsg);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    if (acceptedFiles.length === 0) {
-      return;
-    }
-
-    setUploading(true);
-    try {
-      for (const file of acceptedFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/properties/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok) {
-          const serverCode = data?.code ?? data?.error ?? data?.message;
-          const isPayloadTooLarge =
-            response.status === 413 ||
-            serverCode === "FUNCTION_PAYLOAD_TOO_LARGE" ||
-            (typeof serverCode === "string" &&
-              serverCode.includes("FUNCTION_PAYLOAD_TOO_LARGE"));
-
-          if (isPayloadTooLarge) {
-            const tooLargeMsg =
-              locale === "ar"
-                ? "حجم الملف كبير جدًا. يرجى رفع ملفات أصغر أو ضغط الملف ومحاولة مرة أخرى."
-                : locale === "fr"
-                  ? "Le fichier est trop volumineux. Veuillez télécharger des fichiers plus petits ou compresser le fichier et réessayer."
-                  : "File is too large. Please upload smaller files or compress the file and try again.";
-            toast.error(tooLargeMsg);
-            setUploading(false);
-            return;
-          }
-
-          const errorMsg =
-            data?.error ||
-            data?.message ||
-            `Upload failed with status ${response.status}`;
-          throw new Error(errorMsg);
-        }
-
-        setImageAssets((prev) => [
-          ...prev,
-          {
-            url: data.url,
-            publicId: data.publicId,
-            resourceType: data.resourceType,
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-
-      const isPayloadTooLargeErr =
-        error instanceof Error &&
-        (error.message.includes("FUNCTION_PAYLOAD_TOO_LARGE") ||
-          error.message.toLowerCase().includes("payload") ||
-          error.message.includes("413"));
-
-      if (isPayloadTooLargeErr) {
-        const tooLargeMsg =
-          locale === "ar"
-            ? "حجم الملف كبير جدًا. يرجى رفع ملفات أصغر أو ضغط الملف ومحاولة مرة أخرى."
-            : locale === "fr"
-              ? "Le fichier est trop volumineux. Veuillez télécharger des fichiers plus petits ou compresser le fichier et réessayer."
-              : "File is too large. Please upload smaller files or compress the file and try again.";
-        toast.error(tooLargeMsg);
-      } else {
-        const errorMsg =
-          error instanceof Error
-            ? error.message
-            : locale === "ar"
-              ? "تعذر رفع الملفات."
-              : "Could not upload files.";
-        toast.error(errorMsg);
-      }
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const removeImage = async (index: number) => {
     const asset = imageAssets[index];
     if (!asset) return;
     if (removingAssetIds.has(asset.publicId)) return;
 
-    setRemovingAssetIds((prev) => {
-      const next = new Set(prev);
-      next.add(asset.publicId);
-      return next;
-    });
+    setRemovingAssetIds((prev) => new Set(prev).add(asset.publicId));
 
     try {
       const response = await fetch("/api/properties/upload", {
@@ -665,7 +547,7 @@ export function ListingForm({
       if (!response.ok) {
         toast.error(
           locale === "ar"
-            ? "تعذر حذف الصورة."
+            ? "تعذر حذف الملف."
             : locale === "fr"
               ? "Impossible de supprimer le fichier."
               : "Could not delete the file.",
@@ -676,8 +558,7 @@ export function ListingForm({
       setImageAssets((prev) => {
         const next = prev.filter((_, i) => i !== index);
         if (asset.url === coverUrl) {
-          const nextCover = getNextCoverUrl({ excludeImageIndex: index });
-          setCoverUrl(nextCover);
+          setCoverUrl(getNextCoverUrl({ excludeImageIndex: index }));
         }
         return next;
       });
@@ -688,25 +569,6 @@ export function ListingForm({
         return next;
       });
     }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(false);
-    handleFiles(e.dataTransfer.files);
   };
 
   return (
@@ -747,6 +609,7 @@ export function ListingForm({
               setAreaError(messages.dashboard.seller.validation.area.required);
               hasErrors = true;
             }
+
             if (!city || city.trim().length === 0) {
               setCityError(messages.dashboard.seller.validation.city.required);
               hasErrors = true;
@@ -763,7 +626,6 @@ export function ListingForm({
                 hasErrors = true;
               }
             } else {
-              // clear any previous neighborhood error when empty
               setNeighborhoodError(null);
             }
 
@@ -796,11 +658,9 @@ export function ListingForm({
               hasErrors = true;
             }
 
-            // If any errors, stop and show them
             if (hasErrors) {
               setError(messages.dashboard.seller.validation.fixErrors);
               setSaving(false);
-              // Scroll to top so the user sees the error banner
               window.scrollTo({ top: 0, behavior: "smooth" });
               return;
             }
@@ -810,6 +670,7 @@ export function ListingForm({
               publicId: a.publicId,
               type: a.resourceType === "video" ? "video" : "image",
             }));
+
             const existingMediaForBody = existingMedia
               .filter((m) => !existingMediaToDelete.has(m.id))
               .map((m) => ({ id: m.id, url: m.url, type: m.type }));
@@ -829,7 +690,6 @@ export function ListingForm({
               propertyTypeId: propertyType,
               featured,
               priceType,
-              propertyType: propertyType || undefined,
               forSale: listingType === "BUY",
               imageUrl: coverUrl ?? null,
               videoUrl: null,
@@ -854,6 +714,7 @@ export function ListingForm({
               });
 
               const payload = await res.json().catch(() => null);
+
               if (!res.ok) {
                 if (
                   payload?.code === "PLAN_MEDIA_LIMIT_IMAGES" ||
@@ -863,6 +724,7 @@ export function ListingForm({
                   payload?.code === "FEATURED_NOT_ALLOWED" ||
                   payload?.code === "FEATURED_LIMIT_REACHED"
                 ) {
+                  console.log("Plan limit error:", payload);
                   setUpgradeDialogMessage(
                     payload?.error ||
                       (locale === "ar"
@@ -880,7 +742,6 @@ export function ListingForm({
                   return;
                 }
 
-                // Apply server-returned field errors if present
                 if (payload?.fieldErrors) {
                   setTitleError(payload.fieldErrors.title ?? null);
                   setCityError(payload.fieldErrors.city ?? null);
@@ -890,7 +751,6 @@ export function ListingForm({
                   setAreaError(payload.fieldErrors.area ?? null);
                   setPriceError(payload.fieldErrors.price ?? null);
                   setDescriptionError(payload.fieldErrors.description ?? null);
-                  // Show top-level error if present
                   const top = payload?.error || payload?.message;
                   const errorMsg =
                     top ||
@@ -907,25 +767,21 @@ export function ListingForm({
                 const errorMsg =
                   payload?.error ||
                   payload?.message ||
-                  (res.status === 400
+                  (res.status === 401
                     ? locale === "ar"
-                      ? "تحقق من صحة البيانات المدخلة."
-                      : "Please check the information you entered."
-                    : res.status === 401
+                      ? "يجب تسجيل الدخول أولاً."
+                      : "You must be logged in."
+                    : res.status === 403
                       ? locale === "ar"
-                        ? "يجب تسجيل الدخول أولاً."
-                        : "You must be logged in."
-                      : res.status === 403
+                        ? "ليس لديك صلاحية لإجراء هذا الإجراء."
+                        : "You don't have permission to perform this action."
+                      : res.status === 429
                         ? locale === "ar"
-                          ? "ليس لديك صلاحية لإجراء هذا الإجراء."
-                          : "You don't have permission to perform this action."
-                        : res.status === 429
-                          ? locale === "ar"
-                            ? "يرجى المحاولة لاحقاً. تم تجاوز حد الطلبات."
-                            : "Please try again later. Rate limit exceeded."
-                          : locale === "ar"
-                            ? "حدث خطأ عند حفظ العقار. يرجى المحاولة مرة أخرى."
-                            : "An error occurred while saving. Please try again.");
+                          ? "يرجى المحاولة لاحقاً. تم تجاوز حد الطلبات."
+                          : "Please try again later. Rate limit exceeded."
+                        : locale === "ar"
+                          ? "حدث خطأ عند حفظ العقار. يرجى المحاولة مرة أخرى."
+                          : "An error occurred while saving. Please try again.");
                 setSaved(false);
                 setError(errorMsg);
                 toast.error(errorMsg);
@@ -955,13 +811,14 @@ export function ListingForm({
             }
           }}
         >
-          {upgradeDialogOpen ? (
+          {/* Upgrade dialog */}
+          {upgradeDialogOpen && (
             <div className="md:col-span-2 rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
               <div className="font-semibold">
                 {locale === "ar"
                   ? "تحتاج إلى ترقية أو شراء إضافات"
                   : locale === "fr"
-                    ? "Mise a niveau ou achat requis"
+                    ? "Mise à niveau ou achat requis"
                     : "Upgrade or purchase required"}
               </div>
               <div className="mt-1">{upgradeDialogMessage}</div>
@@ -973,7 +830,7 @@ export function ListingForm({
                   {locale === "ar"
                     ? "ترقية الخطة"
                     : locale === "fr"
-                      ? "Mettre a niveau"
+                      ? "Mettre à niveau"
                       : "Upgrade plan"}
                 </Link>
                 <Link
@@ -999,8 +856,9 @@ export function ListingForm({
                 </button>
               </div>
             </div>
-          ) : null}
+          )}
 
+          {/* Error banner */}
           {error && (
             <div className="md:col-span-2 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
               <div className="font-semibold">
@@ -1009,6 +867,8 @@ export function ListingForm({
               <div className="mt-1">{error}</div>
             </div>
           )}
+
+          {/* Title */}
           <Field
             label={locale === "ar" ? "عنوان العقار" : "Listing title"}
             required
@@ -1027,6 +887,8 @@ export function ListingForm({
               </div>
             )}
           </Field>
+
+          {/* City & Neighborhood */}
           <Field
             label={
               locale === "ar"
@@ -1066,86 +928,66 @@ export function ListingForm({
             )}
           </Field>
 
+          {/* Listing type */}
           <Field
             label={locale === "ar" ? "نوع الإعلان" : "Listing type"}
             required
           >
             <div className="grid gap-3 sm:grid-cols-2">
-              <label
-                className={`group flex cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all ${
-                  listingType === "BUY"
-                    ? "border-violet-500 bg-violet-500/5 shadow-sm ring-1 ring-violet-500/20"
-                    : "border-border/70 bg-card/50 hover:border-violet-500/60 hover:bg-muted/40"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="listingType"
-                  value="BUY"
-                  checked={listingType === "BUY"}
-                  onChange={() => setListingType("BUY")}
-                  className="mt-1 h-4 w-4 accent-violet-600"
-                />
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-base font-semibold text-foreground">
-                        {locale === "ar" ? "للبيع" : "Buy"}
+              {(["BUY", "RENT"] as const).map((type) => (
+                <label
+                  key={type}
+                  className={`group flex cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all ${
+                    listingType === type
+                      ? "border-violet-500 bg-violet-500/5 shadow-sm ring-1 ring-violet-500/20"
+                      : "border-border/70 bg-card/50 hover:border-violet-500/60 hover:bg-muted/40"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="listingType"
+                    value={type}
+                    checked={listingType === type}
+                    onChange={() => setListingType(type)}
+                    className="mt-1 h-4 w-4 accent-violet-600"
+                  />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-base font-semibold text-foreground">
+                          {type === "BUY"
+                            ? locale === "ar"
+                              ? "للبيع"
+                              : "Buy"
+                            : locale === "ar"
+                              ? "للإيجار"
+                              : "Rent"}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {type === "BUY"
+                            ? locale === "ar"
+                              ? "اعرض العقار كسعر شراء نهائي."
+                              : "Show as a purchase listing."
+                            : locale === "ar"
+                              ? "اعرض العقار كخيار إيجار."
+                              : "Show as a rental listing."}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {locale === "ar"
-                          ? "اعرض العقار كسعر شراء نهائي للمستخدمين."
-                          : "Show this property as a purchase listing."}
-                      </p>
-                    </div>
-                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
-                      <BadgeDollarSign className="h-5 w-5" />
+                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                        {type === "BUY" ? (
+                          <BadgeDollarSign className="h-5 w-5" />
+                        ) : (
+                          <KeyRound className="h-5 w-5" />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </label>
-
-              <label
-                className={`group flex cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all ${
-                  listingType === "RENT"
-                    ? "border-violet-500 bg-violet-500/5 shadow-sm ring-1 ring-violet-500/20"
-                    : "border-border/70 bg-card/50 hover:border-violet-500/60 hover:bg-muted/40"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="listingType"
-                  value="RENT"
-                  checked={listingType === "RENT"}
-                  onChange={() => setListingType("RENT")}
-                  className="mt-1 h-4 w-4 accent-violet-600"
-                />
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-base font-semibold text-foreground">
-                        {locale === "ar" ? "للإيجار" : "Rent"}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {locale === "ar"
-                          ? "اعرض العقار كخيار إيجار شهري أو يومي."
-                          : "Show this property as a monthly or daily rental."}
-                      </p>
-                    </div>
-                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
-                      <KeyRound className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-              </label>
+                </label>
+              ))}
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {locale === "ar"
-                ? "اختر خياراً واحداً فقط، وسيُحفظ على أنه بيع أو إيجار."
-                : "Choose one option only. It will be saved as either buy or rent."}
-            </p>
           </Field>
 
+          {/* Featured */}
           <Field label={locale === "ar" ? "العقار المميز" : "Featured listing"}>
             <label className="flex cursor-pointer items-start gap-3 rounded-3xl border border-border/70 bg-card/50 p-4 transition hover:border-violet-500/60 hover:bg-muted/40">
               <input
@@ -1167,6 +1009,7 @@ export function ListingForm({
             </label>
           </Field>
 
+          {/* Price — RENT */}
           {listingType === "RENT" && (
             <div className="md:col-span-2 space-y-4 rounded-3xl border border-border/70 bg-card/50 p-5">
               <div>
@@ -1175,35 +1018,32 @@ export function ListingForm({
                   <span className="ml-1 text-red-500">*</span>
                 </Label>
                 <div className="flex flex-wrap items-center gap-6">
-                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
-                    <input
-                      type="radio"
-                      name="priceType"
-                      value="MONTHLY"
-                      checked={priceType === "MONTHLY"}
-                      onChange={() => setPriceType("MONTHLY")}
-                      className="h-4 w-4 accent-violet-600"
-                    />
-                    <span className="text-sm font-medium">
-                      {locale === "ar" ? "شهري" : "Monthly"}
-                    </span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60">
-                    <input
-                      type="radio"
-                      name="priceType"
-                      value="DAILY"
-                      checked={priceType === "DAILY"}
-                      onChange={() => setPriceType("DAILY")}
-                      className="h-4 w-4 accent-violet-600"
-                    />
-                    <span className="text-sm font-medium">
-                      {locale === "ar" ? "يومي" : "Daily"}
-                    </span>
-                  </label>
+                  {(["MONTHLY", "DAILY"] as const).map((type) => (
+                    <label
+                      key={type}
+                      className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 px-4 py-3 transition hover:border-violet-500/60"
+                    >
+                      <input
+                        type="radio"
+                        name="priceType"
+                        value={type}
+                        checked={priceType === type}
+                        onChange={() => setPriceType(type)}
+                        className="h-4 w-4 accent-violet-600"
+                      />
+                      <span className="text-sm font-medium">
+                        {type === "MONTHLY"
+                          ? locale === "ar"
+                            ? "شهري"
+                            : "Monthly"
+                          : locale === "ar"
+                            ? "يومي"
+                            : "Daily"}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
-
               <div>
                 <Label htmlFor="price-input" className="mb-2 block font-medium">
                   {priceType === "MONTHLY"
@@ -1242,15 +1082,11 @@ export function ListingForm({
                     {priceError}
                   </div>
                 )}
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {locale === "ar"
-                    ? "اختر نوع السعر أولاً ثم أدخل القيمة المناسبة."
-                    : "Choose Monthly or Daily first, then enter the matching price."}
-                </p>
               </div>
             </div>
           )}
 
+          {/* Price — BUY */}
           {listingType === "BUY" && (
             <div className="md:col-span-2 rounded-3xl border border-border/70 bg-card/50 p-5">
               <Label
@@ -1281,23 +1117,21 @@ export function ListingForm({
                   {priceError}
                 </div>
               )}
-              <p className="mt-2 text-xs text-muted-foreground">
-                {locale === "ar"
-                  ? "أدخل سعر البيع النهائي للعقار."
-                  : "Enter the final sale price for this property."}
-              </p>
             </div>
           )}
 
+          {/* Rooms */}
           <Field label={locale === "ar" ? "عدد الغرف" : "Rooms"}>
             <Select value={rooms} onChange={(e) => setRooms(e.target.value)}>
-              {[1, 2, 3, 4, 5].map((room) => (
-                <option key={room} value={room}>
-                  {room}
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n}
                 </option>
               ))}
             </Select>
           </Field>
+
+          {/* Area */}
           <Field label={locale === "ar" ? "المساحة" : "Area"} required>
             <div className="group rounded-3xl border border-border/70 bg-card/50 p-1.5 shadow-sm transition focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500/20">
               <div className="flex items-center gap-2 rounded-2xl bg-background px-4 py-3">
@@ -1316,19 +1150,14 @@ export function ListingForm({
                 </div>
               </div>
             </div>
-            <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-              <span>
-                {locale === "ar"
-                  ? "أدخل المساحة بالمتر المربع."
-                  : "Enter the area in square meters."}
-              </span>
-              {areaError ? (
-                <span className="text-red-600 dark:text-red-400">
-                  {areaError}
-                </span>
-              ) : null}
-            </div>
+            {areaError && (
+              <div className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {areaError}
+              </div>
+            )}
           </Field>
+
+          {/* Property type */}
           <Field
             label={locale === "ar" ? "نوع العقار" : "Property type"}
             required
@@ -1348,18 +1177,21 @@ export function ListingForm({
               ))}
             </Select>
           </Field>
+
+          {/* Bathrooms */}
           <Field label={locale === "ar" ? "الحمامات" : "Bathrooms"}>
             <Select
               value={bathrooms}
               onChange={(e) => setBathrooms(e.target.value)}
             >
-              {[1, 2, 3, 4].map((bathroom) => (
-                <option key={bathroom} value={bathroom}>
-                  {bathroom}
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {n}
                 </option>
               ))}
             </Select>
           </Field>
+
           <Field label={locale === "ar" ? "الوصف" : "Description"} full>
             <Textarea
               value={formDescription}
@@ -1376,6 +1208,7 @@ export function ListingForm({
             )}
           </Field>
 
+          {/* Media */}
           <div className="md:col-span-2">
             <Label className="mb-2 block">
               {locale === "ar" ? "صور ومقاطع الفيديو" : "Photos & Videos"} (
@@ -1383,13 +1216,15 @@ export function ListingForm({
             </Label>
             <div className="mb-3 text-xs text-muted-foreground">
               {locale === "ar"
-                ? `الصور: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • الفيديوهات: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
-                : locale === "fr"
-                  ? `Images: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • Videos: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
-                  : `Images: ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • Videos: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`}
+                ? `${mediaCounts.imageCount <= (imageLimit ?? Infinity) && mediaCounts.videoCount <= (videoLimit ?? Infinity) ? "✅" : "❌"}           الصور :   ${mediaCounts.imageCount}/${imageLimit ?? "∞"}  • الفيديوهات: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
+                : `${
+                    locale === "en"
+                      ? `${mediaCounts.imageCount <= (imageLimit ?? Infinity) && mediaCounts.videoCount <= (videoLimit ?? Infinity) ? "✅" : "❌"}           Images :    ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • Videos: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
+                      : `${mediaCounts.imageCount <= (imageLimit ?? Infinity) && mediaCounts.videoCount <= (videoLimit ?? Infinity) ? "✅" : "❌"}           الصور :   ${mediaCounts.imageCount}/${imageLimit ?? "∞"} • الفيديوهات: ${mediaCounts.videoCount}/${videoLimit ?? "∞"}`
+                  }`}
             </div>
 
-            {/* Display existing media */}
+            {/* Existing media */}
             {existingMedia.length > 0 && (
               <div className="mb-4">
                 <h3 className="mb-3 text-sm font-medium text-muted-foreground">
@@ -1402,7 +1237,6 @@ export function ListingForm({
                     const previewUrl = isVideo
                       ? getVideoThumbnailUrl(media.url)
                       : media.url;
-
                     return (
                       <div
                         key={media.id}
@@ -1427,18 +1261,16 @@ export function ListingForm({
                             <div className="absolute inset-0 flex items-center justify-center bg-black/25">
                               <Video className="h-6 w-6 text-white" />
                             </div>
-                            {videoDurations[`existing-${media.id}`] ? (
+                            {videoDurations[`existing-${media.id}`] && (
                               <div
-                                className={`absolute bottom-2 ${
-                                  locale === "ar" ? "left-2" : "right-2"
-                                } rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
-                                aria-hidden
+                                className={`absolute bottom-2 ${locale === "ar" ? "left-2" : "right-2"} rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
                               >
                                 {videoDurations[`existing-${media.id}`]}
                               </div>
-                            ) : null}
+                            )}
                           </>
                         )}
+                        {/* Remove / Restore */}
                         <button
                           type="button"
                           onClick={() => {
@@ -1463,7 +1295,7 @@ export function ListingForm({
                               });
                             }
                           }}
-                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 bg-amber-700 ${
+                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 ${
                             isDeleted
                               ? "bg-emerald-600 text-white hover:bg-emerald-700"
                               : "bg-yellow-600 text-white hover:bg-red-700"
@@ -1493,35 +1325,30 @@ export function ListingForm({
                             </>
                           )}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isVideo) return;
-                            // mark this existing media as cover
-                            if (coverUrl === media.url) return;
-                            setCoverUrl(media.url);
-                          }}
-                          className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
-                            coverUrl === media.url
-                              ? "bg-amber-500 text-black"
-                              : "bg-black/70 text-white hover:bg-black/80"
-                          }`}
-                        >
-                          {isVideo ? (
-                            <span className="flex items-center gap-1">
-                              {mediaActionsText.cannotBeCover}
-                            </span>
-                          ) : coverUrl === media.url ? (
-                            <span className="flex items-center gap-1">
-                              <Star className="h-4 w-4 text-yellow-300" />
-                              {mediaActionsText.cover}
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1">
-                              {mediaActionsText.setCover}
-                            </span>
-                          )}
-                        </button>
+                        {/* Set cover */}
+                        {!isVideo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (coverUrl === media.url) return;
+                              setCoverUrl(media.url);
+                            }}
+                            className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                              coverUrl === media.url
+                                ? "bg-amber-500 text-black"
+                                : "bg-black/70 text-white hover:bg-black/80"
+                            }`}
+                          >
+                            {coverUrl === media.url ? (
+                              <span className="flex items-center gap-1">
+                                <Star className="h-4 w-4 text-yellow-300" />
+                                {mediaActionsText.cover}
+                              </span>
+                            ) : (
+                              <span>{mediaActionsText.setCover}</span>
+                            )}
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -1529,27 +1356,29 @@ export function ListingForm({
               </div>
             )}
 
-            {/* Upload area for new media */}
+            {/* Upload area — Cloudinary widget only */}
             {canUploadMore ? (
               <div>
                 <h3 className="mb-3 text-sm font-medium text-muted-foreground">
                   {locale === "ar" ? "إضافة ملفات جديدة" : "Add new files"}
                 </h3>
-                <label
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  aria-disabled={uploading || saving}
-                  className={`flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 text-center transition ${
-                    uploading || saving
+                <button
+                  type="button"
+                  onClick={openCloudinaryWidget}
+                  disabled={saving || widgetLoading}
+                  className={`flex min-h-32 w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 text-center transition ${
+                    saving || widgetLoading
                       ? "cursor-not-allowed border-border/50 bg-muted/10 opacity-60"
-                      : dragOver
-                        ? "border-violet-500 bg-violet-500/10"
-                        : "border-border/80 bg-muted/20 hover:bg-muted/40"
+                      : "border-border/80 bg-muted/20 hover:bg-muted/40 hover:border-violet-500/60"
                   }`}
                 >
-                  {uploading ? (
-                    <Loader className="h-6 w-6 animate-spin text-violet-500" />
+                  {widgetLoading ? (
+                    <>
+                      <Loader className="h-6 w-6 animate-spin text-violet-500" />
+                      <span className="mt-3 text-sm font-medium">
+                        {locale === "ar" ? "جاري التحميل..." : "Loading..."}
+                      </span>
+                    </>
                   ) : saving ? (
                     <>
                       <Loader className="h-6 w-6 animate-spin text-violet-500" />
@@ -1561,39 +1390,40 @@ export function ListingForm({
                     </>
                   ) : (
                     <>
-                      <ImagePlus className="h-6 w-6 text-violet-500" />
+                      <Upload className="h-6 w-6 text-violet-500" />
                       <span className="mt-3 text-sm font-medium">
                         {locale === "ar"
-                          ? "اسحب الصور أو الفيديوهات أو انقر للرفع"
-                          : "Drag photos/videos or click to upload"}
+                          ? "انقر لرفع الصور والفيديوهات"
+                          : locale === "fr"
+                            ? "Cliquez pour télécharger des photos/vidéos"
+                            : "Click to upload photos & videos"}
+                      </span>
+                      <span className="mt-1 text-xs text-muted-foreground">
+                        {locale === "ar"
+                          ? "صور حتى 10 ميجا • فيديوهات حتى 200 ميجا"
+                          : locale === "fr"
+                            ? "Images jusqu'à 10 Mo • Vidéos jusqu'à 200 Mo"
+                            : "Images up to 10 MB • Videos up to 200 MB"}
                       </span>
                     </>
                   )}
-                  <input
-                    type="file"
-                    className="hidden"
-                    multiple
-                    accept="image/*,video/*"
-                    disabled={uploading || saving}
-                    onChange={(event) => handleFiles(event.target.files)}
-                  />
-                </label>
+                </button>
               </div>
             ) : (
-              <div className="md:col-span-2 rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
+              <div className="rounded-2xl border border-violet-300 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-100">
                 <div className="font-semibold">
                   {locale === "ar"
                     ? "تحتاج إلى ترقية أو شراء إضافات"
                     : locale === "fr"
-                      ? "Mise a niveau ou achat requis"
+                      ? "Mise à niveau ou achat requis"
                       : "Upgrade or purchase required"}
                 </div>
                 <div className="mt-1">
                   {locale === "ar"
-                    ? "لقد وصلت إلى حد الخطة الحالية للوسائط. قم بالترقية أو شراء إضافات لإضافة المزيد من الصور أو الفيديوهات."
+                    ? "لقد وصلت إلى حد الخطة الحالية للوسائط."
                     : locale === "fr"
-                      ? "Vous avez atteint la limite media de votre forfait actuel. Mettez a niveau ou achetez des options pour ajouter plus de fichiers."
-                      : "You've reached your current plan media limit. Upgrade your plan or buy add-ons to add more images or videos."}
+                      ? "Vous avez atteint la limite média de votre forfait."
+                      : "You've reached your current plan media limit."}
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Link
@@ -1603,7 +1433,7 @@ export function ListingForm({
                     {locale === "ar"
                       ? "ترقية الخطة"
                       : locale === "fr"
-                        ? "Mettre a niveau"
+                        ? "Mettre à niveau"
                         : "Upgrade plan"}
                   </Link>
                   <Link
@@ -1620,7 +1450,7 @@ export function ListingForm({
               </div>
             )}
 
-            {/* Display newly uploaded media */}
+            {/* Newly uploaded media */}
             {imageAssets.length > 0 && (
               <div className="mt-4">
                 <h3 className="mb-3 text-sm font-medium text-muted-foreground">
@@ -1637,7 +1467,7 @@ export function ListingForm({
                     const isRemoving = removingAssetIds.has(asset.publicId);
                     return (
                       <div
-                        key={index}
+                        key={asset.publicId}
                         className="relative group overflow-hidden rounded-lg border border-border"
                         style={{ aspectRatio: "2/1" }}
                       >
@@ -1651,26 +1481,25 @@ export function ListingForm({
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         {isVideo && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <Video className="h-6 w-6 text-white" />
-                          </div>
+                          <>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <Video className="h-6 w-6 text-white" />
+                            </div>
+                            {videoDurations[`asset-${asset.publicId}`] && (
+                              <div
+                                className={`absolute bottom-2 ${locale === "ar" ? "left-2" : "right-2"} rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
+                              >
+                                {videoDurations[`asset-${asset.publicId}`]}
+                              </div>
+                            )}
+                          </>
                         )}
-                        {isVideo &&
-                        videoDurations[`asset-${asset.publicId}`] ? (
-                          <div
-                            className={`absolute bottom-2 ${
-                              locale === "ar" ? "left-2" : "right-2"
-                            } rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white`}
-                            aria-hidden
-                          >
-                            {videoDurations[`asset-${asset.publicId}`]}
-                          </div>
-                        ) : null}
+                        {/* Remove */}
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
                           disabled={isRemoving}
-                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                          className={`absolute top-2 ${locale === "ar" ? "left-2" : "right-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 ${
                             isRemoving
                               ? "bg-red-300 text-red-100 cursor-not-allowed"
                               : "bg-red-600 text-white hover:bg-red-700"
@@ -1688,34 +1517,30 @@ export function ListingForm({
                             </>
                           )}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isVideo) return;
-                            if (coverUrl === asset.url) return;
-                            setCoverUrl(asset.url);
-                          }}
-                          className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
-                            coverUrl === asset.url
-                              ? "bg-amber-500 text-black"
-                              : "bg-black/70 text-white hover:bg-black/80"
-                          }`}
-                        >
-                          {isVideo ? (
-                            <span className="flex items-center gap-1">
-                              {mediaActionsText.cannotBeCover}
-                            </span>
-                          ) : coverUrl === asset.url ? (
-                            <span className="flex items-center gap-1">
-                              <Star className="h-4 w-4 text-yellow-300" />
-                              {mediaActionsText.cover}
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1">
-                              {mediaActionsText.setCover}
-                            </span>
-                          )}
-                        </button>
+                        {/* Set cover */}
+                        {!isVideo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (coverUrl === asset.url) return;
+                              setCoverUrl(asset.url);
+                            }}
+                            className={`absolute bottom-2 ${locale === "ar" ? "right-2" : "left-2"} inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium shadow-sm transition z-10 cursor-pointer ${
+                              coverUrl === asset.url
+                                ? "bg-amber-500 text-black"
+                                : "bg-black/70 text-white hover:bg-black/80"
+                            }`}
+                          >
+                            {coverUrl === asset.url ? (
+                              <span className="flex items-center gap-1">
+                                <Star className="h-4 w-4 text-yellow-300" />
+                                {mediaActionsText.cover}
+                              </span>
+                            ) : (
+                              <span>{mediaActionsText.setCover}</span>
+                            )}
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -1724,33 +1549,35 @@ export function ListingForm({
             )}
           </div>
 
+          {/* Submit */}
           <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-muted/30 px-5 py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground" />
-            <Button
-              type="submit"
-              variant="accent"
-              disabled={saving || uploading}
-            >
-              {saving ? (
-                <Loader className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              {saving
-                ? locale === "ar"
-                  ? "جاري الحفظ..."
-                  : "Saving..."
-                : locale === "ar"
-                  ? "حفظ العقار"
-                  : "Save listing"}
-            </Button>
+            {mediaCounts.imageCount > (imageLimit ?? Infinity) ||
+            mediaCounts.videoCount > (videoLimit ?? Infinity) ? (
+              <MediaLimitAlert locale={locale} />
+            ) : (
+              <Button type="submit" variant="accent" disabled={saving}>
+                {saving ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {saving
+                  ? locale === "ar"
+                    ? "جاري الحفظ..."
+                    : "Saving..."
+                  : locale === "ar"
+                    ? "حفظ العقار"
+                    : "Save listing"}
+              </Button>
+            )}
           </div>
 
-          {saved ? (
+          {saved && (
             <div className="md:col-span-2 rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-200">
               {locale === "ar" ? "تم حفظ المسودة." : "Draft saved."}
             </div>
-          ) : null}
+          )}
         </form>
       </CardContent>
     </Card>
@@ -1775,6 +1602,72 @@ function Field({
         {required && <span className="ml-1 text-red-500">*</span>}
       </Label>
       {children}
+    </div>
+  );
+}
+
+interface MediaLimitAlertProps {
+  locale: "ar" | "fr" | "en";
+}
+
+export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
+  const content = {
+    ar: {
+      title: "تم تجاوز حد الوسائط",
+      description:
+        "لقد وصلت إلى الحد الأقصى للوسائط المسموح بها. يرجى حذف بعض الملفات، أو ترقية خطتك، أو شراء مساحة إضافية للمتابعة.",
+      upgrade: "ترقية الخطة",
+      buyStorage: "شراء مساحة إضافية",
+    },
+    fr: {
+      title: "Limite de médias dépassée",
+      description:
+        "Vous avez atteint la limite de médias autorisée. Veuillez supprimer certains fichiers, mettre à niveau votre forfait ou acheter de l’espace supplémentaire pour continuer.",
+      upgrade: "Mettre à niveau",
+      buyStorage: "Acheter plus d'espace",
+    },
+    en: {
+      title: "Media Limit Exceeded",
+      description:
+        "You have reached your media limit. Please remove some files, upgrade your plan, or purchase additional storage to continue.",
+      upgrade: "Upgrade Plan",
+      buyStorage: "Buy More Storage",
+    },
+  };
+
+  const t = content[locale];
+
+  return (
+    <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+
+        <div className="flex-1">
+          <h4 className="font-semibold text-red-800">{t.title}</h4>
+
+          <p className="mt-1 text-sm leading-relaxed text-red-700">
+            {t.description}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/seller/plans"
+              className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+            >
+              {t.upgrade}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/seller/purchases"
+              className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+            >
+              <HardDrive className="h-4 w-4" />
+              {t.buyStorage}
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

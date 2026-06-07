@@ -121,9 +121,10 @@ export default function ResetPasswordClientForm({
     }
 
     setLoading(true);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
     try {
-      const res = await fetch(`/${locale}/api/auth/reset-password`, {
+      const res = await fetch(`${baseUrl}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, token, password, confirmPassword }),

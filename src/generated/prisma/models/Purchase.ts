@@ -337,7 +337,7 @@ export type PurchaseScalarWhereWithAggregatesInput = {
 
 export type PurchaseCreateInput = {
   id?: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -352,7 +352,7 @@ export type PurchaseUncheckedCreateInput = {
   id?: string
   userId: string
   purchaseProductId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -391,7 +391,7 @@ export type PurchaseCreateManyInput = {
   id?: string
   userId: string
   purchaseProductId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -575,7 +575,7 @@ export type EnumPurchaseStatusFieldUpdateOperationsInput = {
 
 export type PurchaseCreateWithoutUserInput = {
   id?: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -588,7 +588,7 @@ export type PurchaseCreateWithoutUserInput = {
 export type PurchaseUncheckedCreateWithoutUserInput = {
   id?: string
   purchaseProductId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -641,7 +641,7 @@ export type PurchaseScalarWhereInput = {
 
 export type PurchaseCreateWithoutPurchaseProductInput = {
   id?: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -654,7 +654,7 @@ export type PurchaseCreateWithoutPurchaseProductInput = {
 export type PurchaseUncheckedCreateWithoutPurchaseProductInput = {
   id?: string
   userId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -692,7 +692,7 @@ export type PurchaseUpdateManyWithWhereWithoutPurchaseProductInput = {
 export type PurchaseCreateManyUserInput = {
   id?: string
   purchaseProductId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus
@@ -740,7 +740,7 @@ export type PurchaseUncheckedUpdateManyWithoutUserInput = {
 export type PurchaseCreateManyPurchaseProductInput = {
   id?: string
   userId: string
-  quantity?: number
+  quantity: number
   unitPrice: number
   totalPrice: number
   status?: $Enums.PurchaseStatus

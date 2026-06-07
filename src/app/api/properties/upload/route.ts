@@ -42,12 +42,7 @@ async function getAuthorizedUser() {
   }
 
   const sessionRole = session?.user?.role;
-  console.log(
-    "[AUTH] User found. DB Role:",
-    dbUser.role,
-    "Session Role:",
-    sessionRole,
-  );
+
   const isAuthorized =
     dbUser.role === "ADMIN" ||
     dbUser.role === "SELLER" ||
@@ -55,11 +50,6 @@ async function getAuthorizedUser() {
     sessionRole === "SELLER";
 
   if (!isAuthorized) {
-    console.log(
-      "[AUTH] User not authorized (not ADMIN or SELLER)",
-      dbUser.role,
-      sessionRole,
-    );
     return null;
   }
 
@@ -70,7 +60,6 @@ async function getAuthorizedUser() {
 export async function POST(request: Request) {
   const locale = getLocaleFromHeaders(request.headers as Headers);
   const authorizedUser = await getAuthorizedUser();
-  console.log(authorizedUser);
   if (!authorizedUser) {
     return jsonError({ key: "errors.uploadAuth", locale }, 403);
   }
@@ -86,7 +75,7 @@ export async function POST(request: Request) {
 
     // server-side size limits (match client-side limits)
     const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
-    const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB
+    const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
     const mimeType = file.type || "";
     const isVideo = mimeType.startsWith("video/");
 
