@@ -69,9 +69,6 @@ export default async function SellerSubscriptionsPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {messages.dashboard.seller.subscriptions || "Subscriptions"}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {messages.dashboard.seller.subscriptionsIntro}
-        </p>
       </div>
 
       <div className="grid gap-4">

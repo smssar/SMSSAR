@@ -58,9 +58,6 @@ export default async function SellerBillingPage({ params }: Props) {
             <CardTitle>{messages.dashboard.seller.plan}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {messages.dashboard.seller.subscriptionsIntro}
-            </p>
             <div className="mt-4 text-sm text-foreground">
               You are on the free plan.
             </div>
