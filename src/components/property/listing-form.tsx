@@ -310,12 +310,31 @@ export function ListingForm({
           multiple: true,
           resourceType: "auto",
           sources: ["local", "url", "camera"],
-          allowedFormats: ["jpg", "jpeg", "png", "mp4", "mov", "avi", "mkv"],
+          clientAllowedFormats: [
+            "jpg",
+            "jpeg",
+            "png",
+            "webp",
+            "mp4",
+            "mov",
+            "avi",
+            "mkv",
+          ],
         },
         (error: any, result: any) => {
           if (error) {
-            console.error(error);
-            toast.error("Upload error");
+            const message = error?.message || error?.statusText || "";
+            if (message.toLowerCase().includes("file format not allowed")) {
+              toast.error(
+                locale === "ar"
+                  ? "تنسيق الملف غير مسموح"
+                  : locale === "fr"
+                    ? "Format de fichier non autorisé"
+                    : "File format not allowed",
+              );
+            } else {
+              toast.error("Upload error");
+            }
             return;
           }
 
@@ -496,7 +515,6 @@ export function ListingForm({
     };
   }, []);
 
-  // Load plan limits + purchases
   useEffect(() => {
     const loadPlanLimits = async () => {
       try {
