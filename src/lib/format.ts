@@ -22,3 +22,15 @@ export function formatCompactNumber(value: number, locale: Locale) {
 export function formatNumber(value: number, locale: Locale) {
   return new Intl.NumberFormat(toIntlLocale(locale)).format(value);
 }
+
+export function slugify(text: string) {
+  return text
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric chars except -
+    .replace(/--+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start
+    .replace(/-+$/, ""); // Trim - from end
+}

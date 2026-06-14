@@ -116,3 +116,8 @@ export type PurchaseProduct = Prisma.PurchaseProductModel
  * 
  */
 export type Purchase = Prisma.PurchaseModel
+/**
+ * Model Page
+ * 
+ */
+export type Page = Prisma.PageModel

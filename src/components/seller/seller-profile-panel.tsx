@@ -18,6 +18,7 @@ import {
   phoneCountries,
   validateAndNormalizePhone,
 } from "@/lib/phone";
+import { groupDigitsPairs } from "@/lib/phone";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import type { Locale } from "@/lib/locales";
 import { isLocale } from "@/lib/locales";
@@ -53,14 +54,28 @@ export function SellerProfilePanel({
     if (!raw) return "";
     try {
       const parsed = parsePhoneNumberFromString(raw as string);
-      return parsed ? parsed.formatNational() : raw.replace(/^\+/, "");
+      const national = parsed
+        ? parsed.formatNational()
+        : raw.replace(/^\+/, "");
+      // remove leading zeros from national format and present grouped pairs
+      const withoutLeading = String(national).replace(/^0+/, "");
+      return groupDigitsPairs(withoutLeading);
     } catch {
-      return raw.replace(/^\+/, "");
+      return groupDigitsPairs(raw.replace(/^\+/, "").replace(/^0+/, ""));
     }
   })();
 
   const [phone, setPhone] = useState(initialPhoneDisplay);
-  const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
+  const [countryCode, setCountryCode] = useState(() => {
+    try {
+      const parsed = initialSeller.phone
+        ? parsePhoneNumberFromString(initialSeller.phone as string)
+        : null;
+      return (parsed && parsed.country) || defaultPhoneCountry.code;
+    } catch {
+      return defaultPhoneCountry.code;
+    }
+  });
   const [city, setCity] = useState(initialSeller.city ?? "");
   const [bio, setBio] = useState(initialSeller.bio ?? "");
   const [hasPassword, setHasPassword] = useState(initialSeller.hasPassword);
@@ -118,21 +133,23 @@ export function SellerProfilePanel({
     if ((initialSeller.bio ?? "") !== bio) return true;
     if (newPassword && newPassword.length > 0) return true;
 
-    const initialPhoneNorm = (() => {
-      if (!initialSeller.phone) return "";
-      const v = validateAndNormalizePhone(initialSeller.phone as string);
-      return v && v.valid
-        ? (v.e164 ?? initialSeller.phone ?? "")
-        : (initialSeller.phone ?? "");
-    })();
+    const normalizePhoneForCompare = (value?: string | null, cc?: string) => {
+      if (!value) return "";
+      const v = validateAndNormalizePhone(value, cc ?? countryCode);
+      if (v && v.valid && v.e164) return String(v.e164).replace(/\D/g, "");
+      return String(value).replace(/\D/g, "");
+    };
 
-    const currentPhoneNorm = (() => {
-      if (!phone.trim()) return "";
-      const v = validateAndNormalizePhone(phone, countryCode);
-      return v && v.valid ? (v.e164 ?? phone) : phone;
-    })();
+    const initialPhoneDigits = normalizePhoneForCompare(
+      initialSeller.phone ?? "",
+      undefined,
+    );
+    const currentPhoneDigits = normalizePhoneForCompare(
+      phone ?? "",
+      countryCode,
+    );
 
-    if ((initialPhoneNorm ?? "") !== (currentPhoneNorm ?? "")) return true;
+    if (initialPhoneDigits !== currentPhoneDigits) return true;
 
     return false;
   }
@@ -184,7 +201,13 @@ export function SellerProfilePanel({
           const parsed = updated.phone
             ? parsePhoneNumberFromString(updated.phone as string)
             : null;
-          setPhone(parsed ? parsed.formatNational() : (updated.phone ?? ""));
+          const national = parsed
+            ? parsed.formatNational()
+            : (updated.phone ?? "");
+          setPhone(groupDigitsPairs(String(national).replace(/^0+/, "")));
+          setCountryCode(
+            (parsed && parsed.country) || defaultPhoneCountry.code,
+          );
         } catch {
           setPhone(updated.phone ?? "");
         }
@@ -292,7 +315,6 @@ export function SellerProfilePanel({
                     onChange={(event) => {
                       const newCode = event.target.value;
                       setCountryCode(newCode);
-
                       // Reformat current phone for the newly selected country
                       try {
                         const formatted = formatPhonePreview(phone, newCode);
@@ -300,10 +322,11 @@ export function SellerProfilePanel({
                         const dial = getPhoneCountryByCode(
                           newCode,
                         ).dialCode.replace("+", "");
-                        const stripped = formatted
+                        const withoutDial = formatted
                           .replace(new RegExp("^\\+?" + dial), "")
-                          .trim();
-                        setPhone(stripped);
+                          .trim()
+                          .replace(/^0+/, "");
+                        setPhone(groupDigitsPairs(withoutDial));
                       } catch {
                         // ignore
                       }
@@ -322,7 +345,9 @@ export function SellerProfilePanel({
                     type="tel"
                     value={phone}
                     onChange={(event) => {
-                      const nextValue = event.target.value;
+                      let nextValue = event.target.value;
+                      // accept numbers without an initial zero
+                      nextValue = nextValue.replace(/^0+/, "");
                       const formatted = formatPhonePreview(
                         nextValue,
                         countryCode,
@@ -331,10 +356,11 @@ export function SellerProfilePanel({
                       const dial = getPhoneCountryByCode(
                         countryCode,
                       ).dialCode.replace("+", "");
-                      const stripped = formatted
+                      const withoutDial = formatted
                         .replace(new RegExp("^\\+?" + dial), "")
-                        .trim();
-                      setPhone(stripped);
+                        .trim()
+                        .replace(/^0+/, "");
+                      setPhone(groupDigitsPairs(withoutDial));
                     }}
                     className="h-11 flex-1 rounded-l-none"
                     placeholder={t(locale, {

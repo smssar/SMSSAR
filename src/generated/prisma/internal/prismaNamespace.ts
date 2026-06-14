@@ -398,7 +398,8 @@ export const ModelName = {
   Favorite: 'Favorite',
   Media: 'Media',
   PurchaseProduct: 'PurchaseProduct',
-  Purchase: 'Purchase'
+  Purchase: 'Purchase',
+  Page: 'Page'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "ad" | "favorite" | "media" | "purchaseProduct" | "purchase"
+    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "ad" | "favorite" | "media" | "purchaseProduct" | "purchase" | "page"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1528,6 +1529,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Page: {
+      payload: Prisma.$PagePayload<ExtArgs>
+      fields: Prisma.PageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        findFirst: {
+          args: Prisma.PageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        findMany: {
+          args: Prisma.PageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>[]
+        }
+        create: {
+          args: Prisma.PageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        createMany: {
+          args: Prisma.PageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>[]
+        }
+        delete: {
+          args: Prisma.PageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        update: {
+          args: Prisma.PageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        deleteMany: {
+          args: Prisma.PageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>[]
+        }
+        upsert: {
+          args: Prisma.PageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PagePayload>
+        }
+        aggregate: {
+          args: Prisma.PageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePage>
+        }
+        groupBy: {
+          args: Prisma.PageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1824,6 +1899,52 @@ export const PurchaseScalarFieldEnum = {
 export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
 
 
+export const PageScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  title_ar: 'title_ar',
+  title_fr: 'title_fr',
+  subtitle: 'subtitle',
+  subtitle_ar: 'subtitle_ar',
+  subtitle_fr: 'subtitle_fr',
+  description: 'description',
+  description_ar: 'description_ar',
+  description_fr: 'description_fr',
+  article: 'article',
+  article_ar: 'article_ar',
+  article_fr: 'article_fr',
+  seoTitle: 'seoTitle',
+  seoTitle_ar: 'seoTitle_ar',
+  seoTitle_fr: 'seoTitle_fr',
+  seoDescription: 'seoDescription',
+  seoDescription_ar: 'seoDescription_ar',
+  seoDescription_fr: 'seoDescription_fr',
+  seoKeywords: 'seoKeywords',
+  ogImage: 'ogImage',
+  published: 'published',
+  noIndex: 'noIndex',
+  prioritiesCityIds: 'prioritiesCityIds',
+  propertiesNeighborhoods: 'propertiesNeighborhoods',
+  prioritiesPropertyTypeIds: 'prioritiesPropertyTypeIds',
+  prioritiesForSale: 'prioritiesForSale',
+  prioritiesFeatured: 'prioritiesFeatured',
+  prioritiesMinPrice: 'prioritiesMinPrice',
+  prioritiesMaxPrice: 'prioritiesMaxPrice',
+  prioritiesMinArea: 'prioritiesMinArea',
+  prioritiesMaxArea: 'prioritiesMaxArea',
+  prioritiesMinRooms: 'prioritiesMinRooms',
+  prioritiesMaxRooms: 'prioritiesMaxRooms',
+  prioritiesMinBathrooms: 'prioritiesMinBathrooms',
+  prioritiesMaxBathrooms: 'prioritiesMaxBathrooms',
+  prioritiesPriceType: 'prioritiesPriceType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2110,6 +2231,7 @@ export type GlobalOmitConfig = {
   media?: Prisma.MediaOmit
   purchaseProduct?: Prisma.PurchaseProductOmit
   purchase?: Prisma.PurchaseOmit
+  page?: Prisma.PageOmit
 }
 
 /* Types for Logging */

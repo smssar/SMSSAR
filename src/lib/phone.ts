@@ -71,6 +71,13 @@ export function formatPhonePreview(value: string, countryCode: string) {
   return asYouType.input(value);
 }
 
+// Group digits in pairs for display: "501234567" -> "50 12 34 56 7"
+export function groupDigitsPairs(value: string) {
+  const digits = String(value).replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.replace(/(.{2})/g, "$1 ").trim();
+}
+
 export function detectPhoneCountry(value: string): string | null {
   const phone = parsePhoneNumberFromString(value);
   const country = phone?.country ?? null;
@@ -122,4 +129,8 @@ export function validateAndNormalizePhone(
     e164: phone.number,
     country: phone.country ?? defaultCountry,
   };
+}
+
+export function removeSpaces(str: string): string {
+  return str.replace(/\s+/g, "");
 }

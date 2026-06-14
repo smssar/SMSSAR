@@ -13,6 +13,7 @@ import {
   phoneCountries,
   validateAndNormalizePhone,
 } from "@/lib/phone";
+import { groupDigitsPairs } from "@/lib/phone";
 import type { Locale } from "@/lib/locales";
 
 export function BecomeSellerButton({ locale }: { locale: Locale }) {
@@ -132,7 +133,25 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
               <div className="flex gap-2 rtl:flex-row-reverse">
                 <Select
                   value={countryCode}
-                  onChange={(event) => setCountryCode(event.target.value)}
+                  onChange={(event) => {
+                    const newCode = event.target.value;
+                    setCountryCode(newCode);
+
+                    // Reformat current phone for the newly selected country
+                    try {
+                      const formatted = formatPhonePreview(phone, newCode);
+                      const dial = getPhoneCountryByCode(
+                        newCode,
+                      ).dialCode.replace("+", "");
+                      const withoutDial = formatted
+                        .replace(new RegExp("^\\+?" + dial), "")
+                        .trim()
+                        .replace(/^0+/, "");
+                      setPhone(groupDigitsPairs(withoutDial));
+                    } catch {
+                      // ignore
+                    }
+                  }}
                   disabled={loading}
                   className="h-11 w-32 shrink-0 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3  text-left"
                 >
@@ -147,8 +166,21 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
                   type="tel"
                   value={phone}
                   onChange={(event) => {
-                    const nextValue = event.target.value;
-                    setPhone(formatPhonePreview(nextValue, countryCode));
+                    let nextValue = event.target.value;
+                    // accept numbers without an initial zero
+                    nextValue = nextValue.replace(/^0+/, "");
+                    const formatted = formatPhonePreview(
+                      nextValue,
+                      countryCode,
+                    );
+                    const dial = getPhoneCountryByCode(
+                      countryCode,
+                    ).dialCode.replace("+", "");
+                    const withoutDial = formatted
+                      .replace(new RegExp("^\\+?" + dial), "")
+                      .trim()
+                      .replace(/^0+/, "");
+                    setPhone(groupDigitsPairs(withoutDial));
                     setError(null);
                   }}
                   placeholder={text.placeholder}

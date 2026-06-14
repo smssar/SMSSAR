@@ -73,6 +73,11 @@ export default async function AdminDashboardLayout({
       icon: <MapPinned className="h-4 w-4" />,
     },
     {
+      label: messages.dashboard.admin.pagesManagement,
+      href: `/${locale}/dashboard/admin/pages`,
+      icon: <FileBadge2 className="h-4 w-4" />,
+    },
+    {
       label: messages.dashboard.admin.plans,
       href: `/${locale}/dashboard/admin/plans`,
       icon: <Settings2 className="h-4 w-4" />,

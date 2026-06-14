@@ -1669,7 +1669,7 @@ export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
-              href="/seller/plans"
+              href={`/${locale}/dashboard/seller/plans`}
               className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
             >
               {t.upgrade}
@@ -1677,7 +1677,7 @@ export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
             </Link>
 
             <Link
-              href="/seller/purchases"
+              href={`/${locale}/dashboard/seller/purchases`}
               className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
             >
               <HardDrive className="h-4 w-4" />

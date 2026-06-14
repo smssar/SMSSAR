@@ -389,3 +389,58 @@ model Purchase {
   @@index([status])
   @@index([paymentId])
 }
+
+model Page {
+  id              String   @id @default(cuid())
+
+  slug            String   @unique
+
+  title        String
+  title_ar        String?
+  title_fr        String?
+
+  subtitle     String?
+  subtitle_ar     String?
+  subtitle_fr     String?
+
+
+  description  String?
+  description_ar  String?
+  description_fr  String?
+
+  article         String?
+  article_ar         String?
+  article_fr         String?
+
+  seoTitle        String?
+  seoTitle_ar     String?
+  seoTitle_fr     String?
+
+  seoDescription  String?
+  seoDescription_ar String?
+  seoDescription_fr String?
+
+  seoKeywords     String?
+  ogImage         String?
+
+  published       Boolean  @default(true)
+  noIndex         Boolean  @default(false)
+
+  prioritiesCityIds String[] @default([])
+  propertiesNeighborhoods String[] @default([])
+  prioritiesPropertyTypeIds String[] @default([])
+  prioritiesForSale Boolean? @default(false)
+  prioritiesFeatured Boolean? @default(false)
+  prioritiesMinPrice Int?
+  prioritiesMaxPrice Int?
+  prioritiesMinArea Int?
+  prioritiesMaxArea Int?
+  prioritiesMinRooms Int?
+  prioritiesMaxRooms Int?
+  prioritiesMinBathrooms Int?
+  prioritiesMaxBathrooms Int?
+  prioritiesPriceType String? @default("MONTHLY")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

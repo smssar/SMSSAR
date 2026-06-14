@@ -5,7 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { Phone, Store } from "lucide-react";
+import { Phone } from "lucide-react";
+import {
+  defaultPhoneCountry,
+  formatPhonePreview,
+  phoneCountries,
+  groupDigitsPairs,
+} from "@/lib/phone";
 import type { Locale } from "@/lib/locales";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
@@ -25,6 +31,15 @@ export function RegisterFields({
   initialPhone?: string;
 }) {
   const [role, setRole] = useState<RegisterRole>(initialRole);
+  const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
+  const [countryDialCode, setCountryDialCode] = useState(
+    defaultPhoneCountry.dialCode,
+  );
+
+  const [phone, setPhone] = useState(initialPhone ?? "");
+
+  const getPhoneCountryByCode = (code: string) =>
+    phoneCountries.find((c) => c.code === code) ?? defaultPhoneCountry;
 
   return (
     <>
@@ -41,7 +56,9 @@ export function RegisterFields({
           id="role"
           name="role"
           value={role}
-          onChange={(event) => setRole(event.target.value as RegisterRole)}
+          onChange={(event) =>
+            setRole(event.currentTarget.value as RegisterRole)
+          }
           className="h-11 rounded-2xl border-border/70 bg-background/80 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500"
         >
           <option value="user">
@@ -84,8 +101,42 @@ export function RegisterFields({
                       : "Required"}
                 </Badge>
               </div>
-              <div className="relative">
-                <Phone className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-600 dark:text-violet-300 rtl:left-auto rtl:right-4" />
+
+              <div className="flex gap-2 rtl:flex-row-reverse">
+                <Select
+                  value={countryCode}
+                  onChange={(event) => {
+                    const newCode = event.target.value;
+                    setCountryCode(newCode);
+                    setCountryDialCode(getPhoneCountryByCode(newCode).dialCode);
+
+                    try {
+                      const formatted = formatPhonePreview(phone, newCode);
+                      const dial = getPhoneCountryByCode(
+                        newCode,
+                      ).dialCode.replace("+", "");
+                      const withoutDial = formatted
+                        .replace(new RegExp("^\\+?" + dial), "")
+                        .trim()
+                        .replace(/^0+/, "");
+                      setPhone(groupDigitsPairs(withoutDial));
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                  className="h-11 w-32 shrink-0 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3 text-left"
+                >
+                  {phoneCountries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.dialCode}
+                    </option>
+                  ))}
+                </Select>
+                <input
+                  type="hidden"
+                  name="countryDialCode"
+                  value={countryDialCode}
+                />
                 <Input
                   id="phone"
                   name="phone"
@@ -98,19 +149,36 @@ export function RegisterFields({
                     ar: "+971 50 000 0000",
                     fr: "+971 50 000 0000",
                   })}
-                  defaultValue={initialPhone ?? undefined}
-                  className="h-11 rounded-2xl border-violet-500/20 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
+                  value={phone}
+                  onChange={(event) => {
+                    let nextValue = event.target.value;
+                    nextValue = nextValue.replace(/^0+/, "");
+                    const formatted = formatPhonePreview(
+                      nextValue,
+                      countryCode,
+                    );
+                    const dial = getPhoneCountryByCode(
+                      countryCode,
+                    ).dialCode.replace("+", "");
+                    const withoutDial = formatted
+                      .replace(new RegExp("^\\+?" + dial), "")
+                      .trim()
+                      .replace(/^0+/, "");
+                    setPhone(groupDigitsPairs(withoutDial));
+                  }}
+                  className="h-11 flex-1 rounded-l-none"
                 />
               </div>
-              <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-                <Store className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>
-                  {t(locale, {
-                    en: "This number will be used for seller contact details.",
-                    ar: "سيُستخدم هذا الرقم في معلومات التواصل الخاصة بالبائع.",
-                    fr: "Ce numéro sera utilisé pour les coordonnées du vendeur.",
-                  })}
-                </span>
+
+              <p className="text-xs text-muted-foreground">
+                {getPhoneCountryByCode(countryCode).flag}{" "}
+                {getPhoneCountryByCode(countryCode).dialCode}{" "}
+                {phone.trim() ? "•" : ""}{" "}
+                {t(locale, {
+                  en: "This number will be used for seller contact details.",
+                  ar: "سيُستخدم هذا الرقم في معلومات التواصل الخاصة بالبائع.",
+                  fr: "Ce numéro sera utilisé pour les coordonnées du vendeur.",
+                })}
               </p>
             </div>
           </div>

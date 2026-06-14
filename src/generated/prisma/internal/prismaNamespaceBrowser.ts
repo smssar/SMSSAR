@@ -65,7 +65,8 @@ export const ModelName = {
   Favorite: 'Favorite',
   Media: 'Media',
   PurchaseProduct: 'PurchaseProduct',
-  Purchase: 'Purchase'
+  Purchase: 'Purchase',
+  Page: 'Page'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -339,6 +340,52 @@ export const PurchaseScalarFieldEnum = {
 } as const
 
 export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
+
+
+export const PageScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  title_ar: 'title_ar',
+  title_fr: 'title_fr',
+  subtitle: 'subtitle',
+  subtitle_ar: 'subtitle_ar',
+  subtitle_fr: 'subtitle_fr',
+  description: 'description',
+  description_ar: 'description_ar',
+  description_fr: 'description_fr',
+  article: 'article',
+  article_ar: 'article_ar',
+  article_fr: 'article_fr',
+  seoTitle: 'seoTitle',
+  seoTitle_ar: 'seoTitle_ar',
+  seoTitle_fr: 'seoTitle_fr',
+  seoDescription: 'seoDescription',
+  seoDescription_ar: 'seoDescription_ar',
+  seoDescription_fr: 'seoDescription_fr',
+  seoKeywords: 'seoKeywords',
+  ogImage: 'ogImage',
+  published: 'published',
+  noIndex: 'noIndex',
+  prioritiesCityIds: 'prioritiesCityIds',
+  propertiesNeighborhoods: 'propertiesNeighborhoods',
+  prioritiesPropertyTypeIds: 'prioritiesPropertyTypeIds',
+  prioritiesForSale: 'prioritiesForSale',
+  prioritiesFeatured: 'prioritiesFeatured',
+  prioritiesMinPrice: 'prioritiesMinPrice',
+  prioritiesMaxPrice: 'prioritiesMaxPrice',
+  prioritiesMinArea: 'prioritiesMinArea',
+  prioritiesMaxArea: 'prioritiesMaxArea',
+  prioritiesMinRooms: 'prioritiesMinRooms',
+  prioritiesMaxRooms: 'prioritiesMaxRooms',
+  prioritiesMinBathrooms: 'prioritiesMinBathrooms',
+  prioritiesMaxBathrooms: 'prioritiesMaxBathrooms',
+  prioritiesPriceType: 'prioritiesPriceType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
 
 
 export const SortOrder = {

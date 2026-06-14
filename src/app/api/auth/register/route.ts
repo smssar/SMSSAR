@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 
   try {
     await ensureFreePlan();
-
+    // console.log(name, email, passwordHash, role, sellerPhone || null);
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser) {

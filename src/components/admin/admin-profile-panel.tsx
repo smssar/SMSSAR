@@ -25,7 +25,9 @@ import {
   formatPhonePreview,
   phoneCountries,
   validateAndNormalizePhone,
+  groupDigitsPairs,
 } from "@/lib/phone";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import type { Locale } from "@/lib/locales";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
@@ -153,8 +155,33 @@ export function AdminProfilePanel({
   const [admin, setAdmin] = useState(initialAdmin);
   const [name, setName] = useState(initialAdmin.name);
   const [email, setEmail] = useState(initialAdmin.email);
-  const [phone, setPhone] = useState(initialAdmin.phone ?? "");
-  const [countryCode, setCountryCode] = useState(defaultPhoneCountry.code);
+  const initialPhoneDisplay = (() => {
+    const raw = initialAdmin.phone ?? "";
+    if (!raw) return "";
+    try {
+      const parsed = parsePhoneNumberFromString(raw as string);
+      const national = parsed
+        ? parsed.formatNational()
+        : raw.replace(/^\+/, "");
+      return groupDigitsPairs(String(national).replace(/^0+/, ""));
+    } catch {
+      return groupDigitsPairs(
+        String(raw).replace(/^\+/, "").replace(/^0+/, ""),
+      );
+    }
+  })();
+
+  const [phone, setPhone] = useState(initialPhoneDisplay);
+  const [countryCode, setCountryCode] = useState(() => {
+    try {
+      const parsed = initialAdmin.phone
+        ? parsePhoneNumberFromString(initialAdmin.phone as string)
+        : null;
+      return (parsed && parsed.country) || defaultPhoneCountry.code;
+    } catch {
+      return defaultPhoneCountry.code;
+    }
+  });
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -162,6 +189,9 @@ export function AdminProfilePanel({
   const [pendingAction, setPendingAction] = useState<{ label: string } | null>(
     null,
   );
+
+  const getPhoneCountryByCode = (code: string) =>
+    phoneCountries.find((c) => c.code === code) ?? defaultPhoneCountry;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -240,7 +270,20 @@ export function AdminProfilePanel({
         setAdmin(updated);
         setName(updated.name);
         setEmail(updated.email);
-        setPhone(updated.phone ?? "");
+        try {
+          const parsed = updated.phone
+            ? parsePhoneNumberFromString(updated.phone as string)
+            : null;
+          const national = parsed
+            ? parsed.formatNational()
+            : (updated.phone ?? "");
+          setPhone(groupDigitsPairs(String(national).replace(/^0+/, "")));
+          setCountryCode(
+            (parsed && parsed.country) || defaultPhoneCountry.code,
+          );
+        } catch {
+          setPhone(updated.phone ?? "");
+        }
         setHasPassword(Boolean(updated.hasPassword));
       }
       setCurrentPassword("");
@@ -351,12 +394,30 @@ export function AdminProfilePanel({
                     fr: "Téléphone",
                   })}
                 </Label>
-                <div className="grid grid-cols-[128px_1fr] gap-2">
+                <div className="flex gap-2 rtl:flex-row-reverse">
                   <Select
                     value={countryCode}
-                    onChange={(event) => setCountryCode(event.target.value)}
+                    onChange={(event) => {
+                      const newCode = event.target.value;
+                      setCountryCode(newCode);
+
+                      // Reformat current phone for the newly selected country
+                      try {
+                        const formatted = formatPhonePreview(phone, newCode);
+                        // If formatted includes the dial code at start, strip it
+                        const dial = getPhoneCountryByCode(
+                          newCode,
+                        ).dialCode.replace("+", "");
+                        const withoutDial = formatted
+                          .replace(new RegExp("^\\+?" + dial), "")
+                          .trim();
+                        setPhone(groupDigitsPairs(withoutDial));
+                      } catch {
+                        // ignore formatting errors
+                      }
+                    }}
                     disabled={loading}
-                    className="h-11 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3"
+                    className="h-11 w-32 shrink-0 rounded-l-2xl rounded-r-none border-r-0 bg-muted/40 px-3  text-left"
                   >
                     {phoneCountries.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -369,10 +430,24 @@ export function AdminProfilePanel({
                     type="tel"
                     value={phone}
                     onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setPhone(formatPhonePreview(nextValue, countryCode));
+                      let nextValue = event.target.value;
+                      // allow users to type without the leading 0
+                      nextValue = nextValue.replace(/^0+/, "");
+                      const formatted = formatPhonePreview(
+                        nextValue,
+                        countryCode,
+                      );
+                      // remove leading dial code if present so input doesn't show it
+                      const dial = getPhoneCountryByCode(
+                        countryCode,
+                      ).dialCode.replace("+", "");
+                      const withoutDial = formatted
+                        .replace(new RegExp("^\\+?" + dial), "")
+                        .trim()
+                        .replace(/^0+/, "");
+                      setPhone(groupDigitsPairs(withoutDial));
                     }}
-                    className="h-11 rounded-r-2xl rounded-l-none"
+                    className="h-11 flex-1 rounded-l-none"
                     placeholder={t(locale, {
                       en: "50 000 0000",
                       ar: "50 000 0000",
@@ -380,6 +455,11 @@ export function AdminProfilePanel({
                     })}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {getPhoneCountryByCode(countryCode).flag}{" "}
+                  {getPhoneCountryByCode(countryCode).dialCode}{" "}
+                  {phone.trim() ? "•" : ""} format checked automatically.
+                </p>
               </div>
             </div>
 

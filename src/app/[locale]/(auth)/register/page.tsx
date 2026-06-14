@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Lock, UserRound } from "lucide-react";
+import { Mail, Lock, UserRound, ShieldCheck } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { getMessages } from "@/lib/messages";
@@ -34,54 +35,64 @@ export default async function RegisterPage({
   const { error, role, name, email, phone } = await searchParams;
   const messages = getMessages(locale);
   const initialRole = role === "seller" ? "seller" : "user";
+
+  const t = (en: string, ar: string, fr: string) =>
+    locale === "ar" ? ar : locale === "fr" ? fr : en;
+
   const errorText =
     error === "missing_fields"
-      ? locale === "ar"
-        ? "يرجى تعبئة جميع الحقول المطلوبة."
-        : locale === "fr"
-          ? "Veuillez remplir tous les champs requis."
-          : "Please complete all required fields."
+      ? t(
+          "Please complete all required fields.",
+          "يرجى تعبئة جميع الحقول المطلوبة.",
+          "Veuillez remplir tous les champs requis.",
+        )
       : error === "weak_password"
-        ? locale === "ar"
-          ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل."
-          : locale === "fr"
-            ? "Le mot de passe doit comporter au moins 8 caractères."
-            : "Password must be at least 8 characters long."
+        ? t(
+            "Password must be at least 8 characters long.",
+            "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+            "Le mot de passe doit comporter au moins 8 caractères.",
+          )
         : error === "password_mismatch"
-          ? locale === "ar"
-            ? "كلمتا المرور غير متطابقتين."
-            : locale === "fr"
-              ? "Les mots de passe ne correspondent pas."
-              : "Password and confirmation do not match."
+          ? t(
+              "Password and confirmation do not match.",
+              "كلمتا المرور غير متطابقتين.",
+              "Les mots de passe ne correspondent pas.",
+            )
           : error === "seller_phone_required"
-            ? locale === "ar"
-              ? "رقم الهاتف مطلوب عند اختيار حساب بائع."
-              : locale === "fr"
-                ? "Le numéro de téléphone est requis pour un compte vendeur."
-                : "Phone number is required for seller accounts."
+            ? t(
+                "Phone number is required for seller accounts.",
+                "رقم الهاتف مطلوب عند اختيار حساب بائع.",
+                "Le numéro de téléphone est requis pour un compte vendeur.",
+              )
             : error === "email_exists"
-              ? locale === "ar"
-                ? "يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل."
-                : locale === "fr"
-                  ? "Un compte existe déjà avec cet e-mail."
-                  : "An account with this email already exists."
-              : error === "server_error"
-                ? locale === "ar"
-                  ? "حدث خطأ غير متوقع. حاول مرة أخرى."
-                  : locale === "fr"
-                    ? "Une erreur inattendue s'est produite. Veuillez réessayer."
-                    : "Something went wrong. Please try again."
-                : null;
+              ? t(
+                  "An account with this email already exists.",
+                  "يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.",
+                  "Un compte existe déjà avec cet e-mail.",
+                )
+              : error === "terms_required"
+                ? t(
+                    "You must accept the Privacy Policy to create an account.",
+                    "يجب الموافقة على سياسة الخصوصية لإنشاء حساب.",
+                    "Vous devez accepter la Politique de Confidentialité pour créer un compte.",
+                  )
+                : error === "server_error"
+                  ? t(
+                      "Something went wrong. Please try again.",
+                      "حدث خطأ غير متوقع. حاول مرة أخرى.",
+                      "Une erreur inattendue s'est produite. Veuillez réessayer.",
+                    )
+                  : null;
 
   return (
     <div className="grid w-full gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
       <div className="max-w-xl space-y-6">
         <div className="inline-flex rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm">
-          {locale === "ar"
-            ? "ابدأ خلال دقيقة"
-            : locale === "fr"
-              ? "Commencez en une minute"
-              : "Get started in under a minute"}
+          {t(
+            "Get started in under a minute",
+            "ابدأ خلال دقيقة",
+            "Commencez en une minute",
+          )}
         </div>
         <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
           {messages.auth.registerTitle}
@@ -105,6 +116,10 @@ export default async function RegisterPage({
           <form
             action={async (formData) => {
               "use server";
+              formData.set(
+                "agreedToTerms",
+                formData.get("agreedToTerms") === "on" ? "true" : "",
+              );
               await registerAction(formData, locale);
             }}
             className="space-y-5"
@@ -119,7 +134,7 @@ export default async function RegisterPage({
                 <Input
                   id="name"
                   name="name"
-                  placeholder={locale === "ar" ? "محمد أحمد" : "John Doe"}
+                  placeholder={t("John Doe", "محمد أحمد", "Jean Dupont")}
                   defaultValue={name ?? undefined}
                   className="h-11 rounded-2xl border-border/70 bg-background/80 pl-11 shadow-sm transition focus-visible:border-violet-500 focus-visible:ring-violet-500 rtl:pr-11 rtl:pl-4"
                   required
@@ -182,15 +197,43 @@ export default async function RegisterPage({
                 />
               </div>
             </div>
+
+            {/* Privacy Policy consent */}
+            <div className="rounded-2xl border border-violet-500/15 bg-violet-500/5 p-4 ring-1 ring-violet-500/8">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="agreedToTerms"
+                  name="agreedToTerms"
+                  required
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded-md border-violet-400 data-[state=checked]:bg-violet-600 data-[state=checked]:text-white"
+                />
+                <Label
+                  htmlFor="agreedToTerms"
+                  className="cursor-pointer text-sm leading-relaxed text-muted-foreground"
+                >
+                  {t("I agree to the ", "أوافق على ", "J'accepte la ")}
+                  <Link
+                    href={`/${locale}/privacy-policy`}
+                    target="_blank"
+                    className="font-medium text-violet-600 underline-offset-2 hover:underline dark:text-violet-400"
+                  >
+                    {t(
+                      "Privacy Policy",
+                      "سياسة الخصوصية",
+                      "Politique de Confidentialité",
+                    )}
+                  </Link>
+                </Label>
+              </div>
+            </div>
+
             <RegisterSubmitButton
               label={messages.nav.register}
-              loadingLabel={
-                locale === "ar"
-                  ? "جاري إنشاء الحساب..."
-                  : locale === "fr"
-                    ? "Création du compte..."
-                    : "Creating account..."
-              }
+              loadingLabel={t(
+                "Creating account...",
+                "جاري إنشاء الحساب...",
+                "Création du compte...",
+              )}
             />
           </form>
 
@@ -200,7 +243,7 @@ export default async function RegisterPage({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-card px-2 text-muted-foreground">
-                {locale === "ar" ? "أو" : locale === "fr" ? "ou" : "or"}
+                {t("or", "أو", "ou")}
               </span>
             </div>
           </div>

@@ -124,7 +124,7 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                     ]
                   }
                   className={`${
-                    locale === "ar"  ? "text-right" : "text-left"
+                    locale === "ar" ? "text-right" : "text-left"
                   } max-w-3xl text-2xl font-semibold tracking-tight text-balance md:text-3xl text-center`}
                 />
                 <p
@@ -315,11 +315,23 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                 <Card
                   key={plan.id}
                   className={
-                    plan.featured
-                      ? "border-violet-500/30 bg-violet-500/5"
+                    plan.id === "plan_pro"
+                      ? "relative border-violet-500/30 bg-violet-500/5 overflow-visible"
                       : "border-border/70"
                   }
                 >
+                  {plan.id === "plan_pro" && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <div className="flex items-center gap-1.5 rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-4 py-1.5 text-xs font-semibold text-white shadow-lg shadow-violet-500/30">
+                        <Sparkles className="h-3 w-3" />
+                        {t(locale, {
+                          en: "Best Value",
+                          ar: "أفضل قيمة",
+                          fr: "Meilleur rapport qualité-prix",
+                        })}
+                      </div>
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-center justify-center lg:justify-between gap-3 ">
                       <CardTitle>
@@ -329,11 +341,6 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
                           fr: plan.title_fr || plan.title,
                         })}
                       </CardTitle>
-                      {plan.featured ? (
-                        <div className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-300">
-                          {messages.common.featured}
-                        </div>
-                      ) : null}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {t(locale, {
