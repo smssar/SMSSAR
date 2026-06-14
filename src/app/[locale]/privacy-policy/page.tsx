@@ -192,7 +192,7 @@ export default async function PrivacyPolicyPage({
                           <p className="text-xs text-muted-foreground">
                             {t("Phone", "الهاتف", "Téléphone")}
                           </p>
-                          <p className="text-sm font-medium">
+                          <p dir="ltr" className="text-sm font-medium">
                             {section.contact.phone}
                           </p>
                         </div>

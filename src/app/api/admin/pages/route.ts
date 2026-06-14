@@ -8,7 +8,6 @@ export async function POST(req: Request) {
   if (body && typeof body === "object" && "id" in body) {
     // remove provided id to avoid unique constraint conflicts on create
     // cast to any to allow deleting a property on the parsed JSON
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (body as any).id;
   }
 

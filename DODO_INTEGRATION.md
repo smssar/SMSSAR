@@ -67,7 +67,7 @@ Replace these with your actual Dodo account credentials from the Dodo Payments d
 In your Dodo dashboard, set the webhook URL to:
 
 ```
-https://yourdomain.com/api/webhooks/dodo
+https://smssar.ma/api/webhooks/dodo
 ```
 
 ## Security Notes
