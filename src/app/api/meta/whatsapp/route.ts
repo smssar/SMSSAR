@@ -23,6 +23,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    console.log("🔥 META POST RECEIVED");
     const body = await req.json();
 
     // console.log("📩 Full webhook payload:", JSON.stringify(body, null, 2));
