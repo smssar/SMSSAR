@@ -55,10 +55,8 @@ export async function POST(req: Request) {
 
       const data = await aiResponse.response;
 
-      // send reply
       await sendWhatsAppMessage(from, data || "No response");
 
-      // persist outbound message
       try {
         if (whatsappUser?.id) {
           await addWhatsappMessage(whatsappUser.id, "assistant", data || "");
