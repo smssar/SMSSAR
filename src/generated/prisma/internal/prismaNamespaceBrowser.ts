@@ -66,7 +66,9 @@ export const ModelName = {
   Media: 'Media',
   PurchaseProduct: 'PurchaseProduct',
   Purchase: 'Purchase',
-  Page: 'Page'
+  Page: 'Page',
+  WhatsappMessage: 'WhatsappMessage',
+  WhatsappUser: 'WhatsappUser'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -386,6 +388,44 @@ export const PageScalarFieldEnum = {
 } as const
 
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
+
+
+export const WhatsappMessageScalarFieldEnum = {
+  id: 'id',
+  whatsappUserId: 'whatsappUserId',
+  role: 'role',
+  content: 'content',
+  tokens: 'tokens',
+  model: 'model',
+  createdAt: 'createdAt'
+} as const
+
+export type WhatsappMessageScalarFieldEnum = (typeof WhatsappMessageScalarFieldEnum)[keyof typeof WhatsappMessageScalarFieldEnum]
+
+
+export const WhatsappUserScalarFieldEnum = {
+  id: 'id',
+  phoneNumber: 'phoneNumber',
+  name: 'name',
+  language: 'language',
+  memory: 'memory',
+  preferredCities: 'preferredCities',
+  preferredCategories: 'preferredCategories',
+  minBudget: 'minBudget',
+  maxBudget: 'maxBudget',
+  preferredRooms: 'preferredRooms',
+  preferredBathrooms: 'preferredBathrooms',
+  forSale: 'forSale',
+  lastMessageAt: 'lastMessageAt',
+  lastInteractionAt: 'lastInteractionAt',
+  totalMessages: 'totalMessages',
+  profileSummary: 'profileSummary',
+  tokensLimit: 'tokensLimit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WhatsappUserScalarFieldEnum = (typeof WhatsappUserScalarFieldEnum)[keyof typeof WhatsappUserScalarFieldEnum]
 
 
 export const SortOrder = {

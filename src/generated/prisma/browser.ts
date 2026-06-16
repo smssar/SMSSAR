@@ -97,3 +97,13 @@ export type Purchase = Prisma.PurchaseModel
  * 
  */
 export type Page = Prisma.PageModel
+/**
+ * Model WhatsappMessage
+ * 
+ */
+export type WhatsappMessage = Prisma.WhatsappMessageModel
+/**
+ * Model WhatsappUser
+ * 
+ */
+export type WhatsappUser = Prisma.WhatsappUserModel

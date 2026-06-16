@@ -444,3 +444,64 @@ model Page {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+
+model WhatsappMessage {
+  id String @id @default(cuid())
+
+  whatsappUserId String
+
+  role String 
+
+  content String @db.Text
+
+  tokens Int?
+  model String?
+  
+  createdAt DateTime @default(now())
+
+  whatsappUser WhatsappUser @relation(fields: [whatsappUserId],references: [id],onDelete: Cascade)
+
+  @@index([whatsappUserId, createdAt])
+}
+
+model WhatsappUser {
+  id String @id @default(cuid())
+
+  phoneNumber String @unique
+
+  name String?
+
+  language String? @default("ar")
+
+  memory String? @db.Text
+
+  preferredCities String[] @default([])
+  preferredCategories String[] @default([])
+
+  minBudget Int?
+  maxBudget Int?
+
+  preferredRooms Int?
+  preferredBathrooms Int?
+
+  forSale Boolean?
+
+  lastMessageAt DateTime?
+  lastInteractionAt DateTime?
+
+  totalMessages Int @default(0)
+
+  profileSummary String? @db.Text
+
+  tokensLimit Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  messages WhatsappMessage[]
+
+  @@index([phoneNumber])
+  @@index([lastInteractionAt])
+}

@@ -151,7 +151,7 @@ export const properties: Property[] = [
     },
     imageUrl:
       "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Dubai", ar: "دبي", fr: "Dubaï" },
+    city: { en: "Marrakesh", ar: "مراكش", fr: "Marrakech" },
     area: 248,
     rooms: 4,
     bathrooms: 4,
@@ -180,7 +180,7 @@ export const properties: Property[] = [
     },
     imageUrl:
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Abu Dhabi", ar: "أبوظبي", fr: "Abou Dabi" },
+    city: { en: "Rabat", ar: "الرباط", fr: "Rabat" },
     area: 132,
     rooms: 2,
     bathrooms: 2,
@@ -209,7 +209,7 @@ export const properties: Property[] = [
     },
     imageUrl:
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Sharjah", ar: "الشارقة", fr: "Charjah" },
+    city: { en: "Martil", ar: "مرتيل", fr: "Martil" },
     area: 176,
     rooms: 3,
     bathrooms: 3,
@@ -238,7 +238,7 @@ export const properties: Property[] = [
     },
     imageUrl:
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80",
-    city: { en: "Doha", ar: "الدوحة", fr: "Doha" },
+    city: { en: "martil", ar: "مرتيل", fr: "Doha" },
     area: 210,
     rooms: 4,
     bathrooms: 3,
