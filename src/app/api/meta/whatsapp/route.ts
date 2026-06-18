@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
 import { speechToText } from "@/lib/speech_to_text";
