@@ -53,7 +53,7 @@ export const getCities = unstable_cache(
           })),
       ),
   ["property-cities"],
-  { revalidate: 60 * 60 * 24 },
+  // { revalidate: 60 * 60 * 24 },
 );
 
 // In-memory cache for whatsapp user memory summaries to avoid repeated LLM calls
@@ -299,43 +299,49 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
     }
   }
 
-  const systemPromptBase =
-    `You are a real-estate assistant from smssar company , Return ONLY valid JSON.
-        you are work only in Moroccan and suppport all languages include maroccan language .
-        
-        Return format:
-        {
-        "role": "property_search" | "chat",
-        "response": string | null,
-        "fields": {
-            "cities": string[] | null,
-            "neighborhood": string | null,
-            "categories": string[] | null,
-            "priceMin": number | null,
-            "priceMax": number | null,
-            "rooms": number | null,
-            "bathrooms": number | null,
-            "forSale": boolean | null,
-            "areaMin": number | null,
-            "areaMax": number | null
-          }
-        }
+  const systemPromptBase = `
+    You are Smssar's real-estate assistant for Morocco.
 
-        Rules:
-        - i want response in the same language as user request
-        - if role is not specified → role = chat
-          if role is chat → response language should be the same as user request language, for example if user say hello in english → response should be in english and like that
-        - If the user is asking for properties → role = property_search
-        - If the user is asking for general information or help → role = chat
-        - If request is unclear or ambiguous → role = chat
-        - If unclear or request is incomplete → role = chat and ask for clarification
-        - Return ONLY JSON`.trim();
+    Return ONLY valid JSON matching this schema:
 
-  // const systemPrompt = memorySummary
-  //   ? `${systemPromptBase}\n\nUser memory: ${memorySummary}`
-  //   : systemPromptBase;
+    {
+      "role": "property_search" | "chat",
+      "response": string | null,
+      "fields": {
+        "cities": string[] | null,
+        "neighborhood": string | null,
+        "categories": string[] | null,
+        "priceMin": number | null,
+        "priceMax": number | null,
+        "rooms": number | null,
+        "bathrooms": number | null,
+        "forSale": boolean | null,
+        "areaMin": number | null,
+        "areaMax": number | null
+      }
+    }
 
-  const systemPrompt = systemPromptBase;
+    Rules:
+    - Support Arabic, English, French, and Darija.
+    - If the user is searching, buying, renting, or filtering properties => role = "property_search".
+    - Otherwise => role = "chat".
+    - For "chat", fill "response" in the user's language and set all fields to null.
+    - For "property_search", set "response" to null unless clarification is needed.
+    - Extract only information explicitly provided by the user.
+    - Do not invent or assume values.
+    - Valid cities: ${cities.join(", ")}.
+    - Valid categories: ${categories.join(", ")}.
+    - Match city/category typos and language variations to the closest valid value.
+    - If no confident match exists, return null.
+
+    Return JSON only.
+  `.trim();
+
+  const systemPrompt = memorySummary
+    ? `${systemPromptBase}\n\nUser memory: ${memorySummary}`
+    : systemPromptBase;
+
+  // const systemPrompt = systemPromptBase;
 
   const step1Raw = await deepseek([
     { role: "system", content: systemPrompt },
@@ -372,18 +378,22 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       {
         role: "system",
         content: `
-        You are a real-estate assistant.
+          You are a real-estate assistant for Smssar.
+
+          You operate in Morocco and support:
+            - Arabic
+            - English
+            - French
+            - Moroccan Darija
 
         Rules:
-        - Respond only in the language used by the user.
+        - Respond only in the language used by the user .
         - Use only the information provided in the search results.
-        - Do not invent, infer, estimate, or assume any information.
         - If a detail is not present in the results, do not mention it.
         - Summarize all relevant information from the results.
         - Keep the response under 80 words.
         - Do not use markdown, bullet points, headings, or special formatting.
         - Return plain text only.
-        - If no relevant results are available, say so in the user's language.
         `.trim(),
       },
       {
