@@ -44,13 +44,7 @@ export function ThemeToggle({
   };
 
   return (
-    <div
-      className={
-        initialLocale === "ar"
-          ? "fixed bottom-10 left-5 z-50 flex"
-          : "fixed bottom-10 right-5 z-50 flex"
-      }
-    >
+    <div className={"fixed bottom-10 left-5 z-50 flex"}>
       <Button
         type="button"
         variant="outline"

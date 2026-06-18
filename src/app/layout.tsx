@@ -7,6 +7,7 @@ import { getDirection, isLocale, type Locale } from "@/lib/locales";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { Providers } from "../components/providers";
+import ChatWidget from "@/components/ui/chat-widget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,6 +51,7 @@ export default async function RootLayout({
         <Providers session={session}>
           <ThemeToggle initialLocale={locale} />
           {children}
+          <ChatWidget locale={locale} />
         </Providers>
       </body>
     </html>

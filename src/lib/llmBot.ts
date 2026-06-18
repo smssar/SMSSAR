@@ -56,28 +56,63 @@ export const getCities = unstable_cache(
   { revalidate: 60 * 60 * 24 },
 );
 
+// In-memory cache for whatsapp user memory summaries to avoid repeated LLM calls
+const memorySummaryCache: Map<string, { summary: string; ts: number }> =
+  new Map();
+
 async function deepseek(
   messages: { role: string; content: string }[],
   temperature = 0,
 ): Promise<string> {
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "deepseek-v4-flash",
-      thinking: { type: "disabled" },
-      temperature,
-      messages,
-    }),
-  });
+  // helper to fetch with retries and per-attempt timeout
+  const fetchWithRetries = async (
+    url: string,
+    opts: RequestInit,
+    retries = 2,
+    timeoutMs = 10000,
+  ): Promise<Response> => {
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { ...opts, signal: controller.signal });
+        clearTimeout(id);
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status}: ${body}`);
+        }
+        return res;
+      } catch (err) {
+        lastErr = err;
+        clearTimeout(id);
+        // backoff before retry
+        if (attempt < retries)
+          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+      }
+    }
+    throw lastErr;
+  };
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`DeepSeek error ${res.status}: ${err}`);
-  }
+  const url = "https://api.deepseek.com/chat/completions";
+  const res = await fetchWithRetries(
+    url,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "deepseek-v4-flash",
+        thinking: { type: "disabled" },
+        temperature,
+        messages,
+      }),
+    },
+    2,
+    10000,
+  );
 
   const data = await res.json();
   return data.choices?.[0]?.message?.content ?? "";
@@ -197,47 +232,70 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
     getCities(),
   ]);
 
-  // If we have a whatsapp user id, fetch recent messages and generate a short memory
   let memorySummary: string | null = null;
+  const CACHE_TTL = Number(
+    process.env.MEMORY_SUMMARY_TTL_MS || String(5 * 60 * 1000),
+  ); // default 5 minutes
   if (whatsappUserId) {
-    try {
-      const recent = await prisma.whatsappMessage.findMany({
-        where: { whatsappUserId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      });
+    // Check in-memory cache first
+    const cached = memorySummaryCache.get(whatsappUserId);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      memorySummary = cached.summary;
+    } else {
+      try {
+        const recent = await prisma.whatsappMessage.findMany({
+          where: { whatsappUserId },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        });
 
-      if (recent && recent.length) {
-        const history = recent
-          .slice()
-          .reverse()
-          .map((m) => `${m.role}: ${m.content}`)
-          .join("\n");
+        if (recent && recent.length) {
+          const history = recent
+            .slice()
+            .reverse()
+            .map((m) => `${m.role}: ${m.content}`)
+            .join("\n");
 
-        // Summarize recent messages into a short memory note
-        try {
-          const mem = await deepseek([
-            {
-              role: "system",
-              content: `Summarize the following conversation into a short memory note (1-2 sentences). Keep the language the same as the messages and do not invent facts.`,
-            },
-            { role: "user", content: history },
-          ]);
+          // Summarize recent messages into a short memory note
+          try {
+            const mem = await deepseek([
+              {
+                role: "system",
+                content: `Summarize the following conversation into a short memory note (1-2 sentences). Keep the language the same as the messages and do not invent facts.`,
+              },
+              { role: "user", content: history },
+            ]);
 
-          memorySummary = mem?.trim() || null;
+            memorySummary = mem?.trim() || null;
 
-          if (memorySummary) {
-            await prisma.whatsappUser.update({
-              where: { id: whatsappUserId },
-              data: { memory: memorySummary },
-            });
+            if (memorySummary) {
+              // update DB (best-effort) and cache
+              try {
+                await prisma.whatsappUser.update({
+                  where: { id: whatsappUserId },
+                  data: { memory: memorySummary },
+                });
+              } catch (err) {
+                console.error("Failed to update whatsapp user memory:", err);
+              }
+
+              try {
+                memorySummaryCache.set(whatsappUserId, {
+                  summary: memorySummary,
+                  ts: Date.now(),
+                });
+              } catch (err) {
+                // cache set should not block processing
+                console.error("Failed to set memorySummary cache:", err);
+              }
+            }
+          } catch (err) {
+            console.error("Failed to create memory summary:", err);
           }
-        } catch (err) {
-          console.error("Failed to create memory summary:", err);
         }
+      } catch (err) {
+        console.error("Failed to load recent whatsapp messages:", err);
       }
-    } catch (err) {
-      console.error("Failed to load recent whatsapp messages:", err);
     }
   }
 
@@ -270,12 +328,14 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
         - If the user is asking for properties → role = property_search
         - If the user is asking for general information or help → role = chat
         - If request is unclear or ambiguous → role = chat
-        - If unclear → role = chat
+        - If unclear or request is incomplete → role = chat and ask for clarification
         - Return ONLY JSON`.trim();
 
-  const systemPrompt = memorySummary
-    ? `${systemPromptBase}\n\nUser memory: ${memorySummary}`
-    : systemPromptBase;
+  // const systemPrompt = memorySummary
+  //   ? `${systemPromptBase}\n\nUser memory: ${memorySummary}`
+  //   : systemPromptBase;
+
+  const systemPrompt = systemPromptBase;
 
   const step1Raw = await deepseek([
     { role: "system", content: systemPrompt },
@@ -312,12 +372,18 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       {
         role: "system",
         content: `
-            You are a real-estate assistant.
-            respond in the language of the user request.
-            Summarize results under 80 words.
-            No markdown.
-            No invented data.
-            Reply in user language.
+        You are a real-estate assistant.
+
+        Rules:
+        - Respond only in the language used by the user.
+        - Use only the information provided in the search results.
+        - Do not invent, infer, estimate, or assume any information.
+        - If a detail is not present in the results, do not mention it.
+        - Summarize all relevant information from the results.
+        - Keep the response under 80 words.
+        - Do not use markdown, bullet points, headings, or special formatting.
+        - Return plain text only.
+        - If no relevant results are available, say so in the user's language.
         `.trim(),
       },
       {
