@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
+// prisma import not required here (we use properties returned by llmAnalyze)
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
 
@@ -228,7 +229,60 @@ export async function POST(req: Request) {
         let data: string | undefined = undefined;
         try {
           const aiResponse = await llmAnalyze(text, whatsappUser?.id);
-          data = await aiResponse.response;
+          data = aiResponse.response ?? "";
+          const parsedAi = aiResponse as {
+            role?: string;
+            response?: string | null;
+            properties?: Array<{
+              id: string;
+              imageUrl?: string | null;
+              media?: Array<{ url: string }> | null;
+            }>;
+          };
+
+          // If LLM returned a property_search with properties, include top property image + link
+          if (
+            parsedAi &&
+            parsedAi.role === "property_search" &&
+            Array.isArray(parsedAi.properties) &&
+            parsedAi.properties.length > 0
+          ) {
+            try {
+              const prop = parsedAi.properties[0];
+              const baseUrl = "smssar.ma";
+              const locale = whatsappUser?.language || "ar";
+              const link = `${baseUrl}/${locale}/properties/${prop.id}`;
+              const imageUrl =
+                prop.imageUrl ?? prop.media?.[0]?.url ?? undefined;
+
+              if (imageUrl) {
+                await sendWhatsAppMessage(from, data || "", {
+                  imageUrl,
+                  link,
+                });
+              } else {
+                await sendWhatsAppMessage(from, `${data || ""}\n${link}`);
+              }
+
+              try {
+                if (whatsappUser?.id) {
+                  await addWhatsappMessage(
+                    whatsappUser.id,
+                    "assistant",
+                    data || "",
+                  );
+                }
+              } catch (err) {
+                console.error("Failed to save outbound whatsapp message:", err);
+              }
+
+              processedMessages.add(messageId);
+              return NextResponse.json({ ok: true });
+            } catch (err) {
+              console.error("Failed to handle property_search response:", err);
+            }
+          }
+
           await sendWhatsAppMessage(from, data || "No response");
         } catch (err) {
           // LLM or upstream API may fail (network/timeouts). Notify user gracefully.
@@ -296,8 +350,52 @@ export async function POST(req: Request) {
   }
 }
 
-export async function sendWhatsAppMessage(to: string, text: string) {
+export async function sendWhatsAppMessage(
+  to: string,
+  text: string,
+  opts?: { imageUrl?: string; link?: string },
+) {
   const url = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+
+  if (opts?.imageUrl) {
+    // Send image message with caption that may include link
+    const caption = text || "";
+    const body = JSON.stringify({
+      messaging_product: "whatsapp",
+      to,
+      type: "image",
+      image: {
+        link: opts.imageUrl,
+        caption: opts.link ? `${caption}\n${opts.link}` : caption,
+      },
+    });
+
+    const res = await fetchWithRetries(
+      url,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body,
+      },
+      2,
+      8000,
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(`Failed to send WhatsApp image message: ${res.status}`);
+    }
+
+    return data;
+  }
+
+  // Default: send text message (optionally append link)
+  const finalText = opts?.link ? `${text}\n${opts.link}` : text;
+
   const res = await fetchWithRetries(
     url,
     {
@@ -310,7 +408,7 @@ export async function sendWhatsAppMessage(to: string, text: string) {
         messaging_product: "whatsapp",
         to,
         type: "text",
-        text: { body: text },
+        text: { body: finalText },
       }),
     },
     2,

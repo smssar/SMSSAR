@@ -332,7 +332,8 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
             - Moroccan Darija
 
         Rules:
-         - if No properties found => return "best match" message in the user's language.
+        - don't display phone number 
+        - if No properties found => return "best match" message in the user's language.
         - Respond only in the language used by the user .
         - Use only the information provided in the search results.
         - Summarize all relevant information from the results.

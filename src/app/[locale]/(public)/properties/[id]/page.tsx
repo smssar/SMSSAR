@@ -300,7 +300,7 @@ export default async function PropertyDetailPage({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="ltr:text-right rtl:rotate-270 h-5 w-5 text-violet-600 shrink-0" />
                 :
                 {property.sellerPhone ? (
@@ -311,7 +311,7 @@ export default async function PropertyDetailPage({
                     <span dir="ltr">{property.sellerPhone}</span>
                   </a>
                 ) : null}
-              </div>
+              </div> */}
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 {locale === "ar"
