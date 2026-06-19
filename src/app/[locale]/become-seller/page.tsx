@@ -20,7 +20,7 @@ export default async function BecomeSellerPage({
     redirect(`/${locale}/dashboard/admin`);
   }
 
-  if (session.user.role === "SELLER") {
+  if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
     redirect(`/${locale}/dashboard/seller`);
   }
 

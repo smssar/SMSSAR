@@ -31,7 +31,7 @@ type UserRow = {
   emailVerified: Date | string | null;
   phone?: string | null;
   bio?: string | null;
-  role: "USER" | "SELLER" | "ADMIN";
+  role: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
   status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   suspendedAt?: Date | string | null;
   suspendedUntil?: Date | string | null;
@@ -94,7 +94,9 @@ export function AdminUsersPanel({
   const [suspendedMessage, setSuspendedMessage] = useState("");
   const [bannedMessage, setBannedMessage] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"USER" | "SELLER" | "ADMIN">("USER");
+  const [role, setRole] = useState<"USER" | "SELLER" | "SMSSAR" | "ADMIN">(
+    "USER",
+  );
   const [status, setStatus] = useState<
     "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED"
   >("ACTIVE");
@@ -398,7 +400,7 @@ export function AdminUsersPanel({
 
   const getRoleBadgeColor = (userRole: string) => {
     if (userRole === "ADMIN") return "accent";
-    if (userRole === "SELLER") return "secondary";
+    if (userRole === "SELLER" || userRole === "SMSSAR") return "secondary";
     return "secondary";
   };
 
@@ -589,6 +591,9 @@ export function AdminUsersPanel({
               <option value="SELLER">
                 {locale === "ar" ? "بائع" : "Seller"}
               </option>
+              <option value="SMSSAR">
+                {locale === "ar" ? "سمسار" : "Smssar"}
+              </option>
               <option value="ADMIN">
                 {locale === "ar" ? "مدير" : "Admin"}
               </option>
@@ -741,7 +746,7 @@ export function AdminUsersPanel({
                       {user.role !== "ADMIN" ? (
                         <ButtonLink
                           href={
-                            user.role === "SELLER"
+                            user.role === "SELLER" || user.role === "SMSSAR"
                               ? `/${locale}/sellers/${user.id}`
                               : `/${locale}/profile/${user.id}`
                           }
@@ -869,7 +874,7 @@ export function AdminUsersPanel({
                           {user.role !== "ADMIN" ? (
                             <ButtonLink
                               href={
-                                user.role === "SELLER"
+                                user.role === "SELLER" || user.role === "SMSSAR"
                                   ? `/${locale}/sellers/${user.id}`
                                   : `/${locale}/profile/${user.id}`
                               }
@@ -1136,7 +1141,13 @@ export function AdminUsersPanel({
                     id="create-user-role"
                     value={role}
                     onChange={(event) =>
-                      setRole(event.target.value as "USER" | "SELLER" | "ADMIN")
+                      setRole(
+                        event.target.value as
+                          | "USER"
+                          | "SELLER"
+                          | "SMSSAR"
+                          | "ADMIN",
+                      )
                     }
                   >
                     <option value="USER">
@@ -1144,6 +1155,9 @@ export function AdminUsersPanel({
                     </option>
                     <option value="SELLER">
                       {locale === "ar" ? "بائع" : "Seller"}
+                    </option>
+                    <option value="SMSSAR">
+                      {locale === "ar" ? "سمسار" : "Smssar"}
                     </option>
                     <option value="ADMIN">
                       {locale === "ar" ? "مدير" : "Admin"}
@@ -1523,7 +1537,11 @@ export function AdminUsersPanel({
                       value={role}
                       onChange={(event) =>
                         setRole(
-                          event.target.value as "USER" | "SELLER" | "ADMIN",
+                          event.target.value as
+                            | "USER"
+                            | "SELLER"
+                            | "SMSSAR"
+                            | "ADMIN",
                         )
                       }
                     >
@@ -1532,6 +1550,9 @@ export function AdminUsersPanel({
                       </option>
                       <option value="SELLER">
                         {locale === "ar" ? "بائع" : "Seller"}
+                      </option>
+                      <option value="SMSSAR">
+                        {locale === "ar" ? "سمسار" : "Smssar"}
                       </option>
                       <option value="ADMIN">
                         {locale === "ar" ? "مدير" : "Admin"}

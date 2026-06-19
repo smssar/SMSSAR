@@ -8,7 +8,7 @@ import { ensureFreePlan } from "@/lib/ensure-free-plan";
 
 declare module "next-auth" {
   interface User {
-    role: "USER" | "SELLER" | "ADMIN";
+    role: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
     planId: string;
     image?: string | null;
     phone?: string | null;
@@ -17,7 +17,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: "USER" | "SELLER" | "ADMIN";
+      role: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
       planId: string;
       phone: string | null;
     } & DefaultSession["user"];
@@ -27,7 +27,7 @@ declare module "next-auth" {
 declare module "@auth/core/jwt" {
   interface JWT {
     id?: string;
-    role?: "USER" | "SELLER" | "ADMIN";
+    role?: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
     planId?: string;
     picture?: string | null;
     phone?: string | null;
@@ -260,6 +260,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = (token.role ?? "USER") as
           | "USER"
           | "SELLER"
+          | "SMSSAR"
           | "ADMIN";
         session.user.planId =
           typeof token.planId === "string" ? token.planId : "plan_free";

@@ -120,7 +120,7 @@ type UserProfile = {
   id: string;
   name: string;
   email: string;
-  role: "USER" | "SELLER" | "ADMIN";
+  role: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
   status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   createdAt: Date | string;
   hasPassword: boolean;
@@ -251,13 +251,13 @@ export function UserProfilePanel({
     locale === "ar"
       ? user.role === "USER"
         ? "مستخدم"
-        : user.role === "SELLER"
+        : user.role === "SELLER" || user.role === "SMSSAR"
           ? "بائع"
           : "مدير"
       : locale === "fr"
         ? user.role === "USER"
           ? "Utilisateur"
-          : user.role === "SELLER"
+          : user.role === "SELLER" || user.role === "SMSSAR"
             ? "Vendeur"
             : "Administrateur"
         : user.role;

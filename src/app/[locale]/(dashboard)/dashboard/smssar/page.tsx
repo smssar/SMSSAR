@@ -20,7 +20,7 @@ const getLocalizedPlanText = (
   text: { en: string; ar?: string | null; fr?: string | null },
 ) => text[locale] ?? text.en;
 
-export default async function SellerOverviewPage({
+export default async function SmssarOverviewPage({
   params,
 }: {
   params: Promise<{ locale: Locale }>;
@@ -59,10 +59,8 @@ export default async function SellerOverviewPage({
   const plan = currentPlan ?? freePlan;
 
   if (!plan) {
-    redirect(`/${locale}/dashboard/seller/plan`);
+    redirect(`/${locale}/dashboard/smssar/plan`);
   }
-
-  // whether the base plan listing limit has been reached (before considering purchased extras)
 
   const activePurchases = await getActivePurchasesWithProduct(session.user.id);
 
@@ -99,7 +97,6 @@ export default async function SellerOverviewPage({
       ? null
       : extraListings;
 
-  // fetch user's extra listing purchases (active, quantity > 0)
   const extraPurchases = await prisma.purchase.findMany({
     where: {
       userId: session.user.id,
@@ -197,7 +194,7 @@ export default async function SellerOverviewPage({
                   </div>
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/${locale}/dashboard/seller/add`}
+                      href={`/${locale}/dashboard/smssar/add`}
                       className="inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
                     >
                       {locale === "ar"
@@ -207,7 +204,7 @@ export default async function SellerOverviewPage({
                           : "Add listing"}
                     </Link>
                     <Link
-                      href={`/${locale}/dashboard/seller/purchases`}
+                      href={`/${locale}/dashboard/smssar/purchases`}
                       className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
                     >
                       {locale === "ar"
@@ -226,14 +223,14 @@ export default async function SellerOverviewPage({
                 locale === "ar"
                   ? "تم استخدام جميع القوائم الإضافية"
                   : locale === "fr"
-                    ? "Toutes les listes supplémentaires ont été utilisées"
+                    ? "Toutes les listes supplémentaires ont été المستخدمة"
                     : "All purchased extra listings are used"
               }
               description={
                 locale === "ar"
                   ? "لقد استخدمت جميع القوائم المشتراة. قم بشراء المزيد من الإعلانات أو ترقية خطتك."
                   : locale === "fr"
-                    ? "Vous avez utilisé toutes les listes achetées. Achetez-en davantage ou passez à un forfait supérieur."
+                    ? "Vous avez utilisé toutes les listes achetées. Achetez-en davantage أو passez à un forfait supérieur."
                     : "You have used all purchased extra listings. Buy more or upgrade your plan."
               }
               locale={locale}
@@ -262,7 +259,7 @@ export default async function SellerOverviewPage({
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{messages.dashboard.seller.listings}</CardTitle>
             <Link
-              href={`/${locale}/dashboard/seller/listings`}
+              href={`/${locale}/dashboard/smssar/listings`}
               className="inline-flex items-center gap-2 text-sm font-medium text-violet-600 hover:underline dark:text-violet-300"
             >
               {locale === "ar" ? "إدارة الكل" : "Manage all"}
@@ -329,7 +326,7 @@ export default async function SellerOverviewPage({
                   {locale === "ar"
                     ? "عدد العقارات التي يمكنك نشرها بناءً على خطتك الحالية."
                     : locale === "fr"
-                      ? "Le nombre de listes que vous pouvez publier avec votre forfait actuel."
+                      ? "Le nombre de listes que vous pouvez publier مع votre forfait actuel."
                       : "The number of listings you can publish based on your current plan."}
                 </div>
               </div>

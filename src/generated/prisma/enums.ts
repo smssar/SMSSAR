@@ -12,6 +12,7 @@
 export const UserRole = {
   USER: 'USER',
   SELLER: 'SELLER',
+  SMSSAR: 'SMSSAR',
   ADMIN: 'ADMIN'
 } as const
 

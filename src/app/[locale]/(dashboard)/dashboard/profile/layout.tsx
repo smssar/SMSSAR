@@ -20,7 +20,7 @@ export default async function UserProfileLayout({
     redirect(`/${locale}/login`);
   }
 
-  if (session.user.role === "SELLER") {
+  if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
     redirect(`/${locale}/dashboard/seller`);
   }
 

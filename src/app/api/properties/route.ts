@@ -63,7 +63,7 @@ const createPropertyHandler = async (
     return jsonError("Authentication required.", 401);
   }
 
-  if (session.user.role !== "SELLER") {
+  if (session.user.role !== "SELLER" && session.user.role !== "SMSSAR") {
     return jsonError("Only sellers can create properties.", 403);
   }
 

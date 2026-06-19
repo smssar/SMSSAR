@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   if (!session?.user?.id)
     return jsonError(t.authRequired ?? "Authentication required.", 401);
-  if (session.user.role !== "SELLER")
+  if (session.user.role !== "SELLER" && session.user.role !== "SMSSAR")
     return jsonError(t.unauthorized ?? "Unauthorized.", 403);
 
   const {

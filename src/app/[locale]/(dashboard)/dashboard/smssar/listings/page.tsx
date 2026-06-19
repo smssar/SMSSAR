@@ -10,7 +10,7 @@ import { SellerListingsPanel } from "@/components/seller/seller-listings-panel";
 
 export const dynamic = "force-dynamic";
 
-export default async function SellerListingsPage({
+export default async function SmssarListingsPage({
   params,
 }: {
   params: Promise<{ locale: Locale }>;
@@ -26,7 +26,6 @@ export default async function SellerListingsPage({
     return null;
   }
 
-  // Update ad statuses before fetching counts
   await updateAdStatuses();
 
   const properties = await prisma.property.findMany({
@@ -39,7 +38,6 @@ export default async function SellerListingsPage({
     orderBy: { createdAt: "desc" },
   });
 
-  // Fetch ad counts for seller properties
   const adCountMap = new Map<string, number>();
   const runningAdMap = new Map<string, boolean>();
   const propertyIds = properties.map((p) => p.id);
@@ -96,7 +94,7 @@ export default async function SellerListingsPage({
               : "Manage your active homes and update them quickly."}
           </p>
         </div>
-        <ButtonLink href={`/${locale}/dashboard/seller/add`} variant="accent">
+        <ButtonLink href={`/${locale}/dashboard/smssar/add`} variant="accent">
           {messages.dashboard.seller.addHouse}
           <ArrowUpRight className="h-4 w-4" />
         </ButtonLink>

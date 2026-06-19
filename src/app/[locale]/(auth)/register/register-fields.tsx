@@ -19,7 +19,7 @@ const t = <T extends { en: string; ar: string; fr: string }>(
   text: T,
 ) => text[locale] ?? text.en;
 
-type RegisterRole = "user" | "seller";
+type RegisterRole = "user" | "seller" | "smssar";
 
 export function RegisterFields({
   locale,
@@ -71,10 +71,13 @@ export function RegisterFields({
           <option value="seller">
             {locale === "ar" ? "بائع" : locale === "fr" ? "Vendeur" : "Seller"}
           </option>
+          <option value="smssar">
+            {locale === "ar" ? "سمسار" : locale === "fr" ? "smssar" : "smssar"}
+          </option>
         </Select>
       </div>
 
-      {role === "seller" ? (
+      {role === "seller" || role === "smssar" ? (
         <div className="rounded-3xl border border-violet-500/20 bg-violet-500/5 p-4 shadow-sm ring-1 ring-violet-500/10">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">

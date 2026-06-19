@@ -58,199 +58,225 @@ export async function POST(req: Request) {
     const changes = entry?.changes?.[0];
     const value = changes?.value;
 
+    console.log("📥 Incoming webhook payload:", value);
+
     const message = value?.messages?.[0];
+
+    // If no message was included in the webhook payload, return early.
+    if (!message) {
+      return NextResponse.json({ ok: true });
+    }
 
     if (message) {
       const messageId = message.id;
-      const from = message.from;
-      let text = message?.text?.body;
-
-      // If no text, try to transcribe incoming audio/voice/document message
-      if (!text) {
-        const mediaId =
-          message?.audio?.id ||
-          message?.voice?.id ||
-          message?.document?.id ||
-          message?.image?.id;
-
-        if (mediaId) {
-          // helper: fetch with retries to mitigate transient timeouts
-          const fetchWithRetries = async (
-            url: string,
-            opts: RequestInit = {},
-            retries = 2,
-            delayMs = 500,
-          ): Promise<Response> => {
-            let lastErr: unknown = null;
-            for (let i = 0; i <= retries; i++) {
-              try {
-                return await fetch(url, opts);
-              } catch (err) {
-                lastErr = err;
-                // small backoff
-                await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
-              }
-            }
-            throw lastErr;
-          };
-
-          try {
-            const mediaMetaRes = await fetchWithRetries(
-              `https://graph.facebook.com/v20.0/${mediaId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-                },
-              },
-            );
-
-            if (!mediaMetaRes.ok) {
-              const errBody = await mediaMetaRes.text().catch(() => "");
-              throw new Error(
-                `media meta fetch failed: ${mediaMetaRes.status} ${errBody}`,
-              );
-            }
-
-            const mediaMeta = await mediaMetaRes.json();
-            const mediaUrl = mediaMeta?.url;
-
-            if (mediaUrl) {
-              const mediaRes = await fetchWithRetries(mediaUrl, {
-                headers: {
-                  Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-                },
-              });
-
-              if (!mediaRes.ok) {
-                const errBody = await mediaRes.text().catch(() => "");
-                throw new Error(
-                  `media download failed: ${mediaRes.status} ${errBody}`,
-                );
-              }
-
-              const arrayBuffer = await mediaRes.arrayBuffer();
-              const buffer = Buffer.from(arrayBuffer);
-
-              // Check size before attempting transcription to avoid large multipart uploads
-              const maxBytes = Number(
-                process.env.GROQ_MAX_UPLOAD_BYTES || 5_000_000,
-              );
-              if (buffer.length > maxBytes) {
-                console.warn(
-                  `Incoming media too large for transcription: ${buffer.length} bytes (max ${maxBytes})`,
-                );
-                try {
-                  await sendWhatsAppMessage(
-                    from,
-                    "Sorry — your audio file is too large to transcribe. Please send a shorter voice note or try again with a smaller file.",
-                  );
-                } catch (err) {
-                  console.error(
-                    "Failed to send large-file notice to WhatsApp user:",
-                    err,
-                  );
-                }
-
-                processedMessages.add(messageId);
-                return NextResponse.json({ ok: true });
-              }
-
-              try {
-                const transcript = await speechToText(buffer);
-                if (transcript) text = transcript;
-              } catch (err) {
-                console.error("Failed to transcribe WhatsApp audio:", err);
-              }
-            }
-          } catch (err) {
-            console.error("Failed to fetch WhatsApp media:", err);
-          }
-        }
-      }
+      // Mark as processed early to prevent duplicate concurrent handling.
+      // If a retry is required for permanent failures, consider persisting dedupe state in a DB.
       if (processedMessages.has(messageId)) {
         return NextResponse.json({ ok: true });
       }
-      let whatsappUser = undefined;
-      try {
-        whatsappUser = await getWhatsappUser(from);
-      } catch (err) {
-        // Prisma may time out; log and continue with no DB-backed user.
-        // We still proceed so the webhook remains responsive.
-        console.error(
-          "whatsapp webhook: getWhatsappUser failed, continuing without DB user",
-          err,
-        );
-        whatsappUser = undefined;
-      }
-
-      // persist inbound message
-      if (text && whatsappUser?.id) {
-        try {
-          await addWhatsappMessage(whatsappUser.id, "user", text);
-        } catch (err) {
-          console.error("Failed to save inbound whatsapp message:", err);
-        }
-      }
-
-      // If we still have no text (couldn't fetch/transcribe), don't call llmAnalyze
-      if (!text || text.trim() === "") {
-        console.warn(
-          "No text obtained from incoming message; skipping LLM analysis",
-        );
-        // Optionally notify the user that transcription failed
-        try {
-          await sendWhatsAppMessage(
-            from,
-            "Sorry, I couldn't process your audio message.",
-          );
-        } catch (err) {
-          console.error("Failed to send failure notice to WhatsApp user:", err);
-        }
-
-        processedMessages.add(messageId);
-        return NextResponse.json({ ok: true });
-      }
-
-      let data: string | undefined = undefined;
-      try {
-        const aiResponse = await llmAnalyze(text, whatsappUser?.id);
-        data = await aiResponse.response;
-        await sendWhatsAppMessage(from, data || "No response");
-      } catch (err) {
-        // LLM or upstream API may fail (network/timeouts). Notify user gracefully.
-        console.error("whatsapp webhook: llmAnalyze/send failed", err);
-        try {
-          await sendWhatsAppMessage(
-            from,
-            "Sorry, I'm having trouble reaching the AI service right now. Please try again later.",
-          );
-        } catch (sendErr) {
-          console.error(
-            "Failed to send fallback message to WhatsApp user:",
-            sendErr,
-          );
-        }
-
-        processedMessages.add(messageId);
-        return NextResponse.json({ ok: true });
-      }
-
-      try {
-        if (whatsappUser?.id) {
-          await addWhatsappMessage(whatsappUser.id, "assistant", data || "");
-        }
-      } catch (err) {
-        console.error("Failed to save outbound whatsapp message:", err);
-      }
-
       processedMessages.add(messageId);
+      try {
+        const from = message.from;
+        let text = message?.text?.body;
 
-      // console.log("✅ New WhatsApp message:");
-      // console.log("From:", from);
-      // console.log("Message ID:", messageId);
-      // console.log("Text:", text);
+        // If no text, try to transcribe incoming audio/voice/document message
+        if (!text) {
+          const mediaId =
+            message?.audio?.id ||
+            message?.voice?.id ||
+            message?.document?.id ||
+            message?.image?.id;
 
-      return NextResponse.json({ ok: true });
+          if (mediaId) {
+            // helper: fetch with retries to mitigate transient timeouts
+            const fetchWithRetries = async (
+              url: string,
+              opts: RequestInit = {},
+              retries = 2,
+              delayMs = 500,
+            ): Promise<Response> => {
+              let lastErr: unknown = null;
+              for (let i = 0; i <= retries; i++) {
+                try {
+                  return await fetch(url, opts);
+                } catch (err) {
+                  lastErr = err;
+                  // small backoff
+                  await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
+                }
+              }
+              throw lastErr;
+            };
+
+            try {
+              const mediaMetaRes = await fetchWithRetries(
+                `https://graph.facebook.com/v20.0/${mediaId}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+                  },
+                },
+              );
+
+              if (!mediaMetaRes.ok) {
+                const errBody = await mediaMetaRes.text().catch(() => "");
+                throw new Error(
+                  `media meta fetch failed: ${mediaMetaRes.status} ${errBody}`,
+                );
+              }
+
+              const mediaMeta = await mediaMetaRes.json();
+              const mediaUrl = mediaMeta?.url;
+
+              if (mediaUrl) {
+                const mediaRes = await fetchWithRetries(mediaUrl, {
+                  headers: {
+                    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+                  },
+                });
+
+                if (!mediaRes.ok) {
+                  const errBody = await mediaRes.text().catch(() => "");
+                  throw new Error(
+                    `media download failed: ${mediaRes.status} ${errBody}`,
+                  );
+                }
+
+                const arrayBuffer = await mediaRes.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+
+                // Check size before attempting transcription to avoid large multipart uploads
+                const maxBytes = Number(
+                  process.env.GROQ_MAX_UPLOAD_BYTES || 5_000_000,
+                );
+                if (buffer.length > maxBytes) {
+                  console.warn(
+                    `Incoming media too large for transcription: ${buffer.length} bytes (max ${maxBytes})`,
+                  );
+                  try {
+                    await sendWhatsAppMessage(
+                      from,
+                      "Sorry — your audio file is too large to transcribe. Please send a shorter voice note or try again with a smaller file.",
+                    );
+                  } catch (err) {
+                    console.error(
+                      "Failed to send large-file notice to WhatsApp user:",
+                      err,
+                    );
+                  }
+
+                  processedMessages.add(messageId);
+                  return NextResponse.json({ ok: true });
+                }
+
+                try {
+                  const transcript = await speechToText(buffer);
+                  if (transcript) text = transcript;
+                } catch (err) {
+                  console.error("Failed to transcribe WhatsApp audio:", err);
+                }
+              }
+            } catch (err) {
+              console.error("Failed to fetch WhatsApp media:", err);
+            }
+          }
+        }
+        let whatsappUser = undefined;
+        try {
+          whatsappUser = await getWhatsappUser(from);
+        } catch (err) {
+          // Prisma may time out; log and continue with no DB-backed user.
+          // We still proceed so the webhook remains responsive.
+          console.error(
+            "whatsapp webhook: getWhatsappUser failed, continuing without DB user",
+            err,
+          );
+          whatsappUser = undefined;
+        }
+
+        // persist inbound message
+        if (text && whatsappUser?.id) {
+          try {
+            await addWhatsappMessage(whatsappUser.id, "user", text);
+          } catch (err) {
+            console.error("Failed to save inbound whatsapp message:", err);
+          }
+        }
+
+        // If we still have no text (couldn't fetch/transcribe), don't call llmAnalyze
+        if (!text || text.trim() === "") {
+          console.warn(
+            "No text obtained from incoming message; skipping LLM analysis",
+          );
+          // Optionally notify the user that transcription failed
+          try {
+            await sendWhatsAppMessage(
+              from,
+              "Sorry, I couldn't process your audio message.",
+            );
+          } catch (err) {
+            console.error(
+              "Failed to send failure notice to WhatsApp user:",
+              err,
+            );
+          }
+
+          processedMessages.add(messageId);
+          return NextResponse.json({ ok: true });
+        }
+
+        let data: string | undefined = undefined;
+        try {
+          const aiResponse = await llmAnalyze(text, whatsappUser?.id);
+          data = await aiResponse.response;
+          await sendWhatsAppMessage(from, data || "No response");
+        } catch (err) {
+          // LLM or upstream API may fail (network/timeouts). Notify user gracefully.
+          console.error("whatsapp webhook: llmAnalyze/send failed", err);
+          try {
+            await sendWhatsAppMessage(
+              from,
+              "Sorry, I'm having trouble reaching the AI service right now. Please try again later.",
+            );
+          } catch (sendErr) {
+            console.error(
+              "Failed to send fallback message to WhatsApp user:",
+              sendErr,
+            );
+          }
+
+          processedMessages.add(messageId);
+          return NextResponse.json({ ok: true });
+        }
+
+        try {
+          if (whatsappUser?.id) {
+            await addWhatsappMessage(whatsappUser.id, "assistant", data || "");
+          }
+        } catch (err) {
+          console.error("Failed to save outbound whatsapp message:", err);
+        }
+
+        try {
+          if (whatsappUser?.id) {
+            await addWhatsappMessage(whatsappUser.id, "assistant", data || "");
+          }
+        } catch (err) {
+          console.error("Failed to save outbound whatsapp message:", err);
+        }
+
+        processedMessages.add(messageId);
+
+        return NextResponse.json({ ok: true });
+      } catch (err) {
+        // On error, allow the message to be retried by removing dedupe mark
+        try {
+          processedMessages.delete(messageId);
+        } catch (delErr) {
+          console.error("Failed to delete processedMessages entry:", delErr);
+        }
+        throw err;
+      }
     }
 
     const status = value?.statuses?.[0];

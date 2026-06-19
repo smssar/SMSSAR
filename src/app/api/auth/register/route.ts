@@ -48,10 +48,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "password_mismatch" }, { status: 400 });
   }
 
-  const role = roleValue === "seller" ? "SELLER" : "USER";
-  const sellerPhone = role === "SELLER" ? phone : undefined;
+  const role =
+    roleValue === "seller"
+      ? "SELLER"
+      : roleValue === "smssar"
+        ? "SMSSAR"
+        : "USER";
+  const sellerPhone =
+    role === "SELLER" || role === "SMSSAR" ? phone : undefined;
 
-  if (role === "SELLER" && !sellerPhone) {
+  if ((role === "SELLER" || role === "SMSSAR") && !sellerPhone) {
     return NextResponse.json(
       { error: "seller_phone_required" },
       { status: 400 },

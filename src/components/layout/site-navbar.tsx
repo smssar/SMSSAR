@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   ShieldCheck,
-  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -38,20 +37,20 @@ export function SiteNavbar({
   const pathname = usePathname();
   const role = session?.user?.role;
 
-  const showSellerLink = role === "SELLER";
+  const showSellerLink = role === "SELLER" || role === "SMSSAR";
   const showAdminLink = role === "ADMIN";
   const showUserProfileLink = role === "USER";
   const showAuthActions = !session?.user?.id;
 
   const manageHref =
-    role === "SELLER"
+    role === "SELLER" || role === "SMSSAR"
       ? `/${locale}/dashboard/seller/profile`
       : role === "ADMIN"
         ? `/${locale}/dashboard/admin`
         : `/${locale}/dashboard/profile`;
 
   const manageLabel =
-    role === "SELLER"
+    role === "SELLER" || role === "SMSSAR"
       ? messages.nav.seller
       : role === "ADMIN"
         ? messages.nav.admin
@@ -208,11 +207,7 @@ export function SiteNavbar({
                       {userName}
                     </span>
                     <span className="max-w-32 truncate text-xs text-muted-foreground">
-                      {role === "SELLER"
-                        ? messages.nav.seller
-                        : role === "ADMIN"
-                          ? messages.nav.admin
-                          : messages.nav.profile}
+                      {manageLabel}
                     </span>
                   </span>
                   <ChevronDown className="h-4 w-4 text-muted-foreground transition group-open:rotate-180" />
@@ -243,11 +238,7 @@ export function SiteNavbar({
                         </div>
                       ) : null}
                       <div className="mt-1 text-xs font-medium text-violet-600 dark:text-violet-300">
-                        {role === "SELLER"
-                          ? messages.nav.seller
-                          : role === "ADMIN"
-                            ? messages.nav.admin
-                            : messages.nav.profile}
+                        {manageLabel}
                       </div>
                     </div>
                   </div>

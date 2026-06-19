@@ -15,7 +15,7 @@ import { PricingCheckoutButton } from "@/components/payment/pricing-checkout-but
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
 
-export default async function SellerPlanPage({
+export default async function SmssarPlanPage({
   params,
 }: {
   params: Promise<{ locale: Locale }>;
@@ -172,7 +172,6 @@ export default async function SellerPlanPage({
         })}
       </div>
 
-      {/* Purchases Add-ons Card */}
       <Card className="border-emerald-500/40 bg-linear-to-br from-emerald-500/5 to-teal-500/5">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
@@ -196,7 +195,7 @@ export default async function SellerPlanPage({
               : "Add extra images, videos, ads, and featured listings on demand"}
           </p>
           <ButtonLink
-            href={`/${locale}/dashboard/seller/purchases`}
+            href={`/${locale}/dashboard/smssar/purchases`}
             variant="default"
             className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
           >

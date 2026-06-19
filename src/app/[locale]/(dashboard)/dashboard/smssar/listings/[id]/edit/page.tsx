@@ -80,7 +80,6 @@ export default async function EditListingPage({
     orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
   });
 
-  // Convert database property to ListingForm compatible format
   const priceType =
     (
       property as typeof property & {
@@ -107,10 +106,9 @@ export default async function EditListingPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        {/* For LTR locales show Back button on left */}
         {getDirection(locale) === "ltr" ? (
           <ButtonLink
-            href={`/${locale}/dashboard/seller/listings`}
+            href={`/${locale}/dashboard/smssar/listings`}
             variant="ghost"
             className="inline-flex items-center gap-2"
           >
@@ -128,10 +126,9 @@ export default async function EditListingPage({
           <p className="mt-2 text-muted-foreground">{property.title}</p>
         </div>
 
-        {/* For RTL locales show Back button on right */}
         {getDirection(locale) === "rtl" ? (
           <ButtonLink
-            href={`/${locale}/dashboard/seller/listings`}
+            href={`/${locale}/dashboard/smssar/listings`}
             variant="ghost"
             className="inline-flex items-center gap-2"
           >

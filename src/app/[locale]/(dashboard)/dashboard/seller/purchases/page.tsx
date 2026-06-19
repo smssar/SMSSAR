@@ -35,7 +35,10 @@ export default async function SellerPurchasesPage({
   const { locale } = await params;
   const session = await auth();
 
-  if (!session?.user?.id || session.user.role !== "SELLER") {
+  if (
+    !session?.user?.id ||
+    (session.user.role !== "SELLER" && session.user.role !== "SMSSAR")
+  ) {
     redirect(`/${locale}/login`);
   }
 

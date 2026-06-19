@@ -17,7 +17,7 @@ export default async function UserProfilePage({
   }
 
   if (session.user.role !== "USER") {
-    if (session.user.role === "SELLER") {
+    if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
       redirect(`/${locale}/dashboard/seller`);
     }
     if (session.user.role === "ADMIN") {

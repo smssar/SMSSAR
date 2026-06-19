@@ -7,10 +7,383 @@ datasource db {
   provider = "postgresql"
 }
 
+model City {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  name_en       String
+  name_ar       String?
+  name_fr       String?
+  slug          String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  neighborhoods Neighborhood[]
+}
+
+model Neighborhood {
+  id        String   @id @default(cuid())
+  name      String
+  name_en   String
+  name_ar   String?
+  name_fr   String?
+  slug      String?
+  cityId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([cityId, name])
+  @@unique([cityId, slug])
+  @@index([cityId])
+}
+
+model PropertyType {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  name_en    String
+  name_ar    String?
+  name_fr    String?
+  slug       String?    @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  properties Property[]
+}
+
+model Plan {
+  id                  String         @id
+  title               String
+  title_ar            String?
+  title_fr            String?
+  description         String
+  description_ar      String?
+  description_fr      String?
+  price               Int
+  listings            Int?
+  featured            Boolean
+  ads                 Int?           @default(0)
+  adsduration         Int?
+  maxFeaturedListings Int?
+  maxImagesPerListing Int?
+  maxVideosPerListing Int?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  adCampaigns         Ad[]
+  subscriptions       Subscription[]
+  users               User[]
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String
+  planId             String
+  status             SubscriptionStatus @default(ACTIVE)
+  startDate          DateTime           @default(now())
+  endDate            DateTime?
+  paymentId          String?            @unique
+  dodoSubscriptionId String?
+  localSessionId     String?
+  refunded           Boolean            @default(false)
+  refund_id          String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  plan               Plan               @relation(fields: [planId], references: [id])
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+  @@index([dodoSubscriptionId])
+  @@index([localSessionId])
+}
+
+model User {
+  id                 String         @id @default(cuid())
+  name               String?
+  email              String?        @unique
+  emailVerified      DateTime?
+  passwordHash       String?
+  avatar             String?
+  phone              String?
+  city               String?
+  bio                String?
+  suspendedAt        DateTime?
+  suspendedUntil     DateTime?
+  suspendedMessage   String?
+  suspendedBy        String?
+  bannedMessage      String?
+  planId             String?
+  featuredproperties Int?           @default(0)
+  role               UserRole       @default(USER)
+  status             UserStatus     @default(ACTIVE)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  accounts           Account[]
+  ads                Ad[]
+  favorites          Favorite[]
+  properties         Property[]
+  purchases          Purchase[]
+  sessions           Session[]
+  subscriptions      Subscription[]
+  plan               Plan?          @relation(fields: [planId], references: [id])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  access_token      String?
+  refresh_token     String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Property {
+  id             String        @id @default(cuid())
+  title          String
+  description    String?
+  city           String
+  neighborhood   String?
+  area           Int?
+  rooms          Int
+  bathrooms      Int?
+  price          Int
+  propertyTypeId String?
+  forSale        Boolean       @default(false)
+  featured       Boolean       @default(false)
+  priceType      String        @default("MONTHLY")
+  imageUrl       String?
+  videoUrl       String?
+  sellerId       String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  ads            Ad[]
+  favorites      Favorite[]
+  media          Media[]
+  propertyType   PropertyType? @relation(fields: [propertyTypeId], references: [id], onDelete: Restrict)
+  seller         User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([propertyTypeId])
+  @@index([city])
+  @@index([neighborhood])
+  @@index([featured])
+  @@index([sellerId])
+}
+
+model Ad {
+  id            String    @id @default(cuid())
+  userId        String
+  title         String
+  slug          String?   @unique
+  description   String?
+  planId        String?
+  propertyId    String?
+  status        AdStatus  @default(DRAFT)
+  startAt       DateTime?
+  endAt         DateTime?
+  budget        Int?
+  spentAmount   Int       @default(0)
+  pricePerDay   Int?
+  impressions   Int       @default(0)
+  clicks        Int       @default(0)
+  conversions   Int       @default(0)
+  featured      Boolean   @default(false)
+  featuredUntil DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  plan          Plan?     @relation(fields: [planId], references: [id])
+  property      Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([planId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([startAt])
+  @@index([endAt])
+  @@index([featured])
+  @@index([featuredUntil])
+  @@index([createdAt])
+  @@index([clicks])
+  @@index([impressions])
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  url        String
+  publicId   String
+  type       String   @default("image")
+  propertyId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+}
+
+model PurchaseProduct {
+  id             String        @id @default(cuid())
+  title          String
+  title_ar       String?
+  title_fr       String?
+  description    String?
+  price          Int
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  code           PurchaseType? @unique
+  description_ar String?
+  description_fr String?
+  purchases      Purchase[]
+}
+
+model Purchase {
+  id                String          @id @default(cuid())
+  userId            String
+  purchaseProductId String
+  quantity          Int
+  unitPrice         Int
+  totalPrice        Int
+  status            PurchaseStatus  @default(PENDING)
+  paymentId         String?         @unique
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  purchaseProduct   PurchaseProduct @relation(fields: [purchaseProductId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([purchaseProductId])
+  @@index([status])
+  @@index([paymentId])
+}
+
+model Page {
+  id                        String   @id @default(cuid())
+  slug                      String   @unique
+  title                     String
+  subtitle                  String?
+  description               String?
+  article                   String?
+  seoTitle                  String?
+  seoDescription            String?
+  seoKeywords               String?
+  ogImage                   String?
+  published                 Boolean  @default(true)
+  noIndex                   Boolean  @default(false)
+  prioritiesCityIds         String[] @default([])
+  propertiesNeighborhoods   String[] @default([])
+  prioritiesPropertyTypeIds String[] @default([])
+  prioritiesForSale         Boolean? @default(false)
+  prioritiesFeatured        Boolean? @default(false)
+  prioritiesMinPrice        Int?
+  prioritiesMaxPrice        Int?
+  prioritiesMinArea         Int?
+  prioritiesMaxArea         Int?
+  prioritiesMinRooms        Int?
+  prioritiesMaxRooms        Int?
+  prioritiesMinBathrooms    Int?
+  prioritiesMaxBathrooms    Int?
+  prioritiesPriceType       String?  @default("MONTHLY")
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  article_ar                String?
+  article_fr                String?
+  description_ar            String?
+  description_fr            String?
+  seoDescription_ar         String?
+  seoDescription_fr         String?
+  seoTitle_ar               String?
+  seoTitle_fr               String?
+  subtitle_ar               String?
+  subtitle_fr               String?
+  title_ar                  String?
+  title_fr                  String?
+}
+
+model WhatsappMessage {
+  id             String       @id @default(cuid())
+  whatsappUserId String
+  role           String
+  content        String
+  tokens         Int?
+  model          String?
+  createdAt      DateTime     @default(now())
+  whatsappUser   WhatsappUser @relation(fields: [whatsappUserId], references: [id], onDelete: Cascade)
+
+  @@index([whatsappUserId, createdAt])
+}
+
+model WhatsappUser {
+  id                  String            @id @default(cuid())
+  phoneNumber         String            @unique
+  name                String?
+  language            String?           @default("ar")
+  memory              String?
+  preferredCities     String[]          @default([])
+  preferredCategories String[]          @default([])
+  minBudget           Int?
+  maxBudget           Int?
+  preferredRooms      Int?
+  preferredBathrooms  Int?
+  forSale             Boolean?
+  lastMessageAt       DateTime?
+  lastInteractionAt   DateTime?
+  totalMessages       Int               @default(0)
+  profileSummary      String?
+  tokensLimit         Int?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  messages            WhatsappMessage[]
+
+  @@index([phoneNumber])
+  @@index([lastInteractionAt])
+}
+
 enum UserRole {
   USER
   SELLER
   ADMIN
+  SMSSAR
 }
 
 enum UserStatus {
@@ -30,74 +403,6 @@ enum SubscriptionStatus {
   DISABLED
 }
 
-model City {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  name_en   String
-  name_ar   String?
-  name_fr   String?
-  slug      String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  neighborhoods Neighborhood[]
-}
-
-model Neighborhood {
-  id        String   @id @default(cuid())
-  name      String
-  name_en   String
-  name_ar   String?
-  name_fr   String?
-  slug      String?
-  cityId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
-
-  @@unique([cityId, name])
-  @@unique([cityId, slug])
-  @@index([cityId])
-}
-
-model PropertyType {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  name_en   String
-  name_ar   String?
-  name_fr   String?
-  slug      String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  properties Property[]
-}
-
-model Plan {
-  id                  String   @id
-  title               String
-  title_ar            String?
-  title_fr            String?
-  description         String
-  description_ar      String?
-  description_fr      String?
-  price               Int
-  listings            Int? // null = unlimited
-  featured            Boolean
-  ads                 Int?     @default(0)
-  adsduration         Int?
-  maxFeaturedListings Int?
-  maxImagesPerListing Int?
-  maxVideosPerListing Int?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  users         User[]
-  subscriptions Subscription[]
-  adCampaigns   Ad[]
-}
-
 enum AdStatus {
   DRAFT
   SCHEDULED
@@ -105,223 +410,6 @@ enum AdStatus {
   PAUSED
   ENDED
   CANCELLED
-}
-
-model Subscription {
-  id                 String             @id @default(cuid())
-  userId             String
-  planId             String
-  status             SubscriptionStatus @default(ACTIVE)
-  startDate          DateTime           @default(now())
-  endDate            DateTime?
-  paymentId          String?            @unique
-  dodoSubscriptionId String?
-  localSessionId     String?
-  refunded           Boolean            @default(false)
-  refund_id          String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict)
-
-  @@index([userId])
-  @@index([planId])
-  @@index([status])
-  @@index([dodoSubscriptionId])
-  @@index([localSessionId])
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  avatar        String?
-
-  phone String?
-  city  String?
-  bio   String?
-
-  suspendedAt        DateTime?
-  suspendedUntil     DateTime?
-  suspendedMessage   String?
-  suspendedBy        String?
-  bannedMessage      String?
-  planId             String?
-  featuredproperties Int?      @default(0)
-
-  role   UserRole   @default(USER)
-  status UserStatus @default(ACTIVE)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  plan Plan? @relation(fields: [planId], references: [id])
-
-  properties    Property[]
-  favorites     Favorite[]
-  accounts      Account[]
-  sessions      Session[]
-  subscriptions Subscription[]
-  ads           Ad[]
-  purchases     Purchase[]
-}
-
-model Account {
-  id String @id @default(cuid())
-
-  userId            String
-  provider          String
-  providerAccountId String
-
-  access_token  String?
-  refresh_token String?
-  expires_at    Int?
-  token_type    String?
-  scope         String?
-  id_token      String?
-  session_state String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Property {
-  id             String   @id @default(cuid())
-  title          String
-  description    String?
-  city           String
-  neighborhood   String?
-  area           Int?
-  rooms          Int
-  bathrooms      Int?
-  price          Int
-  propertyTypeId String?
-  forSale        Boolean  @default(false)
-  featured       Boolean  @default(false)
-  priceType      String   @default("MONTHLY") // MONTHLY or DAILY
-  imageUrl       String?
-  videoUrl       String?
-  sellerId       String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  propertyType PropertyType? @relation(fields: [propertyTypeId], references: [id], onDelete: Restrict)
-  seller       User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  media        Media[]
-  favorites    Favorite[]
-  ads          Ad[]
-
-  @@index([propertyTypeId])
-  @@index([city])
-  @@index([neighborhood])
-  @@index([featured])
-  @@index([sellerId])
-}
-
-model Ad {
-  id String @id @default(cuid())
-
-  userId String
-
-  title       String
-  slug        String? @unique
-  description String?
-
-  planId     String?
-  propertyId String?
-
-  status AdStatus @default(DRAFT)
-
-  startAt DateTime?
-  endAt   DateTime?
-
-  budget      Int?
-  spentAmount Int  @default(0)
-  pricePerDay Int?
-
-  impressions Int @default(0)
-  clicks      Int @default(0)
-  conversions Int @default(0)
-
-  featured      Boolean   @default(false)
-  featuredUntil DateTime?
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  // relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan     Plan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
-  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  // indexes
-  @@index([userId])
-  @@index([planId])
-  @@index([propertyId])
-  @@index([status])
-  @@index([startAt])
-  @@index([endAt])
-  @@index([featured])
-  @@index([featuredUntil])
-  @@index([createdAt])
-  @@index([clicks])
-  @@index([impressions])
-}
-
-model Favorite {
-  id         String   @id @default(cuid())
-  userId     String
-  propertyId String
-  createdAt  DateTime @default(now())
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, propertyId])
-  @@index([userId])
-  @@index([propertyId])
-}
-
-model Media {
-  id         String   @id @default(cuid())
-  url        String
-  publicId   String
-  type       String   @default("image") // image or video
-  propertyId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  @@index([propertyId])
 }
 
 enum PurchaseType {
@@ -340,168 +428,4 @@ enum PurchaseStatus {
   FAILED
   REFUNDED
   ACTIVE
-}
-
-model PurchaseProduct {
-  id String @id @default(cuid())
-
-  code PurchaseType? @unique
-
-  title    String
-  title_ar String?
-  title_fr String?
-
-  description    String?
-  description_ar String?
-  description_fr String?
-
-  price  Int
-  active Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  purchases Purchase[]
-}
-
-model Purchase {
-  id String @id @default(cuid())
-
-  userId            String
-  purchaseProductId String
-
-  quantity   Int 
-  unitPrice  Int
-  totalPrice Int
-
-  status PurchaseStatus @default(PENDING)
-
-  paymentId String? @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  purchaseProduct PurchaseProduct @relation(fields: [purchaseProductId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([purchaseProductId])
-  @@index([status])
-  @@index([paymentId])
-}
-
-model Page {
-  id              String   @id @default(cuid())
-
-  slug            String   @unique
-
-  title        String
-  title_ar        String?
-  title_fr        String?
-
-  subtitle     String?
-  subtitle_ar     String?
-  subtitle_fr     String?
-
-
-  description  String?
-  description_ar  String?
-  description_fr  String?
-
-  article         String?
-  article_ar         String?
-  article_fr         String?
-
-  seoTitle        String?
-  seoTitle_ar     String?
-  seoTitle_fr     String?
-
-  seoDescription  String?
-  seoDescription_ar String?
-  seoDescription_fr String?
-
-  seoKeywords     String?
-  ogImage         String?
-
-  published       Boolean  @default(true)
-  noIndex         Boolean  @default(false)
-
-  prioritiesCityIds String[] @default([])
-  propertiesNeighborhoods String[] @default([])
-  prioritiesPropertyTypeIds String[] @default([])
-  prioritiesForSale Boolean? @default(false)
-  prioritiesFeatured Boolean? @default(false)
-  prioritiesMinPrice Int?
-  prioritiesMaxPrice Int?
-  prioritiesMinArea Int?
-  prioritiesMaxArea Int?
-  prioritiesMinRooms Int?
-  prioritiesMaxRooms Int?
-  prioritiesMinBathrooms Int?
-  prioritiesMaxBathrooms Int?
-  prioritiesPriceType String? @default("MONTHLY")
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-
-model WhatsappMessage {
-  id String @id @default(cuid())
-
-  whatsappUserId String
-
-  role String 
-
-  content String @db.Text
-
-  tokens Int?
-  model String?
-  
-  createdAt DateTime @default(now())
-
-  whatsappUser WhatsappUser @relation(fields: [whatsappUserId],references: [id],onDelete: Cascade)
-
-  @@index([whatsappUserId, createdAt])
-}
-
-model WhatsappUser {
-  id String @id @default(cuid())
-
-  phoneNumber String @unique
-
-  name String?
-
-  language String? @default("ar")
-
-  memory String? @db.Text
-
-  preferredCities String[] @default([])
-  preferredCategories String[] @default([])
-
-  minBudget Int?
-  maxBudget Int?
-
-  preferredRooms Int?
-  preferredBathrooms Int?
-
-  forSale Boolean?
-
-  lastMessageAt DateTime?
-  lastInteractionAt DateTime?
-
-  totalMessages Int @default(0)
-
-  profileSummary String? @db.Text
-
-  tokensLimit Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-
-  messages WhatsappMessage[]
-
-  @@index([phoneNumber])
-  @@index([lastInteractionAt])
 }

@@ -56,9 +56,8 @@ export const getCities = unstable_cache(
   // { revalidate: 60 * 60 * 24 },
 );
 
-// In-memory cache for whatsapp user memory summaries to avoid repeated LLM calls
-const memorySummaryCache: Map<string, { summary: string; ts: number }> =
-  new Map();
+// NOTE: we do not persist or use a `whatsappUser.memory` field here.
+// We'll include the raw last-5-message history directly in the prompt when available.
 
 async function deepseek(
   messages: { role: string; content: string }[],
@@ -232,70 +231,25 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
     getCities(),
   ]);
 
-  let memorySummary: string | null = null;
-  const CACHE_TTL = Number(
-    process.env.MEMORY_SUMMARY_TTL_MS || String(5 * 60 * 1000),
-  ); // default 5 minutes
+  // Build system prompt; include raw last-5-message history when whatsappUserId provided.
+  let recentHistory: string | null = null;
   if (whatsappUserId) {
-    // Check in-memory cache first
-    const cached = memorySummaryCache.get(whatsappUserId);
-    if (cached && Date.now() - cached.ts < CACHE_TTL) {
-      memorySummary = cached.summary;
-    } else {
-      try {
-        const recent = await prisma.whatsappMessage.findMany({
-          where: { whatsappUserId },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-        });
+    try {
+      const recent = await prisma.whatsappMessage.findMany({
+        where: { whatsappUserId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      });
 
-        if (recent && recent.length) {
-          const history = recent
-            .slice()
-            .reverse()
-            .map((m) => `${m.role}: ${m.content}`)
-            .join("\n");
-
-          // Summarize recent messages into a short memory note
-          try {
-            const mem = await deepseek([
-              {
-                role: "system",
-                content: `Summarize the following conversation into a short memory note (1-2 sentences). Keep the language the same as the messages and do not invent facts.`,
-              },
-              { role: "user", content: history },
-            ]);
-
-            memorySummary = mem?.trim() || null;
-
-            if (memorySummary) {
-              // update DB (best-effort) and cache
-              try {
-                await prisma.whatsappUser.update({
-                  where: { id: whatsappUserId },
-                  data: { memory: memorySummary },
-                });
-              } catch (err) {
-                console.error("Failed to update whatsapp user memory:", err);
-              }
-
-              try {
-                memorySummaryCache.set(whatsappUserId, {
-                  summary: memorySummary,
-                  ts: Date.now(),
-                });
-              } catch (err) {
-                // cache set should not block processing
-                console.error("Failed to set memorySummary cache:", err);
-              }
-            }
-          } catch (err) {
-            console.error("Failed to create memory summary:", err);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load recent whatsapp messages:", err);
+      if (recent && recent.length) {
+        recentHistory = recent
+          .slice()
+          .reverse()
+          .map((m) => `${m.role}: ${m.content}`)
+          .join("\n");
       }
+    } catch (err) {
+      console.error("Failed to load recent whatsapp messages:", err);
     }
   }
 
@@ -337,8 +291,8 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
     Return JSON only.
   `.trim();
 
-  const systemPrompt = memorySummary
-    ? `${systemPromptBase}\n\nUser memory: ${memorySummary}`
+  const systemPrompt = recentHistory
+    ? `${systemPromptBase}\n\nRecent conversation:\n${recentHistory}`
     : systemPromptBase;
 
   // const systemPrompt = systemPromptBase;
@@ -363,15 +317,6 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
 
     const properties = await searchProperties(filters, cities, categories);
 
-    if (!properties.length) {
-      return {
-        role: "property_search",
-        response: "Sorry, I couldn't find any properties matching your search.",
-        filters,
-        properties: [],
-      };
-    }
-
     console.log("Found properties:", properties.length, "filters:", filters);
 
     const summary = await deepseek([
@@ -380,29 +325,35 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
         content: `
           You are a real-estate assistant for Smssar.
 
-          You operate in Morocco and support:
+          You operate in Morocco and support only the following languages:
             - Arabic
             - English
             - French
             - Moroccan Darija
 
         Rules:
+         - if No properties found => return "best match" message in the user's language.
         - Respond only in the language used by the user .
         - Use only the information provided in the search results.
-        - If a detail is not present in the results, do not mention it.
         - Summarize all relevant information from the results.
         - Keep the response under 80 words.
         - Do not use markdown, bullet points, headings, or special formatting.
         - Return plain text only.
+        - Price in MAD, area in m², rooms and bathrooms as integers.
         `.trim(),
       },
       {
         role: "user",
-        content: JSON.stringify(properties),
+        content: JSON.stringify(
+          properties.length > 0 ? properties : "No properties found.",
+        ),
       },
       {
         role: "user",
-        content: "user request: " + text,
+        content:
+          "user request: " +
+          text +
+          "\n\nSummarize the results for the user in their language.",
       },
     ]);
 

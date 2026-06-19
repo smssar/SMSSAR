@@ -93,7 +93,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
 
-  if (session.user.role === "SELLER") {
+  if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
     const property = await prisma.property.findUnique({
       where: { id },
       select: { sellerId: true },
@@ -298,7 +298,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   // Featured limit check — now includes extraFeatured from purchases
   // -------------------------------------------------------------------------
   if (data.featured === true && !existingProperty.featured) {
-    if (session.user.role === "SELLER") {
+    if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
       if (!sellerPlan) return jsonError("User plan not found.", 500);
 
       const planFeaturedLimit = sellerPlan.maxFeaturedListings ?? 0;
@@ -705,7 +705,11 @@ export async function DELETE(_: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) return jsonError("Authentication required.", 401);
 
-  if (session.user.role !== "ADMIN" && session.user.role !== "SELLER")
+  if (
+    session.user.role !== "ADMIN" &&
+    session.user.role !== "SELLER" &&
+    session.user.role !== "SMSSAR"
+  )
     return jsonError("Only admins can delete properties.", 403);
 
   const { id } = await context.params;
@@ -718,7 +722,7 @@ export async function DELETE(_: Request, context: RouteContext) {
     if (!propertyToDelete) return jsonError("Property not found.", 404);
 
     if (
-      session.user.role === "SELLER" &&
+      (session.user.role === "SELLER" || session.user.role === "SMSSAR") &&
       propertyToDelete.sellerId !== session.user.id
     )
       return jsonError("You can only delete your own properties.", 403);

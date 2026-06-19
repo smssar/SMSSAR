@@ -32,7 +32,7 @@ export default async function AdminDashboardLayout({
   }
 
   if (session.user.role !== "ADMIN") {
-    if (session.user.role === "SELLER") {
+    if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
       redirect(`/${locale}/dashboard/seller`);
     }
 

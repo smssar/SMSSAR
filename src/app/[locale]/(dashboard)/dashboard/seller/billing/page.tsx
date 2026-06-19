@@ -16,7 +16,8 @@ export default async function SellerBillingPage({ params }: Props) {
 
   const session = await auth();
   if (!session?.user?.id) redirect(`/${locale}/login`);
-  if (session.user.role !== "SELLER") redirect(`/${locale}/dashboard/profile`);
+  if (session.user.role !== "SELLER" && session.user.role !== "SMSSAR")
+    redirect(`/${locale}/dashboard/profile`);
 
   const active = await prisma.subscription.findFirst({
     where: {

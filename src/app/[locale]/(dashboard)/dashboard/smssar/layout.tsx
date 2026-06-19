@@ -15,7 +15,7 @@ import type { Locale } from "@/lib/locales";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-export default async function SellerDashboardLayout({
+export default async function SmssarDashboardLayout({
   children,
   params,
 }: {
@@ -42,47 +42,47 @@ export default async function SellerDashboardLayout({
   const items = [
     {
       label: messages.dashboard.seller.overview,
-      href: `/${locale}/dashboard/seller`,
+      href: `/${locale}/dashboard/smssar`,
       icon: <BarChart3 className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.listings,
-      href: `/${locale}/dashboard/seller/listings`,
+      href: `/${locale}/dashboard/smssar/listings`,
       icon: <FolderHeart className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.addHouse,
-      href: `/${locale}/dashboard/seller/add`,
+      href: `/${locale}/dashboard/smssar/add`,
       icon: <FilePlus2 className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.subscriptions,
-      href: `/${locale}/dashboard/seller/subscriptions`,
+      href: `/${locale}/dashboard/smssar/subscriptions`,
       icon: <CreditCard className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.billing ?? "Billing",
-      href: `/${locale}/dashboard/seller/billing`,
+      href: `/${locale}/dashboard/smssar/billing`,
       icon: <CreditCard className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.plan,
-      href: `/${locale}/dashboard/seller/plan`,
+      href: `/${locale}/dashboard/smssar/plan`,
       icon: <Settings2 className="h-4 w-4" />,
     },
     {
       label: locale === "ar" ? "الشراء" : "Purchases",
-      href: `/${locale}/dashboard/seller/purchases`,
+      href: `/${locale}/dashboard/smssar/purchases`,
       icon: <ShoppingBag className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.seller.profile,
-      href: `/${locale}/dashboard/seller/profile`,
+      href: `/${locale}/dashboard/smssar/profile`,
       icon: <UserRound className="h-4 w-4" />,
     },
     {
       label: messages.nav.favorites,
-      href: `/${locale}/dashboard/seller/favorites`,
+      href: `/${locale}/dashboard/smssar/favorites`,
       icon: <Heart className="h-4 w-4" />,
     },
   ];
@@ -91,7 +91,7 @@ export default async function SellerDashboardLayout({
     <DashboardShell
       locale={locale}
       title={messages.dashboard.seller.title}
-      roleLabel={locale === "ar" ? "حساب البائع" : "Seller account"}
+      roleLabel={locale === "ar" ? "حساب Smssar" : "Smssar account"}
       items={items}
     >
       {children}

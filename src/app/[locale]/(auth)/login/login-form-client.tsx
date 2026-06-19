@@ -89,7 +89,7 @@ export function LoginFormClient({
     });
 
     const session = (await sessionResponse.json()) as {
-      user?: { role?: "USER" | "SELLER" | "ADMIN" };
+      user?: { role?: "USER" | "SELLER" | "ADMIN" | "SMSSAR" };
     };
 
     const nextPath = redirectTo
@@ -98,9 +98,9 @@ export function LoginFormClient({
         : `/${locale}`
       : session.user?.role === "ADMIN"
         ? `/${locale}/dashboard/admin`
-        : session.user?.role === "SELLER"
+        : session.user?.role === "SELLER" || session.user?.role === "SMSSAR"
           ? `/${locale}/dashboard/seller`
-          : `/${locale}/dashboard/profile`;
+          : `/${locale}`;
 
     router.replace(nextPath);
     router.refresh();

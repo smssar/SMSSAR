@@ -82,6 +82,7 @@ export async function POST(request: Request) {
   const role = body.role?.toUpperCase() as
     | "USER"
     | "SELLER"
+    | "SMSSAR"
     | "ADMIN"
     | undefined;
   const status = body.status?.toUpperCase() as
@@ -95,8 +96,8 @@ export async function POST(request: Request) {
     return jsonError("Fields 'name', 'email', and 'password' are required.");
   }
 
-  if (!["USER", "SELLER", "ADMIN"].includes(role ?? "")) {
-    return jsonError("Role must be USER, SELLER, or ADMIN.");
+  if (!["USER", "SELLER", "SMSSAR", "ADMIN"].includes(role ?? "")) {
+    return jsonError("Role must be USER, SELLER, SMSSAR, or ADMIN.");
   }
 
   if (!["ACTIVE", "PENDING", "SUSPENDED", "BANNED"].includes(status ?? "")) {
@@ -170,7 +171,7 @@ export async function POST(request: Request) {
         passwordHash,
         phone: phone ? phone : null,
         bio: bio ? bio : null,
-        role: role as "USER" | "SELLER" | "ADMIN",
+        role: role as "USER" | "SELLER" | "SMSSAR" | "ADMIN",
         status: status as "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED",
         suspendedAt: isSuspended || isBanned ? new Date() : null,
         suspendedUntil: isBanned ? null : suspendedUntil,

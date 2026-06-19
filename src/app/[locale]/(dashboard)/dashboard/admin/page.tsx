@@ -86,7 +86,11 @@ export default async function AdminOverviewPage({
   ] as const;
 
   const getRoleBadge = (role: string) =>
-    role === "ADMIN" ? "accent" : role === "SELLER" ? "secondary" : "outline";
+    role === "ADMIN"
+      ? "accent"
+      : role === "SELLER" || role === "SMSSAR"
+        ? "secondary"
+        : "outline";
   const getStatusBadge = (status: string) =>
     status === "ACTIVE" ? "accent" : "secondary";
 

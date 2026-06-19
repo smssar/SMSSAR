@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Lock, UserRound, ShieldCheck } from "lucide-react";
+import { Mail, Lock, UserRound } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -32,9 +32,9 @@ export default async function RegisterPage({
   }>;
 }) {
   const { locale } = await params;
-  const { error, role, name, email, phone } = await searchParams;
+  const { error, name, email, phone } = await searchParams;
   const messages = getMessages(locale);
-  const initialRole = role === "seller" ? "seller" : "user";
+  const initialRole = "user";
 
   const t = (en: string, ar: string, fr: string) =>
     locale === "ar" ? ar : locale === "fr" ? fr : en;
