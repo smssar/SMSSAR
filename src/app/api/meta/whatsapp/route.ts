@@ -222,7 +222,6 @@ export async function POST(req: Request) {
           }
         }
 
-        // If we still have no text (couldn't fetch/transcribe), don't call llmAnalyze
         if (!text || text.trim() === "") {
           console.warn(
             "No text obtained from incoming message; skipping LLM analysis",
@@ -317,7 +316,11 @@ export async function POST(req: Request) {
             }
           }
 
-          await sendWhatsAppMessage(from, data || "No response");
+          try {
+            await sendWhatsAppMessage(from, data || "No response");
+          } catch (err) {
+            console.error("Failed to send WhatsApp message:", err);
+          }
         } catch (err) {
           // LLM or upstream API may fail (network/timeouts). Notify user gracefully.
           console.error("whatsapp webhook: llmAnalyze/send failed", err);
