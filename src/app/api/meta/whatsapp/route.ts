@@ -81,6 +81,32 @@ export async function POST(req: Request) {
         console.error("whatsapp webhook: dedupe DB check failed", err);
       }
       try {
+        const statusUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+        await fetchWithRetries(
+          statusUrl,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              status: "read",
+              message_id: messageId,
+              typing_indicator: { type: "image" },
+            }),
+          },
+          1,
+          2000,
+        );
+      } catch (err) {
+        console.error(
+          "Failed to send initial WhatsApp typing/read indicator:",
+          err,
+        );
+      }
+      try {
         const from = message.from;
         let text = message?.text?.body;
 
@@ -244,6 +270,34 @@ export async function POST(req: Request) {
 
         let data: string | undefined = undefined;
         try {
+          // Notify WhatsApp that we've received the message and show typing indicator
+          try {
+            const statusUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+            await fetchWithRetries(
+              statusUrl,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  messaging_product: "whatsapp",
+                  status: "read",
+                  message_id: messageId,
+                  typing_indicator: { type: "text" },
+                }),
+              },
+              1,
+              3000,
+            );
+          } catch (err) {
+            console.error(
+              "Failed to send WhatsApp typing/read indicator:",
+              err,
+            );
+          }
+
           const aiResponse = await llmAnalyze(text, whatsappUser?.id);
           data = aiResponse.response ?? "";
           const parsedAi = aiResponse as {
@@ -358,13 +412,9 @@ export async function POST(req: Request) {
     const status = value?.statuses?.[0];
 
     if (status) {
-      // console.log("📊 Status update:", status);
       return NextResponse.json({ ok: true });
     }
 
-    // --------------------
-    // Ignore other events safely
-    // --------------------
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("❌ Webhook error:", err);
