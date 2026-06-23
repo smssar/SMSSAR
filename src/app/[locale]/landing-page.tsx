@@ -18,7 +18,6 @@ import {
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
-// prisma and auth are server-only; import dynamically inside the server component
 import { PropertyCard } from "@/components/property";
 import { BecomeSellerButton } from "@/components/auth/become-seller-button";
 
@@ -104,110 +103,113 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
     <div className="min-h-screen bg-background">
       <SiteNavbar locale={locale} messages={messages} session={session} />
       <main>
-        <SectionReveal className="relative overflow-hidden">
+        <div className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_24%)]" />
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:py-24">
-            <div className="space-y-8 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start">
-                <BadgeCheck className="h-4 w-4 text-green-500" />
-                {t(locale, {
-                  en: "Verified, multilingual rental marketplace",
-                  ar: "منصة موثقة ومتعددة اللغات",
-                  fr: "Marketplace de location vérifié et multilingue",
-                })}
-              </div>
-              <div className="space-y-5 w-full">
-                <AnimatedHeroText
-                  items={
-                    (messages.home.heroRotatingTitles as readonly string[]) || [
-                      messages.home.heroTitle,
-                    ]
-                  }
-                  className={`${
-                    locale === "ar" ? "text-right" : "text-left"
-                  } max-w-3xl text-2xl font-semibold tracking-tight text-balance md:text-3xl text-center`}
-                />
-                <p
-                  className={` ${locale === "ar" ? "text-right" : "text-left"} max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl`}
-                >
-                  {messages.home.heroDescription}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <ButtonLink
-                  href={`/${locale}/properties`}
-                  variant="accent"
-                  size="lg"
-                  className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
-                >
-                  <Search className="h-4 w-4" />
-                  {messages.home.heroCta}
-                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-                </ButtonLink>
-                {session?.user?.role === "USER" ? (
-                  <BecomeSellerButton locale={locale} />
-                ) : null}
-              </div>
-              <StatGrid
-                locale={locale}
-                items={stats.map((item) => ({
-                  label: t(locale, item.label),
-                  value: item.value,
-                  icon: <Shield className="h-4 w-4" />,
-                }))}
-              />
-            </div>
-
-            <Card className="glass border-border/70 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.5)]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-2xl">
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
-                    <Search className="h-5 w-5" />
-                  </span>
-                  {messages.home.searchTitle}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
-                    <div className="text-sm text-muted-foreground">
-                      {messages.common.city}
-                    </div>
-                    <div className="mt-2 text-xl font-semibold">Tetouan</div>
-                  </div>
-                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
-                    <div className="text-sm text-muted-foreground">
-                      {messages.common.price}
-                    </div>
-                    <div className="mt-2 text-xl font-semibold">
-                      {formatCurrency(1500, locale)}
-                    </div>
-                  </div>
-                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
-                    <div className="text-sm text-muted-foreground">
-                      {messages.common.rooms}
-                    </div>
-                    <div className="mt-2 text-xl font-semibold">4</div>
-                  </div>
-                  <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
-                    <div className="text-sm text-muted-foreground">
-                      {messages.common.verified}
-                    </div>
-                    <div className="mt-2 text-xl font-semibold">100%</div>
-                  </div>
+          <SectionReveal>
+            <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:py-24">
+              <div className="space-y-8 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start">
+                  <BadgeCheck className="h-4 w-4 text-green-500" />
+                  {t(locale, {
+                    en: "Verified, multilingual rental marketplace",
+                    ar: "منصة موثقة ومتعددة اللغات",
+                    fr: "Marketplace de location vérifié et multilingue",
+                  })}
                 </div>
-                <ButtonLink
-                  href={`/${locale}/properties`}
-                  variant="default"
-                  className="w-full"
-                >
-                  <Search className="h-4 w-4" />
-                  {messages.common.search}
-                </ButtonLink>
-              </CardContent>
-            </Card>
-          </div>
-        </SectionReveal>
+                <div className="space-y-5 w-full">
+                  <AnimatedHeroText
+                    items={
+                      (messages.home
+                        .heroRotatingTitles as readonly string[]) || [
+                        messages.home.heroTitle,
+                      ]
+                    }
+                    className={`${
+                      locale === "ar" ? "text-right" : "text-left"
+                    } max-w-3xl text-2xl font-semibold tracking-tight text-balance md:text-3xl text-center`}
+                  />
+                  <p
+                    className={` ${locale === "ar" ? "text-right" : "text-left"} max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl`}
+                  >
+                    {messages.home.heroDescription}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                  <ButtonLink
+                    href={`/${locale}/properties`}
+                    variant="accent"
+                    size="lg"
+                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
+                  >
+                    <Search className="h-4 w-4" />
+                    {messages.home.heroCta}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                  </ButtonLink>
+                  {session?.user?.role === "USER" ? (
+                    <BecomeSellerButton locale={locale} />
+                  ) : null}
+                </div>
+                <StatGrid
+                  locale={locale}
+                  items={stats.map((item) => ({
+                    label: t(locale, item.label),
+                    value: item.value,
+                    icon: <Shield className="h-4 w-4" />,
+                  }))}
+                />
+              </div>
+
+              <Card className="glass border-border/70 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.5)]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
+                      <Search className="h-5 w-5" />
+                    </span>
+                    {messages.home.searchTitle}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
+                      <div className="text-sm text-muted-foreground">
+                        {messages.common.city}
+                      </div>
+                      <div className="mt-2 text-xl font-semibold">Tetouan</div>
+                    </div>
+                    <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
+                      <div className="text-sm text-muted-foreground">
+                        {messages.common.price}
+                      </div>
+                      <div className="mt-2 text-xl font-semibold">
+                        {formatCurrency(1500, locale)}
+                      </div>
+                    </div>
+                    <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
+                      <div className="text-sm text-muted-foreground">
+                        {messages.common.rooms}
+                      </div>
+                      <div className="mt-2 text-xl font-semibold">4</div>
+                    </div>
+                    <div className="rounded-3xl bg-muted/40 p-5 w-full flex flex-col items-center lg:items-start">
+                      <div className="text-sm text-muted-foreground">
+                        {messages.common.verified}
+                      </div>
+                      <div className="mt-2 text-xl font-semibold">100%</div>
+                    </div>
+                  </div>
+                  <ButtonLink
+                    href={`/${locale}/properties`}
+                    variant="default"
+                    className="w-full"
+                  >
+                    <Search className="h-4 w-4" />
+                    {messages.common.search}
+                  </ButtonLink>
+                </CardContent>
+              </Card>
+            </div>
+          </SectionReveal>
+        </div>
 
         <SectionReveal className="section-anchor mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center lg:text-left">
           <SectionHeading

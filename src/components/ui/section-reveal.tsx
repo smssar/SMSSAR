@@ -22,8 +22,10 @@ export function SectionReveal({
   children,
   className,
   delay = 0,
-  threshold = 0.4,
-  isOnce = false,
+  // lower threshold so mobile views trigger sooner
+  threshold = 0.15,
+  // animate only once by default to avoid rapid hide/show on small screens
+  isOnce = true,
 }: SectionRevealProps) {
   return (
     <MotionSection

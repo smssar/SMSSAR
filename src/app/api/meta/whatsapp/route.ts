@@ -66,7 +66,6 @@ export async function POST(req: Request) {
 
     if (message) {
       const messageId = message.id;
-      // Check DB for existing message with this external id to avoid duplicate processing
       try {
         const existing = await prisma.$queryRaw`
           SELECT id FROM "WhatsappMessage" WHERE "externalId" = ${messageId} LIMIT 1
