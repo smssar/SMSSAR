@@ -49,6 +49,7 @@ export async function addWhatsappMessage(
   options?: {
     tokens?: number;
     model?: string;
+    externalId?: string | null;
   },
 ) {
   return await prisma.whatsappMessage.create({
@@ -58,6 +59,7 @@ export async function addWhatsappMessage(
       content,
       tokens: options?.tokens,
       model: options?.model,
+      externalId: options?.externalId ?? undefined,
     },
   });
 }

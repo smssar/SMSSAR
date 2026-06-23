@@ -5,3 +5,4 @@ export { AdminListingsPanel } from "./admin-listings-panel";
 export { AdminPlansPanel } from "./admin-plans-panel";
 export { AdminUsersPanel } from "./admin-users-panel";
 export { AdminProfilePanel } from "./admin-profile-panel";
+export { AdminWhatsappPanel } from "./admin-whatsapp-panel";

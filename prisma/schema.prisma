@@ -343,6 +343,7 @@ model Page {
 model WhatsappMessage {
   id             String       @id @default(cuid())
   whatsappUserId String
+  externalId     String?      @unique
   role           String
   content        String
   tokens         Int?

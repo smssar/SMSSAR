@@ -18,6 +18,7 @@ import type { Locale } from "@/lib/locales";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import { FavoriteButton } from "@/components/property/favorite-button";
+import ExpandableText from "@/components/ui/expandable-text";
 import { getMessages } from "@/lib/messages";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
@@ -163,9 +164,11 @@ export function PropertyCard({
         </div>
       </div>
       <CardContent className="space-y-5 p-6">
-        <p className="text-sm leading-6 text-muted-foreground">
-          {property.description}
-        </p>
+        <ExpandableText
+          text={property.description}
+          maxLength={200}
+          locale={locale}
+        />
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-linear-to-r from-violet-500/10 via-fuchsia-500/10 to-indigo-500/10 px-4 py-2 text-sm font-semibold text-violet-700 shadow-sm shadow-violet-500/10 dark:text-violet-200">

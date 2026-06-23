@@ -364,9 +364,9 @@ export type AdWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Ad"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ad"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Ad"> | Date | string | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   plan?: Prisma.XOR<Prisma.PlanNullableScalarRelationFilter, Prisma.PlanWhereInput> | null
   property?: Prisma.XOR<Prisma.PropertyNullableScalarRelationFilter, Prisma.PropertyWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type AdOrderByWithRelationInput = {
@@ -391,9 +391,9 @@ export type AdOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
   plan?: Prisma.PlanOrderByWithRelationInput
   property?: Prisma.PropertyOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type AdWhereUniqueInput = Prisma.AtLeast<{
@@ -421,9 +421,9 @@ export type AdWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Ad"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ad"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Ad"> | Date | string | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   plan?: Prisma.XOR<Prisma.PlanNullableScalarRelationFilter, Prisma.PlanWhereInput> | null
   property?: Prisma.XOR<Prisma.PropertyNullableScalarRelationFilter, Prisma.PropertyWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "slug">
 
 export type AdOrderByWithAggregationInput = {
@@ -501,9 +501,9 @@ export type AdCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutAdsInput
   plan?: Prisma.PlanCreateNestedOneWithoutAdCampaignsInput
   property?: Prisma.PropertyCreateNestedOneWithoutAdsInput
+  user: Prisma.UserCreateNestedOneWithoutAdsInput
 }
 
 export type AdUncheckedCreateInput = {
@@ -549,9 +549,9 @@ export type AdUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutAdCampaignsNestedInput
   property?: Prisma.PropertyUpdateOneWithoutAdsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
 }
 
 export type AdUncheckedUpdateInput = {
@@ -896,8 +896,8 @@ export type AdCreateWithoutPlanInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutAdsInput
   property?: Prisma.PropertyCreateNestedOneWithoutAdsInput
+  user: Prisma.UserCreateNestedOneWithoutAdsInput
 }
 
 export type AdUncheckedCreateWithoutPlanInput = {
@@ -1067,8 +1067,8 @@ export type AdCreateWithoutPropertyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutAdsInput
   plan?: Prisma.PlanCreateNestedOneWithoutAdCampaignsInput
+  user: Prisma.UserCreateNestedOneWithoutAdsInput
 }
 
 export type AdUncheckedCreateWithoutPropertyInput = {
@@ -1162,8 +1162,8 @@ export type AdUpdateWithoutPlanInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
   property?: Prisma.PropertyUpdateOneWithoutAdsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
 }
 
 export type AdUncheckedUpdateWithoutPlanInput = {
@@ -1346,8 +1346,8 @@ export type AdUpdateWithoutPropertyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutAdCampaignsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAdsNestedInput
 }
 
 export type AdUncheckedUpdateWithoutPropertyInput = {
@@ -1420,9 +1420,9 @@ export type AdSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ad"]>
 
 export type AdSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1447,9 +1447,9 @@ export type AdSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ad"]>
 
 export type AdSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1474,9 +1474,9 @@ export type AdSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ad"]>
 
 export type AdSelectScalar = {
@@ -1505,27 +1505,27 @@ export type AdSelectScalar = {
 
 export type AdOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "slug" | "description" | "planId" | "propertyId" | "status" | "startAt" | "endAt" | "budget" | "spentAmount" | "pricePerDay" | "impressions" | "clicks" | "conversions" | "featured" | "featuredUntil" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["ad"]>
 export type AdInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type AdIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type AdIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Ad$planArgs<ExtArgs>
   property?: boolean | Prisma.Ad$propertyArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $AdPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Ad"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
     plan: Prisma.$PlanPayload<ExtArgs> | null
     property: Prisma.$PropertyPayload<ExtArgs> | null
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1943,9 +1943,9 @@ readonly fields: AdFieldRefs;
  */
 export interface Prisma__AdClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   plan<T extends Prisma.Ad$planArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ad$planArgs<ExtArgs>>): Prisma.Prisma__PlanClient<runtime.Types.Result.GetResult<Prisma.$PlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   property<T extends Prisma.Ad$propertyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ad$propertyArgs<ExtArgs>>): Prisma.Prisma__PropertyClient<runtime.Types.Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -52,23 +52,11 @@ export type PageMinAggregateOutputType = {
   id: string | null
   slug: string | null
   title: string | null
-  title_ar: string | null
-  title_fr: string | null
   subtitle: string | null
-  subtitle_ar: string | null
-  subtitle_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   article: string | null
-  article_ar: string | null
-  article_fr: string | null
   seoTitle: string | null
-  seoTitle_ar: string | null
-  seoTitle_fr: string | null
   seoDescription: string | null
-  seoDescription_ar: string | null
-  seoDescription_fr: string | null
   seoKeywords: string | null
   ogImage: string | null
   published: boolean | null
@@ -86,29 +74,29 @@ export type PageMinAggregateOutputType = {
   prioritiesPriceType: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  article_ar: string | null
+  article_fr: string | null
+  description_ar: string | null
+  description_fr: string | null
+  seoDescription_ar: string | null
+  seoDescription_fr: string | null
+  seoTitle_ar: string | null
+  seoTitle_fr: string | null
+  subtitle_ar: string | null
+  subtitle_fr: string | null
+  title_ar: string | null
+  title_fr: string | null
 }
 
 export type PageMaxAggregateOutputType = {
   id: string | null
   slug: string | null
   title: string | null
-  title_ar: string | null
-  title_fr: string | null
   subtitle: string | null
-  subtitle_ar: string | null
-  subtitle_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   article: string | null
-  article_ar: string | null
-  article_fr: string | null
   seoTitle: string | null
-  seoTitle_ar: string | null
-  seoTitle_fr: string | null
   seoDescription: string | null
-  seoDescription_ar: string | null
-  seoDescription_fr: string | null
   seoKeywords: string | null
   ogImage: string | null
   published: boolean | null
@@ -126,29 +114,29 @@ export type PageMaxAggregateOutputType = {
   prioritiesPriceType: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  article_ar: string | null
+  article_fr: string | null
+  description_ar: string | null
+  description_fr: string | null
+  seoDescription_ar: string | null
+  seoDescription_fr: string | null
+  seoTitle_ar: string | null
+  seoTitle_fr: string | null
+  subtitle_ar: string | null
+  subtitle_fr: string | null
+  title_ar: string | null
+  title_fr: string | null
 }
 
 export type PageCountAggregateOutputType = {
   id: number
   slug: number
   title: number
-  title_ar: number
-  title_fr: number
   subtitle: number
-  subtitle_ar: number
-  subtitle_fr: number
   description: number
-  description_ar: number
-  description_fr: number
   article: number
-  article_ar: number
-  article_fr: number
   seoTitle: number
-  seoTitle_ar: number
-  seoTitle_fr: number
   seoDescription: number
-  seoDescription_ar: number
-  seoDescription_fr: number
   seoKeywords: number
   ogImage: number
   published: number
@@ -169,6 +157,18 @@ export type PageCountAggregateOutputType = {
   prioritiesPriceType: number
   createdAt: number
   updatedAt: number
+  article_ar: number
+  article_fr: number
+  description_ar: number
+  description_fr: number
+  seoDescription_ar: number
+  seoDescription_fr: number
+  seoTitle_ar: number
+  seoTitle_fr: number
+  subtitle_ar: number
+  subtitle_fr: number
+  title_ar: number
+  title_fr: number
   _all: number
 }
 
@@ -199,23 +199,11 @@ export type PageMinAggregateInputType = {
   id?: true
   slug?: true
   title?: true
-  title_ar?: true
-  title_fr?: true
   subtitle?: true
-  subtitle_ar?: true
-  subtitle_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   article?: true
-  article_ar?: true
-  article_fr?: true
   seoTitle?: true
-  seoTitle_ar?: true
-  seoTitle_fr?: true
   seoDescription?: true
-  seoDescription_ar?: true
-  seoDescription_fr?: true
   seoKeywords?: true
   ogImage?: true
   published?: true
@@ -233,29 +221,29 @@ export type PageMinAggregateInputType = {
   prioritiesPriceType?: true
   createdAt?: true
   updatedAt?: true
+  article_ar?: true
+  article_fr?: true
+  description_ar?: true
+  description_fr?: true
+  seoDescription_ar?: true
+  seoDescription_fr?: true
+  seoTitle_ar?: true
+  seoTitle_fr?: true
+  subtitle_ar?: true
+  subtitle_fr?: true
+  title_ar?: true
+  title_fr?: true
 }
 
 export type PageMaxAggregateInputType = {
   id?: true
   slug?: true
   title?: true
-  title_ar?: true
-  title_fr?: true
   subtitle?: true
-  subtitle_ar?: true
-  subtitle_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   article?: true
-  article_ar?: true
-  article_fr?: true
   seoTitle?: true
-  seoTitle_ar?: true
-  seoTitle_fr?: true
   seoDescription?: true
-  seoDescription_ar?: true
-  seoDescription_fr?: true
   seoKeywords?: true
   ogImage?: true
   published?: true
@@ -273,29 +261,29 @@ export type PageMaxAggregateInputType = {
   prioritiesPriceType?: true
   createdAt?: true
   updatedAt?: true
+  article_ar?: true
+  article_fr?: true
+  description_ar?: true
+  description_fr?: true
+  seoDescription_ar?: true
+  seoDescription_fr?: true
+  seoTitle_ar?: true
+  seoTitle_fr?: true
+  subtitle_ar?: true
+  subtitle_fr?: true
+  title_ar?: true
+  title_fr?: true
 }
 
 export type PageCountAggregateInputType = {
   id?: true
   slug?: true
   title?: true
-  title_ar?: true
-  title_fr?: true
   subtitle?: true
-  subtitle_ar?: true
-  subtitle_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   article?: true
-  article_ar?: true
-  article_fr?: true
   seoTitle?: true
-  seoTitle_ar?: true
-  seoTitle_fr?: true
   seoDescription?: true
-  seoDescription_ar?: true
-  seoDescription_fr?: true
   seoKeywords?: true
   ogImage?: true
   published?: true
@@ -316,6 +304,18 @@ export type PageCountAggregateInputType = {
   prioritiesPriceType?: true
   createdAt?: true
   updatedAt?: true
+  article_ar?: true
+  article_fr?: true
+  description_ar?: true
+  description_fr?: true
+  seoDescription_ar?: true
+  seoDescription_fr?: true
+  seoTitle_ar?: true
+  seoTitle_fr?: true
+  subtitle_ar?: true
+  subtitle_fr?: true
+  title_ar?: true
+  title_fr?: true
   _all?: true
 }
 
@@ -409,23 +409,11 @@ export type PageGroupByOutputType = {
   id: string
   slug: string
   title: string
-  title_ar: string | null
-  title_fr: string | null
   subtitle: string | null
-  subtitle_ar: string | null
-  subtitle_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   article: string | null
-  article_ar: string | null
-  article_fr: string | null
   seoTitle: string | null
-  seoTitle_ar: string | null
-  seoTitle_fr: string | null
   seoDescription: string | null
-  seoDescription_ar: string | null
-  seoDescription_fr: string | null
   seoKeywords: string | null
   ogImage: string | null
   published: boolean
@@ -446,6 +434,18 @@ export type PageGroupByOutputType = {
   prioritiesPriceType: string | null
   createdAt: Date
   updatedAt: Date
+  article_ar: string | null
+  article_fr: string | null
+  description_ar: string | null
+  description_fr: string | null
+  seoDescription_ar: string | null
+  seoDescription_fr: string | null
+  seoTitle_ar: string | null
+  seoTitle_fr: string | null
+  subtitle_ar: string | null
+  subtitle_fr: string | null
+  title_ar: string | null
+  title_fr: string | null
   _count: PageCountAggregateOutputType | null
   _avg: PageAvgAggregateOutputType | null
   _sum: PageSumAggregateOutputType | null
@@ -475,23 +475,11 @@ export type PageWhereInput = {
   id?: Prisma.StringFilter<"Page"> | string
   slug?: Prisma.StringFilter<"Page"> | string
   title?: Prisma.StringFilter<"Page"> | string
-  title_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  title_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   subtitle?: Prisma.StringNullableFilter<"Page"> | string | null
-  subtitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  subtitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   description?: Prisma.StringNullableFilter<"Page"> | string | null
-  description_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  description_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   article?: Prisma.StringNullableFilter<"Page"> | string | null
-  article_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  article_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoTitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoTitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoDescription_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoDescription_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoKeywords?: Prisma.StringNullableFilter<"Page"> | string | null
   ogImage?: Prisma.StringNullableFilter<"Page"> | string | null
   published?: Prisma.BoolFilter<"Page"> | boolean
@@ -512,29 +500,29 @@ export type PageWhereInput = {
   prioritiesPriceType?: Prisma.StringNullableFilter<"Page"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Page"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Page"> | Date | string
+  article_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  article_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  description_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  description_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoDescription_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoDescription_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoTitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoTitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  subtitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  subtitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  title_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  title_fr?: Prisma.StringNullableFilter<"Page"> | string | null
 }
 
 export type PageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   article?: Prisma.SortOrderInput | Prisma.SortOrder
-  article_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  article_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoTitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoTitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoTitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoDescription?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoDescription_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoDescription_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoKeywords?: Prisma.SortOrderInput | Prisma.SortOrder
   ogImage?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -555,6 +543,18 @@ export type PageOrderByWithRelationInput = {
   prioritiesPriceType?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  article_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  article_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoDescription_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoDescription_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoTitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoTitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type PageWhereUniqueInput = Prisma.AtLeast<{
@@ -564,23 +564,11 @@ export type PageWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PageWhereInput[]
   NOT?: Prisma.PageWhereInput | Prisma.PageWhereInput[]
   title?: Prisma.StringFilter<"Page"> | string
-  title_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  title_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   subtitle?: Prisma.StringNullableFilter<"Page"> | string | null
-  subtitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  subtitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   description?: Prisma.StringNullableFilter<"Page"> | string | null
-  description_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  description_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   article?: Prisma.StringNullableFilter<"Page"> | string | null
-  article_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  article_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoTitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoTitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoDescription_ar?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoDescription_fr?: Prisma.StringNullableFilter<"Page"> | string | null
   seoKeywords?: Prisma.StringNullableFilter<"Page"> | string | null
   ogImage?: Prisma.StringNullableFilter<"Page"> | string | null
   published?: Prisma.BoolFilter<"Page"> | boolean
@@ -601,29 +589,29 @@ export type PageWhereUniqueInput = Prisma.AtLeast<{
   prioritiesPriceType?: Prisma.StringNullableFilter<"Page"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Page"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Page"> | Date | string
+  article_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  article_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  description_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  description_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoDescription_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoDescription_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoTitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoTitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  subtitle_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  subtitle_fr?: Prisma.StringNullableFilter<"Page"> | string | null
+  title_ar?: Prisma.StringNullableFilter<"Page"> | string | null
+  title_fr?: Prisma.StringNullableFilter<"Page"> | string | null
 }, "id" | "slug">
 
 export type PageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   article?: Prisma.SortOrderInput | Prisma.SortOrder
-  article_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  article_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoTitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoTitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoTitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoDescription?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoDescription_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoDescription_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   seoKeywords?: Prisma.SortOrderInput | Prisma.SortOrder
   ogImage?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -644,6 +632,18 @@ export type PageOrderByWithAggregationInput = {
   prioritiesPriceType?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  article_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  article_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoDescription_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoDescription_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoTitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoTitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtitle_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtitle_fr?: Prisma.SortOrderInput | Prisma.SortOrder
+  title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PageCountOrderByAggregateInput
   _avg?: Prisma.PageAvgOrderByAggregateInput
   _max?: Prisma.PageMaxOrderByAggregateInput
@@ -658,23 +658,11 @@ export type PageScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Page"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Page"> | string
   title?: Prisma.StringWithAggregatesFilter<"Page"> | string
-  title_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  title_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   subtitle?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  subtitle_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  subtitle_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  description_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  description_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   article?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  article_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  article_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  seoTitle_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  seoTitle_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  seoDescription_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  seoDescription_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   seoKeywords?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   ogImage?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   published?: Prisma.BoolWithAggregatesFilter<"Page"> | boolean
@@ -695,29 +683,29 @@ export type PageScalarWhereWithAggregatesInput = {
   prioritiesPriceType?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Page"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Page"> | Date | string
+  article_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  article_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  description_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  description_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  seoDescription_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  seoDescription_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  seoTitle_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  seoTitle_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  subtitle_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  subtitle_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  title_ar?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  title_fr?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
 }
 
 export type PageCreateInput = {
   id?: string
   slug: string
   title: string
-  title_ar?: string | null
-  title_fr?: string | null
   subtitle?: string | null
-  subtitle_ar?: string | null
-  subtitle_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   article?: string | null
-  article_ar?: string | null
-  article_fr?: string | null
   seoTitle?: string | null
-  seoTitle_ar?: string | null
-  seoTitle_fr?: string | null
   seoDescription?: string | null
-  seoDescription_ar?: string | null
-  seoDescription_fr?: string | null
   seoKeywords?: string | null
   ogImage?: string | null
   published?: boolean
@@ -738,29 +726,29 @@ export type PageCreateInput = {
   prioritiesPriceType?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  article_ar?: string | null
+  article_fr?: string | null
+  description_ar?: string | null
+  description_fr?: string | null
+  seoDescription_ar?: string | null
+  seoDescription_fr?: string | null
+  seoTitle_ar?: string | null
+  seoTitle_fr?: string | null
+  subtitle_ar?: string | null
+  subtitle_fr?: string | null
+  title_ar?: string | null
+  title_fr?: string | null
 }
 
 export type PageUncheckedCreateInput = {
   id?: string
   slug: string
   title: string
-  title_ar?: string | null
-  title_fr?: string | null
   subtitle?: string | null
-  subtitle_ar?: string | null
-  subtitle_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   article?: string | null
-  article_ar?: string | null
-  article_fr?: string | null
   seoTitle?: string | null
-  seoTitle_ar?: string | null
-  seoTitle_fr?: string | null
   seoDescription?: string | null
-  seoDescription_ar?: string | null
-  seoDescription_fr?: string | null
   seoKeywords?: string | null
   ogImage?: string | null
   published?: boolean
@@ -781,29 +769,29 @@ export type PageUncheckedCreateInput = {
   prioritiesPriceType?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  article_ar?: string | null
+  article_fr?: string | null
+  description_ar?: string | null
+  description_fr?: string | null
+  seoDescription_ar?: string | null
+  seoDescription_fr?: string | null
+  seoTitle_ar?: string | null
+  seoTitle_fr?: string | null
+  subtitle_ar?: string | null
+  subtitle_fr?: string | null
+  title_ar?: string | null
+  title_fr?: string | null
 }
 
 export type PageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -824,29 +812,29 @@ export type PageUpdateInput = {
   prioritiesPriceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -867,29 +855,29 @@ export type PageUncheckedUpdateInput = {
   prioritiesPriceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PageCreateManyInput = {
   id?: string
   slug: string
   title: string
-  title_ar?: string | null
-  title_fr?: string | null
   subtitle?: string | null
-  subtitle_ar?: string | null
-  subtitle_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   article?: string | null
-  article_ar?: string | null
-  article_fr?: string | null
   seoTitle?: string | null
-  seoTitle_ar?: string | null
-  seoTitle_fr?: string | null
   seoDescription?: string | null
-  seoDescription_ar?: string | null
-  seoDescription_fr?: string | null
   seoKeywords?: string | null
   ogImage?: string | null
   published?: boolean
@@ -910,29 +898,29 @@ export type PageCreateManyInput = {
   prioritiesPriceType?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  article_ar?: string | null
+  article_fr?: string | null
+  description_ar?: string | null
+  description_fr?: string | null
+  seoDescription_ar?: string | null
+  seoDescription_fr?: string | null
+  seoTitle_ar?: string | null
+  seoTitle_fr?: string | null
+  subtitle_ar?: string | null
+  subtitle_fr?: string | null
+  title_ar?: string | null
+  title_fr?: string | null
 }
 
 export type PageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -953,29 +941,29 @@ export type PageUpdateManyMutationInput = {
   prioritiesPriceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -996,6 +984,18 @@ export type PageUncheckedUpdateManyInput = {
   prioritiesPriceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  article_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  article_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoDescription_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoTitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type StringNullableListFilter<$PrismaModel = never> = {
@@ -1010,23 +1010,11 @@ export type PageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  title_ar?: Prisma.SortOrder
-  title_fr?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
-  subtitle_ar?: Prisma.SortOrder
-  subtitle_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   article?: Prisma.SortOrder
-  article_ar?: Prisma.SortOrder
-  article_fr?: Prisma.SortOrder
   seoTitle?: Prisma.SortOrder
-  seoTitle_ar?: Prisma.SortOrder
-  seoTitle_fr?: Prisma.SortOrder
   seoDescription?: Prisma.SortOrder
-  seoDescription_ar?: Prisma.SortOrder
-  seoDescription_fr?: Prisma.SortOrder
   seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -1047,6 +1035,18 @@ export type PageCountOrderByAggregateInput = {
   prioritiesPriceType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  article_ar?: Prisma.SortOrder
+  article_fr?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
+  seoDescription_ar?: Prisma.SortOrder
+  seoDescription_fr?: Prisma.SortOrder
+  seoTitle_ar?: Prisma.SortOrder
+  seoTitle_fr?: Prisma.SortOrder
+  subtitle_ar?: Prisma.SortOrder
+  subtitle_fr?: Prisma.SortOrder
+  title_ar?: Prisma.SortOrder
+  title_fr?: Prisma.SortOrder
 }
 
 export type PageAvgOrderByAggregateInput = {
@@ -1064,23 +1064,11 @@ export type PageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  title_ar?: Prisma.SortOrder
-  title_fr?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
-  subtitle_ar?: Prisma.SortOrder
-  subtitle_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   article?: Prisma.SortOrder
-  article_ar?: Prisma.SortOrder
-  article_fr?: Prisma.SortOrder
   seoTitle?: Prisma.SortOrder
-  seoTitle_ar?: Prisma.SortOrder
-  seoTitle_fr?: Prisma.SortOrder
   seoDescription?: Prisma.SortOrder
-  seoDescription_ar?: Prisma.SortOrder
-  seoDescription_fr?: Prisma.SortOrder
   seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -1098,29 +1086,29 @@ export type PageMaxOrderByAggregateInput = {
   prioritiesPriceType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  article_ar?: Prisma.SortOrder
+  article_fr?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
+  seoDescription_ar?: Prisma.SortOrder
+  seoDescription_fr?: Prisma.SortOrder
+  seoTitle_ar?: Prisma.SortOrder
+  seoTitle_fr?: Prisma.SortOrder
+  subtitle_ar?: Prisma.SortOrder
+  subtitle_fr?: Prisma.SortOrder
+  title_ar?: Prisma.SortOrder
+  title_fr?: Prisma.SortOrder
 }
 
 export type PageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  title_ar?: Prisma.SortOrder
-  title_fr?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
-  subtitle_ar?: Prisma.SortOrder
-  subtitle_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   article?: Prisma.SortOrder
-  article_ar?: Prisma.SortOrder
-  article_fr?: Prisma.SortOrder
   seoTitle?: Prisma.SortOrder
-  seoTitle_ar?: Prisma.SortOrder
-  seoTitle_fr?: Prisma.SortOrder
   seoDescription?: Prisma.SortOrder
-  seoDescription_ar?: Prisma.SortOrder
-  seoDescription_fr?: Prisma.SortOrder
   seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -1138,6 +1126,18 @@ export type PageMinOrderByAggregateInput = {
   prioritiesPriceType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  article_ar?: Prisma.SortOrder
+  article_fr?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
+  seoDescription_ar?: Prisma.SortOrder
+  seoDescription_fr?: Prisma.SortOrder
+  seoTitle_ar?: Prisma.SortOrder
+  seoTitle_fr?: Prisma.SortOrder
+  subtitle_ar?: Prisma.SortOrder
+  subtitle_fr?: Prisma.SortOrder
+  title_ar?: Prisma.SortOrder
+  title_fr?: Prisma.SortOrder
 }
 
 export type PageSumOrderByAggregateInput = {
@@ -1188,23 +1188,11 @@ export type PageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   slug?: boolean
   title?: boolean
-  title_ar?: boolean
-  title_fr?: boolean
   subtitle?: boolean
-  subtitle_ar?: boolean
-  subtitle_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   article?: boolean
-  article_ar?: boolean
-  article_fr?: boolean
   seoTitle?: boolean
-  seoTitle_ar?: boolean
-  seoTitle_fr?: boolean
   seoDescription?: boolean
-  seoDescription_ar?: boolean
-  seoDescription_fr?: boolean
   seoKeywords?: boolean
   ogImage?: boolean
   published?: boolean
@@ -1225,29 +1213,29 @@ export type PageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   prioritiesPriceType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  article_ar?: boolean
+  article_fr?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
+  seoDescription_ar?: boolean
+  seoDescription_fr?: boolean
+  seoTitle_ar?: boolean
+  seoTitle_fr?: boolean
+  subtitle_ar?: boolean
+  subtitle_fr?: boolean
+  title_ar?: boolean
+  title_fr?: boolean
 }, ExtArgs["result"]["page"]>
 
 export type PageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   slug?: boolean
   title?: boolean
-  title_ar?: boolean
-  title_fr?: boolean
   subtitle?: boolean
-  subtitle_ar?: boolean
-  subtitle_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   article?: boolean
-  article_ar?: boolean
-  article_fr?: boolean
   seoTitle?: boolean
-  seoTitle_ar?: boolean
-  seoTitle_fr?: boolean
   seoDescription?: boolean
-  seoDescription_ar?: boolean
-  seoDescription_fr?: boolean
   seoKeywords?: boolean
   ogImage?: boolean
   published?: boolean
@@ -1268,29 +1256,29 @@ export type PageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   prioritiesPriceType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  article_ar?: boolean
+  article_fr?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
+  seoDescription_ar?: boolean
+  seoDescription_fr?: boolean
+  seoTitle_ar?: boolean
+  seoTitle_fr?: boolean
+  subtitle_ar?: boolean
+  subtitle_fr?: boolean
+  title_ar?: boolean
+  title_fr?: boolean
 }, ExtArgs["result"]["page"]>
 
 export type PageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   slug?: boolean
   title?: boolean
-  title_ar?: boolean
-  title_fr?: boolean
   subtitle?: boolean
-  subtitle_ar?: boolean
-  subtitle_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   article?: boolean
-  article_ar?: boolean
-  article_fr?: boolean
   seoTitle?: boolean
-  seoTitle_ar?: boolean
-  seoTitle_fr?: boolean
   seoDescription?: boolean
-  seoDescription_ar?: boolean
-  seoDescription_fr?: boolean
   seoKeywords?: boolean
   ogImage?: boolean
   published?: boolean
@@ -1311,29 +1299,29 @@ export type PageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   prioritiesPriceType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  article_ar?: boolean
+  article_fr?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
+  seoDescription_ar?: boolean
+  seoDescription_fr?: boolean
+  seoTitle_ar?: boolean
+  seoTitle_fr?: boolean
+  subtitle_ar?: boolean
+  subtitle_fr?: boolean
+  title_ar?: boolean
+  title_fr?: boolean
 }, ExtArgs["result"]["page"]>
 
 export type PageSelectScalar = {
   id?: boolean
   slug?: boolean
   title?: boolean
-  title_ar?: boolean
-  title_fr?: boolean
   subtitle?: boolean
-  subtitle_ar?: boolean
-  subtitle_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   article?: boolean
-  article_ar?: boolean
-  article_fr?: boolean
   seoTitle?: boolean
-  seoTitle_ar?: boolean
-  seoTitle_fr?: boolean
   seoDescription?: boolean
-  seoDescription_ar?: boolean
-  seoDescription_fr?: boolean
   seoKeywords?: boolean
   ogImage?: boolean
   published?: boolean
@@ -1354,9 +1342,21 @@ export type PageSelectScalar = {
   prioritiesPriceType?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  article_ar?: boolean
+  article_fr?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
+  seoDescription_ar?: boolean
+  seoDescription_fr?: boolean
+  seoTitle_ar?: boolean
+  seoTitle_fr?: boolean
+  subtitle_ar?: boolean
+  subtitle_fr?: boolean
+  title_ar?: boolean
+  title_fr?: boolean
 }
 
-export type PageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "title_ar" | "title_fr" | "subtitle" | "subtitle_ar" | "subtitle_fr" | "description" | "description_ar" | "description_fr" | "article" | "article_ar" | "article_fr" | "seoTitle" | "seoTitle_ar" | "seoTitle_fr" | "seoDescription" | "seoDescription_ar" | "seoDescription_fr" | "seoKeywords" | "ogImage" | "published" | "noIndex" | "prioritiesCityIds" | "propertiesNeighborhoods" | "prioritiesPropertyTypeIds" | "prioritiesForSale" | "prioritiesFeatured" | "prioritiesMinPrice" | "prioritiesMaxPrice" | "prioritiesMinArea" | "prioritiesMaxArea" | "prioritiesMinRooms" | "prioritiesMaxRooms" | "prioritiesMinBathrooms" | "prioritiesMaxBathrooms" | "prioritiesPriceType" | "createdAt" | "updatedAt", ExtArgs["result"]["page"]>
+export type PageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "subtitle" | "description" | "article" | "seoTitle" | "seoDescription" | "seoKeywords" | "ogImage" | "published" | "noIndex" | "prioritiesCityIds" | "propertiesNeighborhoods" | "prioritiesPropertyTypeIds" | "prioritiesForSale" | "prioritiesFeatured" | "prioritiesMinPrice" | "prioritiesMaxPrice" | "prioritiesMinArea" | "prioritiesMaxArea" | "prioritiesMinRooms" | "prioritiesMaxRooms" | "prioritiesMinBathrooms" | "prioritiesMaxBathrooms" | "prioritiesPriceType" | "createdAt" | "updatedAt" | "article_ar" | "article_fr" | "description_ar" | "description_fr" | "seoDescription_ar" | "seoDescription_fr" | "seoTitle_ar" | "seoTitle_fr" | "subtitle_ar" | "subtitle_fr" | "title_ar" | "title_fr", ExtArgs["result"]["page"]>
 
 export type $PagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Page"
@@ -1365,23 +1365,11 @@ export type $PagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     slug: string
     title: string
-    title_ar: string | null
-    title_fr: string | null
     subtitle: string | null
-    subtitle_ar: string | null
-    subtitle_fr: string | null
     description: string | null
-    description_ar: string | null
-    description_fr: string | null
     article: string | null
-    article_ar: string | null
-    article_fr: string | null
     seoTitle: string | null
-    seoTitle_ar: string | null
-    seoTitle_fr: string | null
     seoDescription: string | null
-    seoDescription_ar: string | null
-    seoDescription_fr: string | null
     seoKeywords: string | null
     ogImage: string | null
     published: boolean
@@ -1402,6 +1390,18 @@ export type $PagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     prioritiesPriceType: string | null
     createdAt: Date
     updatedAt: Date
+    article_ar: string | null
+    article_fr: string | null
+    description_ar: string | null
+    description_fr: string | null
+    seoDescription_ar: string | null
+    seoDescription_fr: string | null
+    seoTitle_ar: string | null
+    seoTitle_fr: string | null
+    subtitle_ar: string | null
+    subtitle_fr: string | null
+    title_ar: string | null
+    title_fr: string | null
   }, ExtArgs["result"]["page"]>
   composites: {}
 }
@@ -1828,23 +1828,11 @@ export interface PageFieldRefs {
   readonly id: Prisma.FieldRef<"Page", 'String'>
   readonly slug: Prisma.FieldRef<"Page", 'String'>
   readonly title: Prisma.FieldRef<"Page", 'String'>
-  readonly title_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly title_fr: Prisma.FieldRef<"Page", 'String'>
   readonly subtitle: Prisma.FieldRef<"Page", 'String'>
-  readonly subtitle_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly subtitle_fr: Prisma.FieldRef<"Page", 'String'>
   readonly description: Prisma.FieldRef<"Page", 'String'>
-  readonly description_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly description_fr: Prisma.FieldRef<"Page", 'String'>
   readonly article: Prisma.FieldRef<"Page", 'String'>
-  readonly article_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly article_fr: Prisma.FieldRef<"Page", 'String'>
   readonly seoTitle: Prisma.FieldRef<"Page", 'String'>
-  readonly seoTitle_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly seoTitle_fr: Prisma.FieldRef<"Page", 'String'>
   readonly seoDescription: Prisma.FieldRef<"Page", 'String'>
-  readonly seoDescription_ar: Prisma.FieldRef<"Page", 'String'>
-  readonly seoDescription_fr: Prisma.FieldRef<"Page", 'String'>
   readonly seoKeywords: Prisma.FieldRef<"Page", 'String'>
   readonly ogImage: Prisma.FieldRef<"Page", 'String'>
   readonly published: Prisma.FieldRef<"Page", 'Boolean'>
@@ -1865,6 +1853,18 @@ export interface PageFieldRefs {
   readonly prioritiesPriceType: Prisma.FieldRef<"Page", 'String'>
   readonly createdAt: Prisma.FieldRef<"Page", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Page", 'DateTime'>
+  readonly article_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly article_fr: Prisma.FieldRef<"Page", 'String'>
+  readonly description_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly description_fr: Prisma.FieldRef<"Page", 'String'>
+  readonly seoDescription_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly seoDescription_fr: Prisma.FieldRef<"Page", 'String'>
+  readonly seoTitle_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly seoTitle_fr: Prisma.FieldRef<"Page", 'String'>
+  readonly subtitle_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly subtitle_fr: Prisma.FieldRef<"Page", 'String'>
+  readonly title_ar: Prisma.FieldRef<"Page", 'String'>
+  readonly title_fr: Prisma.FieldRef<"Page", 'String'>
 }
     
 

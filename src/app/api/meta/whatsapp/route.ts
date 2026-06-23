@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
-// prisma import not required here (we use properties returned by llmAnalyze)
+import { prisma } from "@/lib/prisma";
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
 
@@ -33,8 +33,7 @@ async function fetchWithRetries(
   throw lastErr;
 }
 
-// In-memory dedupe (use Redis in production)
-const processedMessages = new Set<string>();
+// Dedupe persisted in DB via WhatsappMessage.externalId
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -51,7 +50,6 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  console.log("🔥 META POST RECEIVED");
   try {
     const body = await req.json();
 
@@ -59,34 +57,40 @@ export async function POST(req: Request) {
     const changes = entry?.changes?.[0];
     const value = changes?.value;
 
-    console.log("📥 Incoming webhook payload:", value);
-
     const message = value?.messages?.[0];
+    const contactName = value?.contacts?.[0]?.profile?.name ?? undefined;
 
-    // If no message was included in the webhook payload, return early.
     if (!message) {
       return NextResponse.json({ ok: true });
     }
 
     if (message) {
       const messageId = message.id;
-      // Mark as processed early to prevent duplicate concurrent handling.
-      // If a retry is required for permanent failures, consider persisting dedupe state in a DB.
-      if (processedMessages.has(messageId)) {
-        return NextResponse.json({ ok: true });
+      // Check DB for existing message with this external id to avoid duplicate processing
+      try {
+        const existing = await prisma.$queryRaw`
+          SELECT id FROM "WhatsappMessage" WHERE "externalId" = ${messageId} LIMIT 1
+        `;
+        if (
+          existing &&
+          (Array.isArray(existing) ? existing.length > 0 : true)
+        ) {
+          return NextResponse.json({ ok: true });
+        }
+      } catch (err) {
+        // If DB check fails, continue — we'll still attempt to save and avoid crashing the webhook
+        console.error("whatsapp webhook: dedupe DB check failed", err);
       }
-      processedMessages.add(messageId);
       try {
         const from = message.from;
         let text = message?.text?.body;
 
         // If no text, try to transcribe incoming audio/voice/document message
         if (!text) {
-          const mediaId =
-            message?.audio?.id ||
-            message?.voice?.id ||
-            message?.document?.id ||
-            message?.image?.id;
+          const mediaId = message?.audio?.id || message?.voice?.id;
+          // ||
+          // message?.document?.id ||
+          // message?.image?.id;
 
           if (mediaId) {
             // helper: fetch with retries to mitigate transient timeouts
@@ -166,7 +170,6 @@ export async function POST(req: Request) {
                     );
                   }
 
-                  processedMessages.add(messageId);
                   return NextResponse.json({ ok: true });
                 }
 
@@ -195,10 +198,26 @@ export async function POST(req: Request) {
           whatsappUser = undefined;
         }
 
-        // persist inbound message
+        // Persist contact name to WhatsappUser.name when available
+        if (contactName && whatsappUser?.id) {
+          try {
+            // Only update if name is missing or different
+            if (!whatsappUser.name || whatsappUser.name !== contactName) {
+              await prisma.whatsappUser.update({
+                where: { id: whatsappUser.id },
+                data: { name: contactName },
+              });
+            }
+          } catch (err) {
+            console.error("Failed to persist Whatsapp contact name:", err);
+          }
+        }
+
         if (text && whatsappUser?.id) {
           try {
-            await addWhatsappMessage(whatsappUser.id, "user", text);
+            await addWhatsappMessage(whatsappUser.id, "user", text, {
+              externalId: messageId,
+            });
           } catch (err) {
             console.error("Failed to save inbound whatsapp message:", err);
           }
@@ -222,7 +241,6 @@ export async function POST(req: Request) {
             );
           }
 
-          processedMessages.add(messageId);
           return NextResponse.json({ ok: true });
         }
 
@@ -240,7 +258,6 @@ export async function POST(req: Request) {
             }>;
           };
 
-          // If LLM returned a property_search with properties, include top property image + link
           if (
             parsedAi &&
             parsedAi.role === "property_search" &&
@@ -255,13 +272,32 @@ export async function POST(req: Request) {
               const imageUrl =
                 prop.imageUrl ?? prop.media?.[0]?.url ?? undefined;
 
-              if (imageUrl) {
-                await sendWhatsAppMessage(from, data || "", {
-                  imageUrl,
-                  link,
+              // Verify the property actually exists in our DB before sending any media or links
+              let dbProp = null;
+              try {
+                dbProp = await prisma.property.findUnique({
+                  where: { id: prop.id },
+                  select: { id: true },
                 });
+              } catch (err) {
+                console.error("Failed to verify property existence:", err);
+              }
+
+              if (dbProp) {
+                if (imageUrl) {
+                  await sendWhatsAppMessage(from, data || "", {
+                    imageUrl,
+                    link,
+                  });
+                } else {
+                  await sendWhatsAppMessage(from, `${data || ""}\n${link}`);
+                }
               } else {
-                await sendWhatsAppMessage(from, `${data || ""}\n${link}`);
+                // No matching property in DB — do not send images or links. Send only the textual response.
+                await sendWhatsAppMessage(
+                  from,
+                  data || "No matching properties found.",
+                );
               }
 
               try {
@@ -276,7 +312,6 @@ export async function POST(req: Request) {
                 console.error("Failed to save outbound whatsapp message:", err);
               }
 
-              processedMessages.add(messageId);
               return NextResponse.json({ ok: true });
             } catch (err) {
               console.error("Failed to handle property_search response:", err);
@@ -299,7 +334,6 @@ export async function POST(req: Request) {
             );
           }
 
-          processedMessages.add(messageId);
           return NextResponse.json({ ok: true });
         }
 
@@ -311,24 +345,10 @@ export async function POST(req: Request) {
           console.error("Failed to save outbound whatsapp message:", err);
         }
 
-        try {
-          if (whatsappUser?.id) {
-            await addWhatsappMessage(whatsappUser.id, "assistant", data || "");
-          }
-        } catch (err) {
-          console.error("Failed to save outbound whatsapp message:", err);
-        }
-
-        processedMessages.add(messageId);
-
         return NextResponse.json({ ok: true });
       } catch (err) {
         // On error, allow the message to be retried by removing dedupe mark
-        try {
-          processedMessages.delete(messageId);
-        } catch (delErr) {
-          console.error("Failed to delete processedMessages entry:", delErr);
-        }
+        // nothing special to cleanup — dedupe is persisted by saving `externalId` on the message
         throw err;
       }
     }

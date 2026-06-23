@@ -2017,17 +2017,17 @@ export type MediaScalarFieldEnum = (typeof MediaScalarFieldEnum)[keyof typeof Me
 
 export const PurchaseProductScalarFieldEnum = {
   id: 'id',
-  code: 'code',
   title: 'title',
   title_ar: 'title_ar',
   title_fr: 'title_fr',
   description: 'description',
-  description_ar: 'description_ar',
-  description_fr: 'description_fr',
   price: 'price',
   active: 'active',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  code: 'code',
+  description_ar: 'description_ar',
+  description_fr: 'description_fr'
 } as const
 
 export type PurchaseProductScalarFieldEnum = (typeof PurchaseProductScalarFieldEnum)[keyof typeof PurchaseProductScalarFieldEnum]
@@ -2053,23 +2053,11 @@ export const PageScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
   title: 'title',
-  title_ar: 'title_ar',
-  title_fr: 'title_fr',
   subtitle: 'subtitle',
-  subtitle_ar: 'subtitle_ar',
-  subtitle_fr: 'subtitle_fr',
   description: 'description',
-  description_ar: 'description_ar',
-  description_fr: 'description_fr',
   article: 'article',
-  article_ar: 'article_ar',
-  article_fr: 'article_fr',
   seoTitle: 'seoTitle',
-  seoTitle_ar: 'seoTitle_ar',
-  seoTitle_fr: 'seoTitle_fr',
   seoDescription: 'seoDescription',
-  seoDescription_ar: 'seoDescription_ar',
-  seoDescription_fr: 'seoDescription_fr',
   seoKeywords: 'seoKeywords',
   ogImage: 'ogImage',
   published: 'published',
@@ -2089,7 +2077,19 @@ export const PageScalarFieldEnum = {
   prioritiesMaxBathrooms: 'prioritiesMaxBathrooms',
   prioritiesPriceType: 'prioritiesPriceType',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  article_ar: 'article_ar',
+  article_fr: 'article_fr',
+  description_ar: 'description_ar',
+  description_fr: 'description_fr',
+  seoDescription_ar: 'seoDescription_ar',
+  seoDescription_fr: 'seoDescription_fr',
+  seoTitle_ar: 'seoTitle_ar',
+  seoTitle_fr: 'seoTitle_fr',
+  subtitle_ar: 'subtitle_ar',
+  subtitle_fr: 'subtitle_fr',
+  title_ar: 'title_ar',
+  title_fr: 'title_fr'
 } as const
 
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
@@ -2098,6 +2098,7 @@ export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof Page
 export const WhatsappMessageScalarFieldEnum = {
   id: 'id',
   whatsappUserId: 'whatsappUserId',
+  externalId: 'externalId',
   role: 'role',
   content: 'content',
   tokens: 'tokens',

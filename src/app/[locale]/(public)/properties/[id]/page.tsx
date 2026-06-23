@@ -24,6 +24,7 @@ import type { Property } from "@/lib/site-data";
 import type { ReactNode } from "react";
 import MediaSwiper from "@/components/media/media-swiper-client";
 import { FavoriteButton } from "@/components/property/favorite-button";
+import ExpandableText from "@/components/ui/expandable-text";
 
 type PropertyDisplay = Property & {
   sellerId?: string;
@@ -247,9 +248,14 @@ export default async function PropertyDetailPage({
               <h2 className="text-xl font-semibold">
                 {messages.common.description}
               </h2>
-              <p className="mt-3 leading-7 text-muted-foreground">
-                {property.description[locale]}
-              </p>
+              <div className="mt-3">
+                {/* Client-side toggle for long descriptions */}
+                <ExpandableText
+                  text={property.description[locale]}
+                  maxLength={200}
+                  locale={locale}
+                />
+              </div>
             </div>
 
             <div>

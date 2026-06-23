@@ -10,6 +10,7 @@ import {
   Settings2,
   UserCircle2,
   Undo2,
+  MessageSquare,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { getMessages } from "@/lib/messages";
@@ -41,6 +42,22 @@ export default async function AdminDashboardLayout({
 
   const messages = getMessages(locale);
 
+  function getNested<T>(obj: unknown, path: string[]): T | undefined {
+    let cur: unknown = obj;
+    for (const p of path) {
+      if (
+        cur &&
+        typeof cur === "object" &&
+        p in (cur as Record<string, unknown>)
+      ) {
+        cur = (cur as Record<string, unknown>)[p];
+      } else {
+        return undefined;
+      }
+    }
+    return cur as T | undefined;
+  }
+
   const items = [
     {
       label: messages.dashboard.admin.overview,
@@ -51,6 +68,27 @@ export default async function AdminDashboardLayout({
       label: messages.dashboard.admin.users,
       href: `/${locale}/dashboard/admin/users`,
       icon: <Users className="h-4 w-4" />,
+    },
+    {
+      label:
+        getNested<{ title?: string }>(messages, [
+          "dashboard",
+          "admin",
+          "managementPage",
+          "whatsapp",
+        ])?.title ??
+        getNested<{ title?: string }>(messages, [
+          "dashboard",
+          "admin",
+          "whatsapp",
+        ])?.title ??
+        (locale === "ar"
+          ? "رسائل الواتساب"
+          : locale === "fr"
+            ? "whatsapp messages"
+            : "whatsapp messages"),
+      href: `/${locale}/dashboard/admin/whatsappMessages`,
+      icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       label: messages.dashboard.admin.listings,

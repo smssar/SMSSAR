@@ -40,6 +40,25 @@ type DodoWebhookData = {
   end_date?: string | null;
 };
 
+// Retry helper for transient DB timeouts
+const runWithRetries = async <T>(
+  fn: () => Promise<T>,
+  retries = 2,
+  delayMs = 300,
+) => {
+  let lastErr: unknown = null;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < retries)
+        await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+};
+
 function isSubscriptionStatus(value: string): value is SubscriptionStatus {
   return (Object.values(SubscriptionStatus) as string[]).includes(value);
 }
@@ -227,20 +246,24 @@ export const POST = Webhooks({
       let user = null;
 
       if (metadataUserId) {
-        user = await prisma.user.findUnique({
-          where: {
-            id: metadataUserId,
-          },
-        });
+        user = await runWithRetries(() =>
+          prisma.user.findUnique({
+            where: {
+              id: metadataUserId,
+            },
+          }),
+        );
       }
 
       // fallback to email
       if (!user && customerEmail) {
-        user = await prisma.user.findUnique({
-          where: {
-            email: customerEmail,
-          },
-        });
+        user = await runWithRetries(() =>
+          prisma.user.findUnique({
+            where: {
+              email: customerEmail,
+            },
+          }),
+        );
       }
 
       if (!user) {
@@ -504,11 +527,13 @@ export const POST = Webhooks({
 
       if (!customerEmail) return;
 
-      const user = await prisma.user.findUnique({
-        where: {
-          email: customerEmail,
-        },
-      });
+      const user = await runWithRetries(() =>
+        prisma.user.findUnique({
+          where: {
+            email: customerEmail,
+          },
+        }),
+      );
 
       if (!user) return;
 
@@ -549,11 +574,13 @@ export const POST = Webhooks({
 
       if (!customerEmail) return;
 
-      const user = await prisma.user.findUnique({
-        where: {
-          email: customerEmail,
-        },
-      });
+      const user = await runWithRetries(() =>
+        prisma.user.findUnique({
+          where: {
+            email: customerEmail,
+          },
+        }),
+      );
 
       if (!user) return;
 
@@ -601,9 +628,11 @@ export const POST = Webhooks({
       const customerEmail = data?.customer?.email ?? data?.metadata?.userEmail;
       if (!customerEmail) return;
 
-      const user = await prisma.user.findUnique({
-        where: { email: customerEmail },
-      });
+      const user = await runWithRetries(() =>
+        prisma.user.findUnique({
+          where: { email: customerEmail },
+        }),
+      );
       if (!user) return;
 
       if (customerName && !user.name) {
@@ -721,9 +750,11 @@ export const POST = Webhooks({
       const expiredAt = data?.end_date ? new Date(data.end_date) : null;
 
       if (!customerEmail) return;
-      const user = await prisma.user.findUnique({
-        where: { email: customerEmail },
-      });
+      const user = await runWithRetries(() =>
+        prisma.user.findUnique({
+          where: { email: customerEmail },
+        }),
+      );
       if (!user) return;
 
       if (customerName && !user.name) {
@@ -776,9 +807,11 @@ export const POST = Webhooks({
 
       if (!customerEmail) return;
 
-      const user = await prisma.user.findUnique({
-        where: { email: customerEmail },
-      });
+      const user = await runWithRetries(() =>
+        prisma.user.findUnique({
+          where: { email: customerEmail },
+        }),
+      );
 
       if (!user) return;
 

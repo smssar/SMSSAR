@@ -37,6 +37,7 @@ export type WhatsappMessageSumAggregateOutputType = {
 export type WhatsappMessageMinAggregateOutputType = {
   id: string | null
   whatsappUserId: string | null
+  externalId: string | null
   role: string | null
   content: string | null
   tokens: number | null
@@ -47,6 +48,7 @@ export type WhatsappMessageMinAggregateOutputType = {
 export type WhatsappMessageMaxAggregateOutputType = {
   id: string | null
   whatsappUserId: string | null
+  externalId: string | null
   role: string | null
   content: string | null
   tokens: number | null
@@ -57,6 +59,7 @@ export type WhatsappMessageMaxAggregateOutputType = {
 export type WhatsappMessageCountAggregateOutputType = {
   id: number
   whatsappUserId: number
+  externalId: number
   role: number
   content: number
   tokens: number
@@ -77,6 +80,7 @@ export type WhatsappMessageSumAggregateInputType = {
 export type WhatsappMessageMinAggregateInputType = {
   id?: true
   whatsappUserId?: true
+  externalId?: true
   role?: true
   content?: true
   tokens?: true
@@ -87,6 +91,7 @@ export type WhatsappMessageMinAggregateInputType = {
 export type WhatsappMessageMaxAggregateInputType = {
   id?: true
   whatsappUserId?: true
+  externalId?: true
   role?: true
   content?: true
   tokens?: true
@@ -97,6 +102,7 @@ export type WhatsappMessageMaxAggregateInputType = {
 export type WhatsappMessageCountAggregateInputType = {
   id?: true
   whatsappUserId?: true
+  externalId?: true
   role?: true
   content?: true
   tokens?: true
@@ -194,6 +200,7 @@ export type WhatsappMessageGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type WhatsappMessageGroupByOutputType = {
   id: string
   whatsappUserId: string
+  externalId: string | null
   role: string
   content: string
   tokens: number | null
@@ -227,6 +234,7 @@ export type WhatsappMessageWhereInput = {
   NOT?: Prisma.WhatsappMessageWhereInput | Prisma.WhatsappMessageWhereInput[]
   id?: Prisma.StringFilter<"WhatsappMessage"> | string
   whatsappUserId?: Prisma.StringFilter<"WhatsappMessage"> | string
+  externalId?: Prisma.StringNullableFilter<"WhatsappMessage"> | string | null
   role?: Prisma.StringFilter<"WhatsappMessage"> | string
   content?: Prisma.StringFilter<"WhatsappMessage"> | string
   tokens?: Prisma.IntNullableFilter<"WhatsappMessage"> | number | null
@@ -238,6 +246,7 @@ export type WhatsappMessageWhereInput = {
 export type WhatsappMessageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   whatsappUserId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tokens?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -248,6 +257,7 @@ export type WhatsappMessageOrderByWithRelationInput = {
 
 export type WhatsappMessageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  externalId?: string
   AND?: Prisma.WhatsappMessageWhereInput | Prisma.WhatsappMessageWhereInput[]
   OR?: Prisma.WhatsappMessageWhereInput[]
   NOT?: Prisma.WhatsappMessageWhereInput | Prisma.WhatsappMessageWhereInput[]
@@ -258,11 +268,12 @@ export type WhatsappMessageWhereUniqueInput = Prisma.AtLeast<{
   model?: Prisma.StringNullableFilter<"WhatsappMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WhatsappMessage"> | Date | string
   whatsappUser?: Prisma.XOR<Prisma.WhatsappUserScalarRelationFilter, Prisma.WhatsappUserWhereInput>
-}, "id">
+}, "id" | "externalId">
 
 export type WhatsappMessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   whatsappUserId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tokens?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -281,6 +292,7 @@ export type WhatsappMessageScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WhatsappMessageScalarWhereWithAggregatesInput | Prisma.WhatsappMessageScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"WhatsappMessage"> | string
   whatsappUserId?: Prisma.StringWithAggregatesFilter<"WhatsappMessage"> | string
+  externalId?: Prisma.StringNullableWithAggregatesFilter<"WhatsappMessage"> | string | null
   role?: Prisma.StringWithAggregatesFilter<"WhatsappMessage"> | string
   content?: Prisma.StringWithAggregatesFilter<"WhatsappMessage"> | string
   tokens?: Prisma.IntNullableWithAggregatesFilter<"WhatsappMessage"> | number | null
@@ -290,6 +302,7 @@ export type WhatsappMessageScalarWhereWithAggregatesInput = {
 
 export type WhatsappMessageCreateInput = {
   id?: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -301,6 +314,7 @@ export type WhatsappMessageCreateInput = {
 export type WhatsappMessageUncheckedCreateInput = {
   id?: string
   whatsappUserId: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -310,6 +324,7 @@ export type WhatsappMessageUncheckedCreateInput = {
 
 export type WhatsappMessageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -321,6 +336,7 @@ export type WhatsappMessageUpdateInput = {
 export type WhatsappMessageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -331,6 +347,7 @@ export type WhatsappMessageUncheckedUpdateInput = {
 export type WhatsappMessageCreateManyInput = {
   id?: string
   whatsappUserId: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -340,6 +357,7 @@ export type WhatsappMessageCreateManyInput = {
 
 export type WhatsappMessageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -350,6 +368,7 @@ export type WhatsappMessageUpdateManyMutationInput = {
 export type WhatsappMessageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -360,6 +379,7 @@ export type WhatsappMessageUncheckedUpdateManyInput = {
 export type WhatsappMessageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   whatsappUserId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tokens?: Prisma.SortOrder
@@ -374,6 +394,7 @@ export type WhatsappMessageAvgOrderByAggregateInput = {
 export type WhatsappMessageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   whatsappUserId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tokens?: Prisma.SortOrder
@@ -384,6 +405,7 @@ export type WhatsappMessageMaxOrderByAggregateInput = {
 export type WhatsappMessageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   whatsappUserId?: Prisma.SortOrder
+  externalId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tokens?: Prisma.SortOrder
@@ -449,6 +471,7 @@ export type WhatsappMessageUncheckedUpdateManyWithoutWhatsappUserNestedInput = {
 
 export type WhatsappMessageCreateWithoutWhatsappUserInput = {
   id?: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -458,6 +481,7 @@ export type WhatsappMessageCreateWithoutWhatsappUserInput = {
 
 export type WhatsappMessageUncheckedCreateWithoutWhatsappUserInput = {
   id?: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -497,6 +521,7 @@ export type WhatsappMessageScalarWhereInput = {
   NOT?: Prisma.WhatsappMessageScalarWhereInput | Prisma.WhatsappMessageScalarWhereInput[]
   id?: Prisma.StringFilter<"WhatsappMessage"> | string
   whatsappUserId?: Prisma.StringFilter<"WhatsappMessage"> | string
+  externalId?: Prisma.StringNullableFilter<"WhatsappMessage"> | string | null
   role?: Prisma.StringFilter<"WhatsappMessage"> | string
   content?: Prisma.StringFilter<"WhatsappMessage"> | string
   tokens?: Prisma.IntNullableFilter<"WhatsappMessage"> | number | null
@@ -506,6 +531,7 @@ export type WhatsappMessageScalarWhereInput = {
 
 export type WhatsappMessageCreateManyWhatsappUserInput = {
   id?: string
+  externalId?: string | null
   role: string
   content: string
   tokens?: number | null
@@ -515,6 +541,7 @@ export type WhatsappMessageCreateManyWhatsappUserInput = {
 
 export type WhatsappMessageUpdateWithoutWhatsappUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -524,6 +551,7 @@ export type WhatsappMessageUpdateWithoutWhatsappUserInput = {
 
 export type WhatsappMessageUncheckedUpdateWithoutWhatsappUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -533,6 +561,7 @@ export type WhatsappMessageUncheckedUpdateWithoutWhatsappUserInput = {
 
 export type WhatsappMessageUncheckedUpdateManyWithoutWhatsappUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tokens?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -545,6 +574,7 @@ export type WhatsappMessageUncheckedUpdateManyWithoutWhatsappUserInput = {
 export type WhatsappMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   whatsappUserId?: boolean
+  externalId?: boolean
   role?: boolean
   content?: boolean
   tokens?: boolean
@@ -556,6 +586,7 @@ export type WhatsappMessageSelect<ExtArgs extends runtime.Types.Extensions.Inter
 export type WhatsappMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   whatsappUserId?: boolean
+  externalId?: boolean
   role?: boolean
   content?: boolean
   tokens?: boolean
@@ -567,6 +598,7 @@ export type WhatsappMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
 export type WhatsappMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   whatsappUserId?: boolean
+  externalId?: boolean
   role?: boolean
   content?: boolean
   tokens?: boolean
@@ -578,6 +610,7 @@ export type WhatsappMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
 export type WhatsappMessageSelectScalar = {
   id?: boolean
   whatsappUserId?: boolean
+  externalId?: boolean
   role?: boolean
   content?: boolean
   tokens?: boolean
@@ -585,7 +618,7 @@ export type WhatsappMessageSelectScalar = {
   createdAt?: boolean
 }
 
-export type WhatsappMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappUserId" | "role" | "content" | "tokens" | "model" | "createdAt", ExtArgs["result"]["whatsappMessage"]>
+export type WhatsappMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappUserId" | "externalId" | "role" | "content" | "tokens" | "model" | "createdAt", ExtArgs["result"]["whatsappMessage"]>
 export type WhatsappMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   whatsappUser?: boolean | Prisma.WhatsappUserDefaultArgs<ExtArgs>
 }
@@ -604,6 +637,7 @@ export type $WhatsappMessagePayload<ExtArgs extends runtime.Types.Extensions.Int
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     whatsappUserId: string
+    externalId: string | null
     role: string
     content: string
     tokens: number | null
@@ -1035,6 +1069,7 @@ export interface Prisma__WhatsappMessageClient<T, Null = never, ExtArgs extends 
 export interface WhatsappMessageFieldRefs {
   readonly id: Prisma.FieldRef<"WhatsappMessage", 'String'>
   readonly whatsappUserId: Prisma.FieldRef<"WhatsappMessage", 'String'>
+  readonly externalId: Prisma.FieldRef<"WhatsappMessage", 'String'>
   readonly role: Prisma.FieldRef<"WhatsappMessage", 'String'>
   readonly content: Prisma.FieldRef<"WhatsappMessage", 'String'>
   readonly tokens: Prisma.FieldRef<"WhatsappMessage", 'Int'>

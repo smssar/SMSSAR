@@ -36,47 +36,47 @@ export type PurchaseProductSumAggregateOutputType = {
 
 export type PurchaseProductMinAggregateOutputType = {
   id: string | null
-  code: $Enums.PurchaseType | null
   title: string | null
   title_ar: string | null
   title_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   price: number | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  code: $Enums.PurchaseType | null
+  description_ar: string | null
+  description_fr: string | null
 }
 
 export type PurchaseProductMaxAggregateOutputType = {
   id: string | null
-  code: $Enums.PurchaseType | null
   title: string | null
   title_ar: string | null
   title_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   price: number | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
+  code: $Enums.PurchaseType | null
+  description_ar: string | null
+  description_fr: string | null
 }
 
 export type PurchaseProductCountAggregateOutputType = {
   id: number
-  code: number
   title: number
   title_ar: number
   title_fr: number
   description: number
-  description_ar: number
-  description_fr: number
   price: number
   active: number
   createdAt: number
   updatedAt: number
+  code: number
+  description_ar: number
+  description_fr: number
   _all: number
 }
 
@@ -91,47 +91,47 @@ export type PurchaseProductSumAggregateInputType = {
 
 export type PurchaseProductMinAggregateInputType = {
   id?: true
-  code?: true
   title?: true
   title_ar?: true
   title_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   price?: true
   active?: true
   createdAt?: true
   updatedAt?: true
+  code?: true
+  description_ar?: true
+  description_fr?: true
 }
 
 export type PurchaseProductMaxAggregateInputType = {
   id?: true
-  code?: true
   title?: true
   title_ar?: true
   title_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   price?: true
   active?: true
   createdAt?: true
   updatedAt?: true
+  code?: true
+  description_ar?: true
+  description_fr?: true
 }
 
 export type PurchaseProductCountAggregateInputType = {
   id?: true
-  code?: true
   title?: true
   title_ar?: true
   title_fr?: true
   description?: true
-  description_ar?: true
-  description_fr?: true
   price?: true
   active?: true
   createdAt?: true
   updatedAt?: true
+  code?: true
+  description_ar?: true
+  description_fr?: true
   _all?: true
 }
 
@@ -223,17 +223,17 @@ export type PurchaseProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 
 export type PurchaseProductGroupByOutputType = {
   id: string
-  code: $Enums.PurchaseType | null
   title: string
   title_ar: string | null
   title_fr: string | null
   description: string | null
-  description_ar: string | null
-  description_fr: string | null
   price: number
   active: boolean
   createdAt: Date
   updatedAt: Date
+  code: $Enums.PurchaseType | null
+  description_ar: string | null
+  description_fr: string | null
   _count: PurchaseProductCountAggregateOutputType | null
   _avg: PurchaseProductAvgAggregateOutputType | null
   _sum: PurchaseProductSumAggregateOutputType | null
@@ -261,33 +261,33 @@ export type PurchaseProductWhereInput = {
   OR?: Prisma.PurchaseProductWhereInput[]
   NOT?: Prisma.PurchaseProductWhereInput | Prisma.PurchaseProductWhereInput[]
   id?: Prisma.StringFilter<"PurchaseProduct"> | string
-  code?: Prisma.EnumPurchaseTypeNullableFilter<"PurchaseProduct"> | $Enums.PurchaseType | null
   title?: Prisma.StringFilter<"PurchaseProduct"> | string
   title_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   title_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
-  description_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
-  description_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntFilter<"PurchaseProduct"> | number
   active?: Prisma.BoolFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
+  code?: Prisma.EnumPurchaseTypeNullableFilter<"PurchaseProduct"> | $Enums.PurchaseType | null
+  description_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
+  description_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   purchases?: Prisma.PurchaseListRelationFilter
 }
 
 export type PurchaseProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
   title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  code?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   purchases?: Prisma.PurchaseOrderByRelationAggregateInput
 }
 
@@ -301,28 +301,28 @@ export type PurchaseProductWhereUniqueInput = Prisma.AtLeast<{
   title_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   title_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
-  description_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
-  description_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntFilter<"PurchaseProduct"> | number
   active?: Prisma.BoolFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
+  description_ar?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
+  description_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   purchases?: Prisma.PurchaseListRelationFilter
 }, "id" | "code">
 
 export type PurchaseProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   title_ar?: Prisma.SortOrderInput | Prisma.SortOrder
   title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
-  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  code?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
+  description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PurchaseProductCountOrderByAggregateInput
   _avg?: Prisma.PurchaseProductAvgOrderByAggregateInput
   _max?: Prisma.PurchaseProductMaxOrderByAggregateInput
@@ -335,141 +335,141 @@ export type PurchaseProductScalarWhereWithAggregatesInput = {
   OR?: Prisma.PurchaseProductScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PurchaseProductScalarWhereWithAggregatesInput | Prisma.PurchaseProductScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PurchaseProduct"> | string
-  code?: Prisma.EnumPurchaseTypeNullableWithAggregatesFilter<"PurchaseProduct"> | $Enums.PurchaseType | null
   title?: Prisma.StringWithAggregatesFilter<"PurchaseProduct"> | string
   title_ar?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
   title_fr?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
-  description_ar?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
-  description_fr?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntWithAggregatesFilter<"PurchaseProduct"> | number
   active?: Prisma.BoolWithAggregatesFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PurchaseProduct"> | Date | string
+  code?: Prisma.EnumPurchaseTypeNullableWithAggregatesFilter<"PurchaseProduct"> | $Enums.PurchaseType | null
+  description_ar?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
+  description_fr?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
 }
 
 export type PurchaseProductCreateInput = {
   id?: string
-  code?: $Enums.PurchaseType | null
   title: string
   title_ar?: string | null
   title_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   price: number
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  code?: $Enums.PurchaseType | null
+  description_ar?: string | null
+  description_fr?: string | null
   purchases?: Prisma.PurchaseCreateNestedManyWithoutPurchaseProductInput
 }
 
 export type PurchaseProductUncheckedCreateInput = {
   id?: string
-  code?: $Enums.PurchaseType | null
   title: string
   title_ar?: string | null
   title_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   price: number
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  code?: $Enums.PurchaseType | null
+  description_ar?: string | null
+  description_fr?: string | null
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutPurchaseProductInput
 }
 
 export type PurchaseProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purchases?: Prisma.PurchaseUpdateManyWithoutPurchaseProductNestedInput
 }
 
 export type PurchaseProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutPurchaseProductNestedInput
 }
 
 export type PurchaseProductCreateManyInput = {
   id?: string
-  code?: $Enums.PurchaseType | null
   title: string
   title_ar?: string | null
   title_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   price: number
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  code?: $Enums.PurchaseType | null
+  description_ar?: string | null
+  description_fr?: string | null
 }
 
 export type PurchaseProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PurchaseProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PurchaseProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   title?: Prisma.SortOrder
   title_ar?: Prisma.SortOrder
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
 }
 
 export type PurchaseProductAvgOrderByAggregateInput = {
@@ -478,32 +478,32 @@ export type PurchaseProductAvgOrderByAggregateInput = {
 
 export type PurchaseProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   title?: Prisma.SortOrder
   title_ar?: Prisma.SortOrder
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
 }
 
 export type PurchaseProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   title?: Prisma.SortOrder
   title_ar?: Prisma.SortOrder
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  description_ar?: Prisma.SortOrder
-  description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  description_ar?: Prisma.SortOrder
+  description_fr?: Prisma.SortOrder
 }
 
 export type PurchaseProductSumOrderByAggregateInput = {
@@ -535,32 +535,32 @@ export type PurchaseProductUpdateOneRequiredWithoutPurchasesNestedInput = {
 
 export type PurchaseProductCreateWithoutPurchasesInput = {
   id?: string
-  code?: $Enums.PurchaseType | null
   title: string
   title_ar?: string | null
   title_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   price: number
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  code?: $Enums.PurchaseType | null
+  description_ar?: string | null
+  description_fr?: string | null
 }
 
 export type PurchaseProductUncheckedCreateWithoutPurchasesInput = {
   id?: string
-  code?: $Enums.PurchaseType | null
   title: string
   title_ar?: string | null
   title_fr?: string | null
   description?: string | null
-  description_ar?: string | null
-  description_fr?: string | null
   price: number
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  code?: $Enums.PurchaseType | null
+  description_ar?: string | null
+  description_fr?: string | null
 }
 
 export type PurchaseProductCreateOrConnectWithoutPurchasesInput = {
@@ -581,32 +581,32 @@ export type PurchaseProductUpdateToOneWithWhereWithoutPurchasesInput = {
 
 export type PurchaseProductUpdateWithoutPurchasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PurchaseProductUncheckedUpdateWithoutPurchasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   title_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  code?: Prisma.NullableEnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType | null
+  description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -642,67 +642,67 @@ export type PurchaseProductCountOutputTypeCountPurchasesArgs<ExtArgs extends run
 
 export type PurchaseProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
   title?: boolean
   title_ar?: boolean
   title_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   price?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  code?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
   purchases?: boolean | Prisma.PurchaseProduct$purchasesArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseProduct"]>
 
 export type PurchaseProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
   title?: boolean
   title_ar?: boolean
   title_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   price?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  code?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
 }, ExtArgs["result"]["purchaseProduct"]>
 
 export type PurchaseProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
   title?: boolean
   title_ar?: boolean
   title_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   price?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  code?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
 }, ExtArgs["result"]["purchaseProduct"]>
 
 export type PurchaseProductSelectScalar = {
   id?: boolean
-  code?: boolean
   title?: boolean
   title_ar?: boolean
   title_fr?: boolean
   description?: boolean
-  description_ar?: boolean
-  description_fr?: boolean
   price?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  code?: boolean
+  description_ar?: boolean
+  description_fr?: boolean
 }
 
-export type PurchaseProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["purchaseProduct"]>
+export type PurchaseProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "price" | "active" | "createdAt" | "updatedAt" | "code" | "description_ar" | "description_fr", ExtArgs["result"]["purchaseProduct"]>
 export type PurchaseProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   purchases?: boolean | Prisma.PurchaseProduct$purchasesArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -717,17 +717,17 @@ export type $PurchaseProductPayload<ExtArgs extends runtime.Types.Extensions.Int
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    code: $Enums.PurchaseType | null
     title: string
     title_ar: string | null
     title_fr: string | null
     description: string | null
-    description_ar: string | null
-    description_fr: string | null
     price: number
     active: boolean
     createdAt: Date
     updatedAt: Date
+    code: $Enums.PurchaseType | null
+    description_ar: string | null
+    description_fr: string | null
   }, ExtArgs["result"]["purchaseProduct"]>
   composites: {}
 }
@@ -1153,17 +1153,17 @@ export interface Prisma__PurchaseProductClient<T, Null = never, ExtArgs extends 
  */
 export interface PurchaseProductFieldRefs {
   readonly id: Prisma.FieldRef<"PurchaseProduct", 'String'>
-  readonly code: Prisma.FieldRef<"PurchaseProduct", 'PurchaseType'>
   readonly title: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly title_ar: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly title_fr: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly description: Prisma.FieldRef<"PurchaseProduct", 'String'>
-  readonly description_ar: Prisma.FieldRef<"PurchaseProduct", 'String'>
-  readonly description_fr: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly price: Prisma.FieldRef<"PurchaseProduct", 'Int'>
   readonly active: Prisma.FieldRef<"PurchaseProduct", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"PurchaseProduct", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PurchaseProduct", 'DateTime'>
+  readonly code: Prisma.FieldRef<"PurchaseProduct", 'PurchaseType'>
+  readonly description_ar: Prisma.FieldRef<"PurchaseProduct", 'String'>
+  readonly description_fr: Prisma.FieldRef<"PurchaseProduct", 'String'>
 }
     
 

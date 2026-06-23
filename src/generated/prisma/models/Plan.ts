@@ -336,9 +336,9 @@ export type PlanWhereInput = {
   maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
-  users?: Prisma.UserListRelationFilter
-  subscriptions?: Prisma.SubscriptionListRelationFilter
   adCampaigns?: Prisma.AdListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
+  users?: Prisma.UserListRelationFilter
 }
 
 export type PlanOrderByWithRelationInput = {
@@ -359,9 +359,9 @@ export type PlanOrderByWithRelationInput = {
   maxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  users?: Prisma.UserOrderByRelationAggregateInput
-  subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
   adCampaigns?: Prisma.AdOrderByRelationAggregateInput
+  subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
+  users?: Prisma.UserOrderByRelationAggregateInput
 }
 
 export type PlanWhereUniqueInput = Prisma.AtLeast<{
@@ -385,9 +385,9 @@ export type PlanWhereUniqueInput = Prisma.AtLeast<{
   maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
-  users?: Prisma.UserListRelationFilter
-  subscriptions?: Prisma.SubscriptionListRelationFilter
   adCampaigns?: Prisma.AdListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
+  users?: Prisma.UserListRelationFilter
 }, "id">
 
 export type PlanOrderByWithAggregationInput = {
@@ -456,9 +456,9 @@ export type PlanCreateInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutPlanInput
-  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateInput = {
@@ -479,9 +479,9 @@ export type PlanUncheckedCreateInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
-  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUpdateInput = {
@@ -502,9 +502,9 @@ export type PlanUpdateInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
-  subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateInput = {
@@ -525,9 +525,9 @@ export type PlanUncheckedUpdateInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
-  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateManyInput = {
@@ -764,8 +764,8 @@ export type PlanCreateWithoutSubscriptionsInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutSubscriptionsInput = {
@@ -786,8 +786,8 @@ export type PlanUncheckedCreateWithoutSubscriptionsInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutSubscriptionsInput = {
@@ -824,8 +824,8 @@ export type PlanUpdateWithoutSubscriptionsInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
@@ -846,8 +846,8 @@ export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateWithoutUsersInput = {
@@ -868,8 +868,8 @@ export type PlanCreateWithoutUsersInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutUsersInput = {
@@ -890,8 +890,8 @@ export type PlanUncheckedCreateWithoutUsersInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutUsersInput = {
@@ -928,8 +928,8 @@ export type PlanUpdateWithoutUsersInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutUsersInput = {
@@ -950,8 +950,8 @@ export type PlanUncheckedUpdateWithoutUsersInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateWithoutAdCampaignsInput = {
@@ -972,8 +972,8 @@ export type PlanCreateWithoutAdCampaignsInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutAdCampaignsInput = {
@@ -994,8 +994,8 @@ export type PlanUncheckedCreateWithoutAdCampaignsInput = {
   maxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutAdCampaignsInput = {
@@ -1032,8 +1032,8 @@ export type PlanUpdateWithoutAdCampaignsInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutAdCampaignsInput = {
@@ -1054,8 +1054,8 @@ export type PlanUncheckedUpdateWithoutAdCampaignsInput = {
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 
@@ -1064,15 +1064,15 @@ export type PlanUncheckedUpdateWithoutAdCampaignsInput = {
  */
 
 export type PlanCountOutputType = {
-  users: number
-  subscriptions: number
   adCampaigns: number
+  subscriptions: number
+  users: number
 }
 
 export type PlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | PlanCountOutputTypeCountUsersArgs
-  subscriptions?: boolean | PlanCountOutputTypeCountSubscriptionsArgs
   adCampaigns?: boolean | PlanCountOutputTypeCountAdCampaignsArgs
+  subscriptions?: boolean | PlanCountOutputTypeCountSubscriptionsArgs
+  users?: boolean | PlanCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -1088,8 +1088,8 @@ export type PlanCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * PlanCountOutputType without action
  */
-export type PlanCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserWhereInput
+export type PlanCountOutputTypeCountAdCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdWhereInput
 }
 
 /**
@@ -1102,8 +1102,8 @@ export type PlanCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Ty
 /**
  * PlanCountOutputType without action
  */
-export type PlanCountOutputTypeCountAdCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AdWhereInput
+export type PlanCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
 }
 
 
@@ -1125,9 +1125,9 @@ export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   maxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
-  subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
   adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
+  users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["plan"]>
 
@@ -1193,9 +1193,9 @@ export type PlanSelectScalar = {
 
 export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "listings" | "featured" | "ads" | "adsduration" | "maxFeaturedListings" | "maxImagesPerListing" | "maxVideosPerListing" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
 export type PlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
-  subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
   adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
+  users?: boolean | Prisma.Plan$usersArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PlanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1204,9 +1204,9 @@ export type PlanIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Plan"
   objects: {
-    users: Prisma.$UserPayload<ExtArgs>[]
-    subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
     adCampaigns: Prisma.$AdPayload<ExtArgs>[]
+    subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+    users: Prisma.$UserPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1620,9 +1620,9 @@ readonly fields: PlanFieldRefs;
  */
 export interface Prisma__PlanClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  users<T extends Prisma.Plan$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  subscriptions<T extends Prisma.Plan$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adCampaigns<T extends Prisma.Plan$adCampaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$adCampaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscriptions<T extends Prisma.Plan$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.Plan$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2062,27 +2062,27 @@ export type PlanDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Plan.users
+ * Plan.adCampaigns
  */
-export type Plan$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Plan$adCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the Ad
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.AdSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the Ad
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.AdOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
-  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
-  cursor?: Prisma.UserWhereUniqueInput
+  include?: Prisma.AdInclude<ExtArgs> | null
+  where?: Prisma.AdWhereInput
+  orderBy?: Prisma.AdOrderByWithRelationInput | Prisma.AdOrderByWithRelationInput[]
+  cursor?: Prisma.AdWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+  distinct?: Prisma.AdScalarFieldEnum | Prisma.AdScalarFieldEnum[]
 }
 
 /**
@@ -2110,27 +2110,27 @@ export type Plan$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * Plan.adCampaigns
+ * Plan.users
  */
-export type Plan$adCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Plan$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Ad
+   * Select specific fields to fetch from the User
    */
-  select?: Prisma.AdSelect<ExtArgs> | null
+  select?: Prisma.UserSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Ad
+   * Omit specific fields from the User
    */
-  omit?: Prisma.AdOmit<ExtArgs> | null
+  omit?: Prisma.UserOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AdInclude<ExtArgs> | null
-  where?: Prisma.AdWhereInput
-  orderBy?: Prisma.AdOrderByWithRelationInput | Prisma.AdOrderByWithRelationInput[]
-  cursor?: Prisma.AdWhereUniqueInput
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.AdScalarFieldEnum | Prisma.AdScalarFieldEnum[]
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
 /**

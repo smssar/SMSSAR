@@ -134,13 +134,17 @@ export async function searchProperties(
       ...(filters.neighborhood && {
         neighborhood: { equals: filters.neighborhood, mode: "insensitive" },
       }),
+      ...(filters.cities &&
+        filters.cities.length && {
+          city: { in: filters.cities },
+        }),
       ...(filters.rooms !== null &&
         filters.rooms !== undefined && {
-          rooms: { gte: filters.rooms },
+          rooms: filters.rooms,
         }),
       ...(filters.bathrooms !== null &&
         filters.bathrooms !== undefined && {
-          bathrooms: { gte: filters.bathrooms },
+          bathrooms: filters.bathrooms,
         }),
       ...(hasPrice && {
         price: {
@@ -153,6 +157,15 @@ export async function searchProperties(
       ...(filters.forSale !== null &&
         filters.forSale !== undefined && {
           forSale: filters.forSale,
+        }),
+
+      ...(filters.categories &&
+        filters.categories.length && {
+          propertyType: {
+            slug: {
+              in: (filters.categories ?? []).map((c) => c.toLowerCase()),
+            },
+          },
         }),
 
       ...(hasArea && {
@@ -172,7 +185,7 @@ export async function searchProperties(
       media: true,
     },
     orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    take: 20,
+    take: 1,
   });
 
   const userPickedCities =
@@ -186,7 +199,7 @@ export async function searchProperties(
     filters.categories.length < allCategories.length;
 
   if (!userPickedCities && !userPickedCategories) {
-    return properties.slice(0, 10);
+    return properties.slice(0, 10).map((p) => ({ ...p, _score: 0 }));
   }
 
   const maxRank = 9999;
@@ -218,7 +231,8 @@ export async function searchProperties(
   });
 
   scored.sort((a, b) => a.score - b.score);
-  return scored.slice(0, 10).map((s) => s.property);
+  // Attach computed score to each returned property as `_score`.
+  return scored.slice(0, 10).map((s) => ({ ...s.property, _score: s.score }));
 }
 
 export async function llmAnalyze(text: string, whatsappUserId?: string) {
@@ -238,7 +252,7 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       const recent = await prisma.whatsappMessage.findMany({
         where: { whatsappUserId },
         orderBy: { createdAt: "desc" },
-        take: 5,
+        take: 10,
       });
 
       if (recent && recent.length) {
@@ -254,7 +268,9 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
   }
 
   const systemPromptBase = `
-    You are Smssar's real-estate assistant for Morocco.
+    You are Smssar real-estate assistant for Morocco.
+    Your primary role is to help users search, buy, rent, and discover properties.
+
 
     Return ONLY valid JSON matching this schema:
 
@@ -272,20 +288,25 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
         "forSale": boolean | null,
         "areaMin": number | null,
         "areaMax": number | null
-      }
+      } | null,
     }
 
     Rules:
     - Support Arabic, English, French, and Darija.
-    - If the user is searching, buying, renting, or filtering properties => role = "property_search".
-    - Otherwise => role = "chat".
+    - If the user is searching, buying, renting, or filtering properties, set role = "property_search" only when the user has provided information for at least 2 property search fields.
+    - If the user has provided fewer than 2 property search fields, do not set role = "property_search"; instead ask the user for the missing information.    - Otherwise => role = "chat".
     - For "chat", fill "response" in the user's language and set all fields to null.
     - For "property_search", set "response" to null unless clarification is needed.
     - Extract only information explicitly provided by the user.
-    - Do not invent or assume values.
     - Valid cities: ${cities.join(", ")}.
+    - If the user mentions a city with a typo, different spelling, transliteration, language variation, or grammatical variation, map it to the closest valid city from the list.
+    - Examples: "Casa" → "Casablanca", "Tanger" → "Tangier", "Marrakechh" → "Marrakech".
+    - Return only city names that exist in the valid cities list.
+    - If no confident match exists, return null.
+
     - Valid categories: ${categories.join(", ")}.
-    - Match city/category typos and language variations to the closest valid value.
+    - If the user mentions a category with a typo, spelling variation, translation, singular/plural variation, or synonym, map it to the closest valid category from the list.
+    - Return only category values that exist in the valid categories list.
     - If no confident match exists, return null.
 
     Return JSON only.
@@ -294,8 +315,6 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
   const systemPrompt = recentHistory
     ? `${systemPromptBase}\n\nRecent conversation:\n${recentHistory}`
     : systemPromptBase;
-
-  // const systemPrompt = systemPromptBase;
 
   const step1Raw = await deepseek([
     { role: "system", content: systemPrompt },
@@ -317,8 +336,6 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
 
     const properties = await searchProperties(filters, cities, categories);
 
-    console.log("Found properties:", properties.length, "filters:", filters);
-
     const summary = await deepseek([
       {
         role: "system",
@@ -332,11 +349,9 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
             - Moroccan Darija
 
         Rules:
-        - don't display phone number 
-        - if No properties found => return "best match" message in the user's language.
-        - Respond only in the language used by the user .
+        - don't display phone number
+        - Respond only in the language used by the user.
         - Use only the information provided in the search results.
-        - Summarize all relevant information from the results.
         - Keep the response under 80 words.
         - Do not use markdown, bullet points, headings, or special formatting.
         - Return plain text only.
@@ -358,6 +373,7 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       },
     ]);
 
+    console.log("LLM properties:", properties);
     return {
       role: "property_search",
       response: summary,

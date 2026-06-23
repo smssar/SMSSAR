@@ -5,7 +5,6 @@ import { MessageSquare, Send, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function ChatWidget({ locale }: { locale: "en" | "ar" | "fr" }) {
-  console.log("ChatWidget locale:", locale);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
