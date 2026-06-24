@@ -113,6 +113,8 @@ export function AdminWhatsappPanel({
         `/api/admin/whatsapp/${selectedUser.id}/messages?page=${nextPage}&pageSize=${msgPageSize}&search=${encodeURIComponent(msgSearch)}`,
       );
       const payload = await res.json();
+
+      console.log("payload", payload);
       setMessages(payload?.data ?? []);
       setMsgPage(nextPage);
       setMsgTotalPages(payload?.totalPages ?? 1);
@@ -211,6 +213,7 @@ export function AdminWhatsappPanel({
                         size="sm"
                         variant="ghost"
                         onClick={() => openUser(u)}
+                        className="cursor-pointer hover:bg-muted/20"
                       >
                         <MessageSquare className="h-4 w-4 mr-2" />
                         {texts?.usersTable?.view ?? "View"}
@@ -265,7 +268,7 @@ export function AdminWhatsappPanel({
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setSelectedUser(null)}
-                      className="rounded-full p-2 hover:bg-muted/20"
+                      className="rounded-full p-2 cursor-pointer hover:scale-110 "
                       aria-label="Close"
                     >
                       <X className="h-4 w-4" />

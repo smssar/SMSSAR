@@ -31,7 +31,11 @@ export default async function AdminWhatsappPage({
   if (session.user.role !== "ADMIN") {
     return (
       <div className="rounded-3xl border border-border/70 bg-card p-8 text-sm text-muted-foreground">
-        This page is available to admins only.
+        {locale == "en"
+          ? "You do not have permission to access this page."
+          : locale == "fr"
+            ? "Vous n'avez pas la permission d'accéder à cette page."
+            : "You do not have permission to access this page."}
       </div>
     );
   }
@@ -85,6 +89,7 @@ export default async function AdminWhatsappPage({
   }));
 
   const messages = getMessages(locale);
+
   function getNested<T>(obj: unknown, path: string[]): T | undefined {
     let cur: unknown = obj;
     for (const p of path) {
@@ -145,6 +150,7 @@ export default async function AdminWhatsappPage({
           typeof ut.noMessages === "string" ? ut.noMessages : undefined,
       };
     })(),
+
     pageInfo:
       typeof textsRec.pageInfo === "string" ? textsRec.pageInfo : undefined,
     pagination: (() => {

@@ -42,5 +42,9 @@ export async function GET(
     }),
   ]);
 
-  return NextResponse.json({ data: messages, totalCount });
+  return NextResponse.json({
+    data: messages,
+    totalCount,
+    totalPages: Math.ceil(totalCount / pageSize),
+  });
 }
