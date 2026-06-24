@@ -167,7 +167,7 @@ export function SiteNavbar({
                 href={href}
                 aria-current={isActiveLink(href, key) ? "page" : undefined}
                 className={cn(
-                  "group relative rounded-full px-4 py-2 text-sm font-medium transition-all duration-300",
+                  "group relative rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 whitespace-nowrap",
                   isActiveLink(href, key)
                     ? "bg-linear-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -320,7 +320,7 @@ export function SiteNavbar({
                   onClick={() => setOpen(false)}
                   aria-current={isActiveLink(href, key) ? "page" : undefined}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-medium transition-all duration-300",
+                    "group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-medium transition-all duration-300 whitespace-nowrap",
                     isActiveLink(href, key)
                       ? "border-violet-500/30 bg-linear-to-br from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20"
                       : "border-border/70 bg-card text-foreground hover:border-violet-500/30 hover:bg-muted/70 hover:shadow-sm",

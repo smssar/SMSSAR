@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
 import { prisma } from "@/lib/prisma";
+import { detectLang } from "@/lib/utils";
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
 
@@ -79,32 +80,6 @@ export async function POST(req: Request) {
       } catch (err) {
         // If DB check fails, continue — we'll still attempt to save and avoid crashing the webhook
         console.error("whatsapp webhook: dedupe DB check failed", err);
-      }
-      try {
-        const statusUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-        await fetchWithRetries(
-          statusUrl,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              status: "read",
-              message_id: messageId,
-              typing_indicator: { type: "image" },
-            }),
-          },
-          1,
-          2000,
-        );
-      } catch (err) {
-        console.error(
-          "Failed to send initial WhatsApp typing/read indicator:",
-          err,
-        );
       }
       try {
         const from = message.from;
@@ -324,7 +299,6 @@ export async function POST(req: Request) {
               const imageUrl =
                 prop.imageUrl ?? prop.media?.[0]?.url ?? undefined;
 
-              // Verify the property actually exists in our DB before sending any media or links
               let dbProp = null;
               try {
                 dbProp = await prisma.property.findUnique({
@@ -362,6 +336,26 @@ export async function POST(req: Request) {
                 }
               } catch (err) {
                 console.error("Failed to save outbound whatsapp message:", err);
+              }
+
+              try {
+                const detected = await detectLang(text);
+                if (
+                  detected &&
+                  whatsappUser?.id &&
+                  whatsappUser.language !== detected
+                ) {
+                  await prisma.whatsappUser.update({
+                    where: { id: whatsappUser.id },
+                    data: { language: detected },
+                  });
+                  whatsappUser.language = detected;
+                }
+              } catch (err) {
+                console.error(
+                  "Failed to persist detected WhatsappUser.language:",
+                  err,
+                );
               }
 
               return NextResponse.json({ ok: true });
