@@ -66,6 +66,15 @@ export function getPhoneCountryByCode(code: string) {
   );
 }
 
+export function getPhoneCountryByDialCode(dialCode: string) {
+  const normalizedDialCode = dialCode.startsWith("+") ? dialCode : `+${dialCode}`;
+
+  return (
+    phoneCountries.find((country) => country.dialCode === normalizedDialCode) ??
+    defaultPhoneCountry
+  );
+}
+
 export function formatPhonePreview(value: string, countryCode: string) {
   const asYouType = new AsYouType(countryCode as never);
   return asYouType.input(value);
@@ -84,53 +93,49 @@ export function detectPhoneCountry(value: string): string | null {
   return country;
 }
 
+const INVALID_PHONE_MESSAGE = "Please enter a valid phone number.";
+
+export function normalizePhoneNumber(
+  phone: string,
+  defaultCountry = defaultPhoneCountry.code,
+) {
+  const trimmed = phone.trim();
+  if (!trimmed) {
+    throw new Error(INVALID_PHONE_MESSAGE);
+  }
+
+  const parsed =
+    parsePhoneNumberFromString(trimmed) ??
+    parsePhoneNumberFromString(trimmed, defaultCountry as never);
+
+  if (!parsed || !parsed.isValid()) {
+    throw new Error(INVALID_PHONE_MESSAGE);
+  }
+
+  return parsed.number;
+}
+
 export function validateAndNormalizePhone(
   value: string,
   defaultCountry = defaultPhoneCountry.code,
 ) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return {
-      valid: false as const,
-      message: "Please enter a valid phone number.",
-    };
-  }
+  try {
+    const e164 = normalizePhoneNumber(value, defaultCountry);
+    const parsed = parsePhoneNumberFromString(e164);
 
-  // Try parsing without a default country first (auto-detect international numbers)
-  let phone = parsePhoneNumberFromString(trimmed as string);
-
-  // If auto-detect failed, try parsing with the provided default country
-  if (!phone) {
-    phone = parsePhoneNumberFromString(trimmed, defaultCountry as never);
-  }
-
-  // If still invalid, attempt to convert common local national formats
-  // e.g., numbers that start with a leading 0 like Moroccan `0690201401`
-  if ((!phone || !phone.isValid()) && /^0+\d+/.test(trimmed)) {
-    try {
-      const cc = getCountryCallingCode(defaultCountry as never);
-      const withoutLeadingZeros = trimmed.replace(/^0+/, "");
-      const dial = `+${cc}${withoutLeadingZeros}`;
-      phone = parsePhoneNumberFromString(dial as string);
-    } catch {
-      // ignore and fall through
+    if (!parsed) {
+      throw new Error(INVALID_PHONE_MESSAGE);
     }
-  }
 
-  if (!phone || !phone.isValid()) {
+    return {
+      valid: true as const,
+      e164,
+      country: parsed.country ?? defaultCountry,
+    };
+  } catch {
     return {
       valid: false as const,
-      message: "Please enter a valid phone number.",
+      message: INVALID_PHONE_MESSAGE,
     };
   }
-
-  return {
-    valid: true as const,
-    e164: phone.number,
-    country: phone.country ?? defaultCountry,
-  };
-}
-
-export function removeSpaces(str: string): string {
-  return str.replace(/\s+/g, "");
 }

@@ -38,7 +38,13 @@ export async function GET(
       orderBy: { createdAt: "desc" },
       take: pageSize,
       skip: (page - 1) * pageSize,
-      select: { id: true, role: true, content: true, createdAt: true },
+      select: {
+        id: true,
+        role: true,
+        content: true,
+        tokens: true,
+        createdAt: true,
+      },
     }),
   ]);
 

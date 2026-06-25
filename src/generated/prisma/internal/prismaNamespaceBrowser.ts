@@ -68,7 +68,8 @@ export const ModelName = {
   Purchase: 'Purchase',
   Page: 'Page',
   WhatsappMessage: 'WhatsappMessage',
-  WhatsappUser: 'WhatsappUser'
+  WhatsappUser: 'WhatsappUser',
+  WhatsappTokenPayment: 'WhatsappTokenPayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,6 +408,7 @@ export type WhatsappMessageScalarFieldEnum = (typeof WhatsappMessageScalarFieldE
 export const WhatsappUserScalarFieldEnum = {
   id: 'id',
   phoneNumber: 'phoneNumber',
+  email: 'email',
   name: 'name',
   language: 'language',
   memory: 'memory',
@@ -421,12 +423,32 @@ export const WhatsappUserScalarFieldEnum = {
   lastInteractionAt: 'lastInteractionAt',
   totalMessages: 'totalMessages',
   profileSummary: 'profileSummary',
+  tokenUsage: 'tokenUsage',
+  tokenPackageSize: 'tokenPackageSize',
+  tokenPackagePrice: 'tokenPackagePrice',
   tokensLimit: 'tokensLimit',
+  tokenLimitReached: 'tokenLimitReached',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type WhatsappUserScalarFieldEnum = (typeof WhatsappUserScalarFieldEnum)[keyof typeof WhatsappUserScalarFieldEnum]
+
+
+export const WhatsappTokenPaymentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  whatsappUserId: 'whatsappUserId',
+  amount: 'amount',
+  tokens: 'tokens',
+  dodoSessionId: 'dodoSessionId',
+  status: 'status',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WhatsappTokenPaymentScalarFieldEnum = (typeof WhatsappTokenPaymentScalarFieldEnum)[keyof typeof WhatsappTokenPaymentScalarFieldEnum]
 
 
 export const SortOrder = {

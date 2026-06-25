@@ -3,7 +3,10 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getRequestBaseUrl } from "@/lib/api-utils";
-import { removeSpaces } from "@/lib/phone";
+import {
+  getPhoneCountryByDialCode,
+  normalizePhoneNumber,
+} from "@/lib/phone";
 
 export async function registerAction(formData: FormData, locale: string) {
   console.log(formData);
@@ -15,7 +18,18 @@ export async function registerAction(formData: FormData, locale: string) {
   const roleValue = formData.get("role")?.toString();
   const phoneRaw = formData.get("phone")?.toString().trim();
   const countryDialCode = formData.get("countryDialCode")?.toString();
-  const phone = removeSpaces(phoneRaw ?? "").replace(/^0+/, "");
+  const inferredCountry = countryDialCode
+    ? getPhoneCountryByDialCode(countryDialCode).code
+    : undefined;
+  const phone = phoneRaw
+    ? (() => {
+        try {
+          return normalizePhoneNumber(phoneRaw, inferredCountry);
+        } catch {
+          return phoneRaw;
+        }
+      })()
+    : "";
 
   if (!email || !password) {
     const qs = new URLSearchParams();

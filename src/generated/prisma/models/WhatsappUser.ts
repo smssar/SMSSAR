@@ -32,6 +32,9 @@ export type WhatsappUserAvgAggregateOutputType = {
   preferredRooms: number | null
   preferredBathrooms: number | null
   totalMessages: number | null
+  tokenUsage: number | null
+  tokenPackageSize: number | null
+  tokenPackagePrice: number | null
   tokensLimit: number | null
 }
 
@@ -41,12 +44,16 @@ export type WhatsappUserSumAggregateOutputType = {
   preferredRooms: number | null
   preferredBathrooms: number | null
   totalMessages: number | null
+  tokenUsage: number | null
+  tokenPackageSize: number | null
+  tokenPackagePrice: number | null
   tokensLimit: number | null
 }
 
 export type WhatsappUserMinAggregateOutputType = {
   id: string | null
   phoneNumber: string | null
+  email: string | null
   name: string | null
   language: string | null
   memory: string | null
@@ -59,7 +66,11 @@ export type WhatsappUserMinAggregateOutputType = {
   lastInteractionAt: Date | null
   totalMessages: number | null
   profileSummary: string | null
+  tokenUsage: number | null
+  tokenPackageSize: number | null
+  tokenPackagePrice: number | null
   tokensLimit: number | null
+  tokenLimitReached: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,6 +78,7 @@ export type WhatsappUserMinAggregateOutputType = {
 export type WhatsappUserMaxAggregateOutputType = {
   id: string | null
   phoneNumber: string | null
+  email: string | null
   name: string | null
   language: string | null
   memory: string | null
@@ -79,7 +91,11 @@ export type WhatsappUserMaxAggregateOutputType = {
   lastInteractionAt: Date | null
   totalMessages: number | null
   profileSummary: string | null
+  tokenUsage: number | null
+  tokenPackageSize: number | null
+  tokenPackagePrice: number | null
   tokensLimit: number | null
+  tokenLimitReached: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -87,6 +103,7 @@ export type WhatsappUserMaxAggregateOutputType = {
 export type WhatsappUserCountAggregateOutputType = {
   id: number
   phoneNumber: number
+  email: number
   name: number
   language: number
   memory: number
@@ -101,7 +118,11 @@ export type WhatsappUserCountAggregateOutputType = {
   lastInteractionAt: number
   totalMessages: number
   profileSummary: number
+  tokenUsage: number
+  tokenPackageSize: number
+  tokenPackagePrice: number
   tokensLimit: number
+  tokenLimitReached: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -114,6 +135,9 @@ export type WhatsappUserAvgAggregateInputType = {
   preferredRooms?: true
   preferredBathrooms?: true
   totalMessages?: true
+  tokenUsage?: true
+  tokenPackageSize?: true
+  tokenPackagePrice?: true
   tokensLimit?: true
 }
 
@@ -123,12 +147,16 @@ export type WhatsappUserSumAggregateInputType = {
   preferredRooms?: true
   preferredBathrooms?: true
   totalMessages?: true
+  tokenUsage?: true
+  tokenPackageSize?: true
+  tokenPackagePrice?: true
   tokensLimit?: true
 }
 
 export type WhatsappUserMinAggregateInputType = {
   id?: true
   phoneNumber?: true
+  email?: true
   name?: true
   language?: true
   memory?: true
@@ -141,7 +169,11 @@ export type WhatsappUserMinAggregateInputType = {
   lastInteractionAt?: true
   totalMessages?: true
   profileSummary?: true
+  tokenUsage?: true
+  tokenPackageSize?: true
+  tokenPackagePrice?: true
   tokensLimit?: true
+  tokenLimitReached?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -149,6 +181,7 @@ export type WhatsappUserMinAggregateInputType = {
 export type WhatsappUserMaxAggregateInputType = {
   id?: true
   phoneNumber?: true
+  email?: true
   name?: true
   language?: true
   memory?: true
@@ -161,7 +194,11 @@ export type WhatsappUserMaxAggregateInputType = {
   lastInteractionAt?: true
   totalMessages?: true
   profileSummary?: true
+  tokenUsage?: true
+  tokenPackageSize?: true
+  tokenPackagePrice?: true
   tokensLimit?: true
+  tokenLimitReached?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -169,6 +206,7 @@ export type WhatsappUserMaxAggregateInputType = {
 export type WhatsappUserCountAggregateInputType = {
   id?: true
   phoneNumber?: true
+  email?: true
   name?: true
   language?: true
   memory?: true
@@ -183,7 +221,11 @@ export type WhatsappUserCountAggregateInputType = {
   lastInteractionAt?: true
   totalMessages?: true
   profileSummary?: true
+  tokenUsage?: true
+  tokenPackageSize?: true
+  tokenPackagePrice?: true
   tokensLimit?: true
+  tokenLimitReached?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -278,6 +320,7 @@ export type WhatsappUserGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type WhatsappUserGroupByOutputType = {
   id: string
   phoneNumber: string
+  email: string | null
   name: string | null
   language: string | null
   memory: string | null
@@ -292,7 +335,11 @@ export type WhatsappUserGroupByOutputType = {
   lastInteractionAt: Date | null
   totalMessages: number
   profileSummary: string | null
+  tokenUsage: number | null
+  tokenPackageSize: number
+  tokenPackagePrice: number
   tokensLimit: number | null
+  tokenLimitReached: boolean
   createdAt: Date
   updatedAt: Date
   _count: WhatsappUserCountAggregateOutputType | null
@@ -323,6 +370,7 @@ export type WhatsappUserWhereInput = {
   NOT?: Prisma.WhatsappUserWhereInput | Prisma.WhatsappUserWhereInput[]
   id?: Prisma.StringFilter<"WhatsappUser"> | string
   phoneNumber?: Prisma.StringFilter<"WhatsappUser"> | string
+  email?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   name?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   language?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   memory?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
@@ -337,7 +385,11 @@ export type WhatsappUserWhereInput = {
   lastInteractionAt?: Prisma.DateTimeNullableFilter<"WhatsappUser"> | Date | string | null
   totalMessages?: Prisma.IntFilter<"WhatsappUser"> | number
   profileSummary?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
+  tokenUsage?: Prisma.IntNullableFilter<"WhatsappUser"> | number | null
+  tokenPackageSize?: Prisma.IntFilter<"WhatsappUser"> | number
+  tokenPackagePrice?: Prisma.IntFilter<"WhatsappUser"> | number
   tokensLimit?: Prisma.IntNullableFilter<"WhatsappUser"> | number | null
+  tokenLimitReached?: Prisma.BoolFilter<"WhatsappUser"> | boolean
   createdAt?: Prisma.DateTimeFilter<"WhatsappUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WhatsappUser"> | Date | string
   messages?: Prisma.WhatsappMessageListRelationFilter
@@ -346,6 +398,7 @@ export type WhatsappUserWhereInput = {
 export type WhatsappUserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   memory?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -360,7 +413,11 @@ export type WhatsappUserOrderByWithRelationInput = {
   lastInteractionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
   profileSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenLimitReached?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   messages?: Prisma.WhatsappMessageOrderByRelationAggregateInput
@@ -372,6 +429,7 @@ export type WhatsappUserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.WhatsappUserWhereInput | Prisma.WhatsappUserWhereInput[]
   OR?: Prisma.WhatsappUserWhereInput[]
   NOT?: Prisma.WhatsappUserWhereInput | Prisma.WhatsappUserWhereInput[]
+  email?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   name?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   language?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
   memory?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
@@ -386,7 +444,11 @@ export type WhatsappUserWhereUniqueInput = Prisma.AtLeast<{
   lastInteractionAt?: Prisma.DateTimeNullableFilter<"WhatsappUser"> | Date | string | null
   totalMessages?: Prisma.IntFilter<"WhatsappUser"> | number
   profileSummary?: Prisma.StringNullableFilter<"WhatsappUser"> | string | null
+  tokenUsage?: Prisma.IntNullableFilter<"WhatsappUser"> | number | null
+  tokenPackageSize?: Prisma.IntFilter<"WhatsappUser"> | number
+  tokenPackagePrice?: Prisma.IntFilter<"WhatsappUser"> | number
   tokensLimit?: Prisma.IntNullableFilter<"WhatsappUser"> | number | null
+  tokenLimitReached?: Prisma.BoolFilter<"WhatsappUser"> | boolean
   createdAt?: Prisma.DateTimeFilter<"WhatsappUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WhatsappUser"> | Date | string
   messages?: Prisma.WhatsappMessageListRelationFilter
@@ -395,6 +457,7 @@ export type WhatsappUserWhereUniqueInput = Prisma.AtLeast<{
 export type WhatsappUserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   memory?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -409,7 +472,11 @@ export type WhatsappUserOrderByWithAggregationInput = {
   lastInteractionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
   profileSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenLimitReached?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WhatsappUserCountOrderByAggregateInput
@@ -425,6 +492,7 @@ export type WhatsappUserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WhatsappUserScalarWhereWithAggregatesInput | Prisma.WhatsappUserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"WhatsappUser"> | string
   phoneNumber?: Prisma.StringWithAggregatesFilter<"WhatsappUser"> | string
+  email?: Prisma.StringNullableWithAggregatesFilter<"WhatsappUser"> | string | null
   name?: Prisma.StringNullableWithAggregatesFilter<"WhatsappUser"> | string | null
   language?: Prisma.StringNullableWithAggregatesFilter<"WhatsappUser"> | string | null
   memory?: Prisma.StringNullableWithAggregatesFilter<"WhatsappUser"> | string | null
@@ -439,7 +507,11 @@ export type WhatsappUserScalarWhereWithAggregatesInput = {
   lastInteractionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WhatsappUser"> | Date | string | null
   totalMessages?: Prisma.IntWithAggregatesFilter<"WhatsappUser"> | number
   profileSummary?: Prisma.StringNullableWithAggregatesFilter<"WhatsappUser"> | string | null
+  tokenUsage?: Prisma.IntNullableWithAggregatesFilter<"WhatsappUser"> | number | null
+  tokenPackageSize?: Prisma.IntWithAggregatesFilter<"WhatsappUser"> | number
+  tokenPackagePrice?: Prisma.IntWithAggregatesFilter<"WhatsappUser"> | number
   tokensLimit?: Prisma.IntNullableWithAggregatesFilter<"WhatsappUser"> | number | null
+  tokenLimitReached?: Prisma.BoolWithAggregatesFilter<"WhatsappUser"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WhatsappUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"WhatsappUser"> | Date | string
 }
@@ -447,6 +519,7 @@ export type WhatsappUserScalarWhereWithAggregatesInput = {
 export type WhatsappUserCreateInput = {
   id?: string
   phoneNumber: string
+  email?: string | null
   name?: string | null
   language?: string | null
   memory?: string | null
@@ -461,7 +534,11 @@ export type WhatsappUserCreateInput = {
   lastInteractionAt?: Date | string | null
   totalMessages?: number
   profileSummary?: string | null
+  tokenUsage?: number | null
+  tokenPackageSize?: number
+  tokenPackagePrice?: number
   tokensLimit?: number | null
+  tokenLimitReached?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.WhatsappMessageCreateNestedManyWithoutWhatsappUserInput
@@ -470,6 +547,7 @@ export type WhatsappUserCreateInput = {
 export type WhatsappUserUncheckedCreateInput = {
   id?: string
   phoneNumber: string
+  email?: string | null
   name?: string | null
   language?: string | null
   memory?: string | null
@@ -484,7 +562,11 @@ export type WhatsappUserUncheckedCreateInput = {
   lastInteractionAt?: Date | string | null
   totalMessages?: number
   profileSummary?: string | null
+  tokenUsage?: number | null
+  tokenPackageSize?: number
+  tokenPackagePrice?: number
   tokensLimit?: number | null
+  tokenLimitReached?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.WhatsappMessageUncheckedCreateNestedManyWithoutWhatsappUserInput
@@ -493,6 +575,7 @@ export type WhatsappUserUncheckedCreateInput = {
 export type WhatsappUserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -507,7 +590,11 @@ export type WhatsappUserUpdateInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.WhatsappMessageUpdateManyWithoutWhatsappUserNestedInput
@@ -516,6 +603,7 @@ export type WhatsappUserUpdateInput = {
 export type WhatsappUserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -530,7 +618,11 @@ export type WhatsappUserUncheckedUpdateInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.WhatsappMessageUncheckedUpdateManyWithoutWhatsappUserNestedInput
@@ -539,6 +631,7 @@ export type WhatsappUserUncheckedUpdateInput = {
 export type WhatsappUserCreateManyInput = {
   id?: string
   phoneNumber: string
+  email?: string | null
   name?: string | null
   language?: string | null
   memory?: string | null
@@ -553,7 +646,11 @@ export type WhatsappUserCreateManyInput = {
   lastInteractionAt?: Date | string | null
   totalMessages?: number
   profileSummary?: string | null
+  tokenUsage?: number | null
+  tokenPackageSize?: number
+  tokenPackagePrice?: number
   tokensLimit?: number | null
+  tokenLimitReached?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -561,6 +658,7 @@ export type WhatsappUserCreateManyInput = {
 export type WhatsappUserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -575,7 +673,11 @@ export type WhatsappUserUpdateManyMutationInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -583,6 +685,7 @@ export type WhatsappUserUpdateManyMutationInput = {
 export type WhatsappUserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -597,7 +700,11 @@ export type WhatsappUserUncheckedUpdateManyInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -610,6 +717,7 @@ export type WhatsappUserScalarRelationFilter = {
 export type WhatsappUserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   language?: Prisma.SortOrder
   memory?: Prisma.SortOrder
@@ -624,7 +732,11 @@ export type WhatsappUserCountOrderByAggregateInput = {
   lastInteractionAt?: Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
   profileSummary?: Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrder
+  tokenLimitReached?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -635,12 +747,16 @@ export type WhatsappUserAvgOrderByAggregateInput = {
   preferredRooms?: Prisma.SortOrder
   preferredBathrooms?: Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrder
 }
 
 export type WhatsappUserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   language?: Prisma.SortOrder
   memory?: Prisma.SortOrder
@@ -653,7 +769,11 @@ export type WhatsappUserMaxOrderByAggregateInput = {
   lastInteractionAt?: Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
   profileSummary?: Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrder
+  tokenLimitReached?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -661,6 +781,7 @@ export type WhatsappUserMaxOrderByAggregateInput = {
 export type WhatsappUserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   language?: Prisma.SortOrder
   memory?: Prisma.SortOrder
@@ -673,7 +794,11 @@ export type WhatsappUserMinOrderByAggregateInput = {
   lastInteractionAt?: Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
   profileSummary?: Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrder
+  tokenLimitReached?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -684,6 +809,9 @@ export type WhatsappUserSumOrderByAggregateInput = {
   preferredRooms?: Prisma.SortOrder
   preferredBathrooms?: Prisma.SortOrder
   totalMessages?: Prisma.SortOrder
+  tokenUsage?: Prisma.SortOrder
+  tokenPackageSize?: Prisma.SortOrder
+  tokenPackagePrice?: Prisma.SortOrder
   tokensLimit?: Prisma.SortOrder
 }
 
@@ -722,6 +850,7 @@ export type WhatsappUserUpdatepreferredCategoriesInput = {
 export type WhatsappUserCreateWithoutMessagesInput = {
   id?: string
   phoneNumber: string
+  email?: string | null
   name?: string | null
   language?: string | null
   memory?: string | null
@@ -736,7 +865,11 @@ export type WhatsappUserCreateWithoutMessagesInput = {
   lastInteractionAt?: Date | string | null
   totalMessages?: number
   profileSummary?: string | null
+  tokenUsage?: number | null
+  tokenPackageSize?: number
+  tokenPackagePrice?: number
   tokensLimit?: number | null
+  tokenLimitReached?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -744,6 +877,7 @@ export type WhatsappUserCreateWithoutMessagesInput = {
 export type WhatsappUserUncheckedCreateWithoutMessagesInput = {
   id?: string
   phoneNumber: string
+  email?: string | null
   name?: string | null
   language?: string | null
   memory?: string | null
@@ -758,7 +892,11 @@ export type WhatsappUserUncheckedCreateWithoutMessagesInput = {
   lastInteractionAt?: Date | string | null
   totalMessages?: number
   profileSummary?: string | null
+  tokenUsage?: number | null
+  tokenPackageSize?: number
+  tokenPackagePrice?: number
   tokensLimit?: number | null
+  tokenLimitReached?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -782,6 +920,7 @@ export type WhatsappUserUpdateToOneWithWhereWithoutMessagesInput = {
 export type WhatsappUserUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -796,7 +935,11 @@ export type WhatsappUserUpdateWithoutMessagesInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -804,6 +947,7 @@ export type WhatsappUserUpdateWithoutMessagesInput = {
 export type WhatsappUserUncheckedUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   memory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -818,7 +962,11 @@ export type WhatsappUserUncheckedUpdateWithoutMessagesInput = {
   lastInteractionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   totalMessages?: Prisma.IntFieldUpdateOperationsInput | number
   profileSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenUsage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenPackageSize?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenPackagePrice?: Prisma.IntFieldUpdateOperationsInput | number
   tokensLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenLimitReached?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -857,6 +1005,7 @@ export type WhatsappUserCountOutputTypeCountMessagesArgs<ExtArgs extends runtime
 export type WhatsappUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   phoneNumber?: boolean
+  email?: boolean
   name?: boolean
   language?: boolean
   memory?: boolean
@@ -871,7 +1020,11 @@ export type WhatsappUserSelect<ExtArgs extends runtime.Types.Extensions.Internal
   lastInteractionAt?: boolean
   totalMessages?: boolean
   profileSummary?: boolean
+  tokenUsage?: boolean
+  tokenPackageSize?: boolean
+  tokenPackagePrice?: boolean
   tokensLimit?: boolean
+  tokenLimitReached?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   messages?: boolean | Prisma.WhatsappUser$messagesArgs<ExtArgs>
@@ -881,6 +1034,7 @@ export type WhatsappUserSelect<ExtArgs extends runtime.Types.Extensions.Internal
 export type WhatsappUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   phoneNumber?: boolean
+  email?: boolean
   name?: boolean
   language?: boolean
   memory?: boolean
@@ -895,7 +1049,11 @@ export type WhatsappUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   lastInteractionAt?: boolean
   totalMessages?: boolean
   profileSummary?: boolean
+  tokenUsage?: boolean
+  tokenPackageSize?: boolean
+  tokenPackagePrice?: boolean
   tokensLimit?: boolean
+  tokenLimitReached?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["whatsappUser"]>
@@ -903,6 +1061,7 @@ export type WhatsappUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 export type WhatsappUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   phoneNumber?: boolean
+  email?: boolean
   name?: boolean
   language?: boolean
   memory?: boolean
@@ -917,7 +1076,11 @@ export type WhatsappUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   lastInteractionAt?: boolean
   totalMessages?: boolean
   profileSummary?: boolean
+  tokenUsage?: boolean
+  tokenPackageSize?: boolean
+  tokenPackagePrice?: boolean
   tokensLimit?: boolean
+  tokenLimitReached?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["whatsappUser"]>
@@ -925,6 +1088,7 @@ export type WhatsappUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type WhatsappUserSelectScalar = {
   id?: boolean
   phoneNumber?: boolean
+  email?: boolean
   name?: boolean
   language?: boolean
   memory?: boolean
@@ -939,12 +1103,16 @@ export type WhatsappUserSelectScalar = {
   lastInteractionAt?: boolean
   totalMessages?: boolean
   profileSummary?: boolean
+  tokenUsage?: boolean
+  tokenPackageSize?: boolean
+  tokenPackagePrice?: boolean
   tokensLimit?: boolean
+  tokenLimitReached?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WhatsappUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "phoneNumber" | "name" | "language" | "memory" | "preferredCities" | "preferredCategories" | "minBudget" | "maxBudget" | "preferredRooms" | "preferredBathrooms" | "forSale" | "lastMessageAt" | "lastInteractionAt" | "totalMessages" | "profileSummary" | "tokensLimit" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsappUser"]>
+export type WhatsappUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "phoneNumber" | "email" | "name" | "language" | "memory" | "preferredCities" | "preferredCategories" | "minBudget" | "maxBudget" | "preferredRooms" | "preferredBathrooms" | "forSale" | "lastMessageAt" | "lastInteractionAt" | "totalMessages" | "profileSummary" | "tokenUsage" | "tokenPackageSize" | "tokenPackagePrice" | "tokensLimit" | "tokenLimitReached" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsappUser"]>
 export type WhatsappUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | Prisma.WhatsappUser$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.WhatsappUserCountOutputTypeDefaultArgs<ExtArgs>
@@ -960,6 +1128,7 @@ export type $WhatsappUserPayload<ExtArgs extends runtime.Types.Extensions.Intern
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     phoneNumber: string
+    email: string | null
     name: string | null
     language: string | null
     memory: string | null
@@ -974,7 +1143,11 @@ export type $WhatsappUserPayload<ExtArgs extends runtime.Types.Extensions.Intern
     lastInteractionAt: Date | null
     totalMessages: number
     profileSummary: string | null
+    tokenUsage: number | null
+    tokenPackageSize: number
+    tokenPackagePrice: number
     tokensLimit: number | null
+    tokenLimitReached: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["whatsappUser"]>
@@ -1403,6 +1576,7 @@ export interface Prisma__WhatsappUserClient<T, Null = never, ExtArgs extends run
 export interface WhatsappUserFieldRefs {
   readonly id: Prisma.FieldRef<"WhatsappUser", 'String'>
   readonly phoneNumber: Prisma.FieldRef<"WhatsappUser", 'String'>
+  readonly email: Prisma.FieldRef<"WhatsappUser", 'String'>
   readonly name: Prisma.FieldRef<"WhatsappUser", 'String'>
   readonly language: Prisma.FieldRef<"WhatsappUser", 'String'>
   readonly memory: Prisma.FieldRef<"WhatsappUser", 'String'>
@@ -1417,7 +1591,11 @@ export interface WhatsappUserFieldRefs {
   readonly lastInteractionAt: Prisma.FieldRef<"WhatsappUser", 'DateTime'>
   readonly totalMessages: Prisma.FieldRef<"WhatsappUser", 'Int'>
   readonly profileSummary: Prisma.FieldRef<"WhatsappUser", 'String'>
+  readonly tokenUsage: Prisma.FieldRef<"WhatsappUser", 'Int'>
+  readonly tokenPackageSize: Prisma.FieldRef<"WhatsappUser", 'Int'>
+  readonly tokenPackagePrice: Prisma.FieldRef<"WhatsappUser", 'Int'>
   readonly tokensLimit: Prisma.FieldRef<"WhatsappUser", 'Int'>
+  readonly tokenLimitReached: Prisma.FieldRef<"WhatsappUser", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"WhatsappUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"WhatsappUser", 'DateTime'>
 }

@@ -68,6 +68,9 @@ export default async function AdminWhatsappPage({
         phoneNumber: true,
         name: true,
         language: true,
+        totalMessages: true,
+        tokenUsage: true,
+        tokensLimit: true,
         lastInteractionAt: true,
         _count: { select: { messages: true } },
       },
@@ -84,7 +87,9 @@ export default async function AdminWhatsappPage({
     phoneNumber: u.phoneNumber,
     name: u.name,
     language: u.language,
-    totalMessages: u._count?.messages ?? 0,
+    totalMessages: Math.max(u.totalMessages ?? 0, u._count?.messages ?? 0),
+    tokenUsage: u.tokenUsage ?? 0,
+    tokensLimit: u.tokensLimit ?? null,
     lastInteractionAt: u.lastInteractionAt?.toISOString() ?? null,
   }));
 

@@ -131,3 +131,8 @@ export type WhatsappMessage = Prisma.WhatsappMessageModel
  * 
  */
 export type WhatsappUser = Prisma.WhatsappUserModel
+/**
+ * Model WhatsappTokenPayment
+ * 
+ */
+export type WhatsappTokenPayment = Prisma.WhatsappTokenPaymentModel

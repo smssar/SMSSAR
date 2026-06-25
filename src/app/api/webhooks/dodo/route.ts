@@ -8,6 +8,7 @@ import { Webhooks } from "@dodopayments/nextjs";
 import { cancelSubscriptionInDodo } from "@/app/api/subscriptions/cancel/route";
 import { ensurePlan } from "@/lib/ensure-plan";
 import { sendBillingEmail } from "@/lib/billing-email";
+import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
 import type { Locale } from "@/lib/locales";
 
 type DodoWebhookData = {
@@ -198,13 +199,11 @@ export const POST = Webhooks({
 
   onPaymentSucceeded: async (payload) => {
     try {
-      const metadata = payload.data?.metadata;
+      const metadata = payload.data?.metadata as any;
       const customerName =
         payload.data?.customer?.name ?? metadata?.userName ?? null;
       const productId =
         metadata?.productId ?? payload.data?.product_cart?.[0]?.product_id;
-
-      const planId = mapProductToPlan(productId);
 
       const paymentId = payload.data?.payment_id;
       const dodoSubscriptionId = payload.data?.subscription_id ?? null;
@@ -218,6 +217,102 @@ export const POST = Webhooks({
 
       const localSessionId =
         metadata?.localSessionId ?? metadata?.local_session_id ?? null;
+
+      // Handle WhatsApp token payments
+      if (metadata?.type === "whatsapp_tokens") {
+        const whatsappUserId = metadata?.userId;
+        const phone = metadata?.phone;
+
+        if (!whatsappUserId) {
+          console.error("Missing whatsappUserId in WhatsApp token payment");
+          return;
+        }
+
+        try {
+          // Find the payment by whatsappUserId and PENDING status (most recent)
+          const payment = await prisma.whatsappTokenPayment.findFirst({
+            where: {
+              whatsappUserId,
+              status: "PENDING",
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          }); 
+
+          console.log(`Processing WhatsApp token payment for user ${whatsappUserId}:`, {
+            payment,
+          });
+
+          if (payment) {
+            // Update the payment status to COMPLETED
+            await prisma.whatsappTokenPayment.update({
+              where: { id: payment.id },
+              data: { status: "COMPLETED" },
+            });
+
+            const whatsappUser = await prisma.whatsappUser.findUnique({
+              where: { id: whatsappUserId },
+              select: {
+                tokenUsage: true,
+                tokensLimit: true,
+              },
+            });
+
+            const nextTokensLimit =
+              (whatsappUser?.tokensLimit ?? 0) + payment.tokens;
+
+            // Increment the user's tokensLimit
+            await prisma.whatsappUser.update({
+              where: { id: whatsappUserId },
+              data: {
+                tokensLimit: {
+                  increment: payment.tokens,
+                },
+                tokenLimitReached: resolveWhatsappTokenLimitReached(
+                  whatsappUser?.tokenUsage,
+                  nextTokensLimit,
+                ),
+              },
+            });
+            console.log(
+              `WhatsApp tokens added successfully: ${payment.tokens} tokens to user ${whatsappUserId}`,
+            );
+
+            // Send confirmation email
+            if (payment.email) {
+              try {
+                await sendBillingEmail({
+                  to: payment.email,
+                  locale: resolveEmailLocale(metadata?.locale),
+                  kind: "payment_succeeded",
+                  userName: metadata?.userName ?? "User",
+                  planTitle: `WhatsApp Token Package - ${payment.tokens} tokens`,
+                  planPrice: payment.amount,
+                  currency: "MAD",
+                  paymentId: payment.orderId,
+                  purchaseDate: new Date(),
+                  createdAt: payment.createdAt,
+                });
+              } catch (emailError) {
+                console.error("Failed to send WhatsApp token payment email:", emailError);
+              }
+            }
+          } else {
+            console.warn(
+              `No pending WhatsApp token payment found for user ${whatsappUserId}`,
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Failed to process WhatsApp token payment:",
+            error,
+          );
+        }
+        return;
+      }
+
+      const planId = mapProductToPlan(productId);
 
       let isPurchases = false;
       if (!planId && metadata?.purchases) {

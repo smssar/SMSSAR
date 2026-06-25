@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.7.0
- * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.7.0",
-  engine: "75cbdc1eb7150937890ad5465d861175c6624711"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 /**
@@ -401,7 +401,8 @@ export const ModelName = {
   Purchase: 'Purchase',
   Page: 'Page',
   WhatsappMessage: 'WhatsappMessage',
-  WhatsappUser: 'WhatsappUser'
+  WhatsappUser: 'WhatsappUser',
+  WhatsappTokenPayment: 'WhatsappTokenPayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "ad" | "favorite" | "media" | "purchaseProduct" | "purchase" | "page" | "whatsappMessage" | "whatsappUser"
+    modelProps: "city" | "neighborhood" | "propertyType" | "plan" | "subscription" | "user" | "account" | "session" | "verificationToken" | "property" | "ad" | "favorite" | "media" | "purchaseProduct" | "purchase" | "page" | "whatsappMessage" | "whatsappUser" | "whatsappTokenPayment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1754,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WhatsappTokenPayment: {
+      payload: Prisma.$WhatsappTokenPaymentPayload<ExtArgs>
+      fields: Prisma.WhatsappTokenPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WhatsappTokenPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WhatsappTokenPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.WhatsappTokenPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WhatsappTokenPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.WhatsappTokenPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.WhatsappTokenPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.WhatsappTokenPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WhatsappTokenPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.WhatsappTokenPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        update: {
+          args: Prisma.WhatsappTokenPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.WhatsappTokenPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WhatsappTokenPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WhatsappTokenPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.WhatsappTokenPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsappTokenPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.WhatsappTokenPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWhatsappTokenPayment>
+        }
+        groupBy: {
+          args: Prisma.WhatsappTokenPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsappTokenPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WhatsappTokenPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsappTokenPaymentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2112,6 +2187,7 @@ export type WhatsappMessageScalarFieldEnum = (typeof WhatsappMessageScalarFieldE
 export const WhatsappUserScalarFieldEnum = {
   id: 'id',
   phoneNumber: 'phoneNumber',
+  email: 'email',
   name: 'name',
   language: 'language',
   memory: 'memory',
@@ -2126,12 +2202,32 @@ export const WhatsappUserScalarFieldEnum = {
   lastInteractionAt: 'lastInteractionAt',
   totalMessages: 'totalMessages',
   profileSummary: 'profileSummary',
+  tokenUsage: 'tokenUsage',
+  tokenPackageSize: 'tokenPackageSize',
+  tokenPackagePrice: 'tokenPackagePrice',
   tokensLimit: 'tokensLimit',
+  tokenLimitReached: 'tokenLimitReached',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type WhatsappUserScalarFieldEnum = (typeof WhatsappUserScalarFieldEnum)[keyof typeof WhatsappUserScalarFieldEnum]
+
+
+export const WhatsappTokenPaymentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  whatsappUserId: 'whatsappUserId',
+  amount: 'amount',
+  tokens: 'tokens',
+  dodoSessionId: 'dodoSessionId',
+  status: 'status',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WhatsappTokenPaymentScalarFieldEnum = (typeof WhatsappTokenPaymentScalarFieldEnum)[keyof typeof WhatsappTokenPaymentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2403,6 +2499,21 @@ export type PrismaClientOptions = ({
    * ```
    */
   comments?: runtime.SqlCommenterPlugin[]
+  /**
+   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
+   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
+   * performance for applications that execute a large number of unique queries, while a smaller
+   * cache size can reduce memory usage.
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   queryPlanCacheMaxSize: 100,
+   * })
+   * ```
+   */
+  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   city?: Prisma.CityOmit
@@ -2423,6 +2534,7 @@ export type GlobalOmitConfig = {
   page?: Prisma.PageOmit
   whatsappMessage?: Prisma.WhatsappMessageOmit
   whatsappUser?: Prisma.WhatsappUserOmit
+  whatsappTokenPayment?: Prisma.WhatsappTokenPaymentOmit
 }
 
 /* Types for Logging */

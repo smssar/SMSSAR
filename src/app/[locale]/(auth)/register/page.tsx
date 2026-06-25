@@ -64,6 +64,12 @@ export default async function RegisterPage({
                 "رقم الهاتف مطلوب عند اختيار حساب بائع.",
                 "Le numéro de téléphone est requis pour un compte vendeur.",
               )
+            : error === "invalid_phone"
+              ? t(
+                  "Please enter a valid phone number.",
+                  "يرجى إدخال رقم هاتف صالح.",
+                  "Veuillez saisir un numéro de téléphone valide.",
+                )
             : error === "email_exists"
               ? t(
                   "An account with this email already exists.",

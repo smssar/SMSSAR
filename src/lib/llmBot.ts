@@ -4,6 +4,17 @@ import { prisma } from "@/lib/prisma";
 type Category = { name: string; slug: string };
 type City = { name: string; slug: string };
 
+export type LLMTokenUsage = {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+};
+
+type DeepseekResult = {
+  content: string;
+  tokenUsage: LLMTokenUsage | null;
+};
+
 export type PropertyFilters = {
   cities?: string[] | null;
   neighborhood?: string | null;
@@ -62,7 +73,7 @@ export const getCities = unstable_cache(
 async function deepseek(
   messages: { role: string; content: string }[],
   temperature = 0,
-): Promise<string> {
+): Promise<DeepseekResult> {
   // helper to fetch with retries and per-attempt timeout
   const fetchWithRetries = async (
     url: string,
@@ -114,7 +125,23 @@ async function deepseek(
   );
 
   const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
+  const promptTokens = Number(data?.usage?.prompt_tokens ?? 0);
+  const completionTokens = Number(data?.usage?.completion_tokens ?? 0);
+  const totalTokens = Number(
+    data?.usage?.total_tokens ?? promptTokens + completionTokens,
+  );
+
+  return {
+    content: data.choices?.[0]?.message?.content ?? "",
+    tokenUsage:
+      promptTokens || completionTokens || totalTokens
+        ? {
+            promptTokens,
+            completionTokens,
+            totalTokens,
+          }
+        : null,
+  };
 }
 
 export async function searchProperties(
@@ -316,18 +343,19 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
     ? `${systemPromptBase}\n\nRecent conversation:\n${recentHistory}`
     : systemPromptBase;
 
-  const step1Raw = await deepseek([
+  const step1 = await deepseek([
     { role: "system", content: systemPrompt },
     { role: "user", content: "user request: " + text },
   ]);
 
-  const clean = step1Raw.replace(/```json|```/g, "").trim();
+  const clean = step1.content.replace(/```json|```/g, "").trim();
   const parsed = JSON.parse(clean);
 
   if (parsed.role === "chat") {
     return {
       role: "chat",
       response: parsed.response ?? "How can I help you?",
+      tokenUsage: step1.tokenUsage,
     };
   }
 
@@ -373,17 +401,36 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       },
     ]);
 
+    const promptTokens =
+      (step1.tokenUsage?.promptTokens ?? 0) +
+      (summary.tokenUsage?.promptTokens ?? 0);
+    const completionTokens =
+      (step1.tokenUsage?.completionTokens ?? 0) +
+      (summary.tokenUsage?.completionTokens ?? 0);
+    const totalTokens =
+      (step1.tokenUsage?.totalTokens ?? 0) +
+      (summary.tokenUsage?.totalTokens ?? 0);
+
     console.log("LLM properties:", properties);
     return {
       role: "property_search",
-      response: summary,
+      response: summary.content,
       filters,
       properties,
+      tokenUsage:
+        promptTokens || completionTokens || totalTokens
+          ? {
+              promptTokens,
+              completionTokens,
+              totalTokens,
+            }
+          : null,
     };
   }
 
   return {
     role: "unknown",
     response: "I couldn't understand your request.",
+    tokenUsage: step1.tokenUsage,
   };
 }

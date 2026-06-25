@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { normalizePhoneNumber } from "./phone";
 
 export async function getWhatsappUser(phoneNumber: string) {
   // Retry helper for transient DB timeouts
@@ -20,10 +21,12 @@ export async function getWhatsappUser(phoneNumber: string) {
     throw lastErr;
   };
 
+  const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+
   let user = await runWithRetries(() =>
     prisma.whatsappUser.findUnique({
       where: {
-        phoneNumber,
+        phoneNumber: normalizedPhoneNumber,
       },
     }),
   );
@@ -32,7 +35,7 @@ export async function getWhatsappUser(phoneNumber: string) {
     user = await runWithRetries(() =>
       prisma.whatsappUser.create({
         data: {
-          phoneNumber,
+          phoneNumber: normalizedPhoneNumber,
           language: "ar",
         },
       }),
@@ -52,15 +55,24 @@ export async function addWhatsappMessage(
     externalId?: string | null;
   },
 ) {
-  return await prisma.whatsappMessage.create({
-    data: {
-      whatsappUserId,
-      role,
-      content,
-      tokens: options?.tokens,
-      model: options?.model,
-      externalId: options?.externalId ?? undefined,
-    },
+  return await prisma.$transaction(async (tx) => {
+    const message = await tx.whatsappMessage.create({
+      data: {
+        whatsappUserId,
+        role,
+        content,
+        tokens: options?.tokens,
+        model: options?.model,
+        externalId: options?.externalId ?? undefined,
+      },
+    });
+
+    await tx.whatsappUser.update({
+      where: { id: whatsappUserId },
+      data: { totalMessages: { increment: 1 } },
+    });
+
+    return message;
   });
 }
 
@@ -83,4 +95,12 @@ export async function updateWhatsappMemory(
     where: { id: whatsappUserId },
     data: { memory },
   });
+}
+
+export function resolveWhatsappTokenLimitReached(
+  tokenUsage?: number | null,
+  tokensLimit?: number | null,
+) {
+  if (tokensLimit === null || tokensLimit === undefined) return false;
+  return (tokenUsage ?? 0) >= tokensLimit;
 }

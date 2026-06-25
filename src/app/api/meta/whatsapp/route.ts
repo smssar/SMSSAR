@@ -3,11 +3,22 @@ export const runtime = "nodejs";
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
 import { prisma } from "@/lib/prisma";
+import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
 import { detectLang } from "@/lib/utils";
+import { normalizePhoneNumber } from "@/lib/phone";
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "";
+
+type WhatsappUserWithTokenLock = Awaited<ReturnType<typeof getWhatsappUser>> & {
+  tokenLimitReached?: boolean | null;
+  tokenUsage?: number | null;
+  tokensLimit?: number | null;
+  language?: string | null;
+  id?: string;
+  name?: string | null;
+};
 
 // Shared fetch helper with retries and timeout
 async function fetchWithRetries(
@@ -67,6 +78,51 @@ export async function POST(req: Request) {
 
     if (message) {
       const messageId = message.id;
+      const from = message.from;
+      let normalizedFrom = from;
+      try {
+        normalizedFrom = normalizePhoneNumber(from);
+      } catch {
+        normalizedFrom = from;
+      }
+      let text = message?.text?.body;
+
+      try {
+        const statusUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+        await fetchWithRetries(
+          statusUrl,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              status: "read",
+              message_id: messageId,
+              typing_indicator: { type: "text" },
+            }),
+          },
+          1,
+          3000,
+        );
+      } catch (err) {
+        console.error("Failed to send WhatsApp typing/read indicator:", err);
+      }
+
+      let whatsappUser: WhatsappUserWithTokenLock | undefined = undefined;
+      try {
+        whatsappUser = await getWhatsappUser(from);
+      } catch (err) {
+        // Prisma may time out; log and continue with no DB-backed user.
+        // We still proceed so the webhook remains responsive.
+        console.error(
+          "whatsapp webhook: getWhatsappUser failed, continuing without DB user",
+          err,
+        );
+        whatsappUser = undefined;
+      }
       try {
         const existing = await prisma.$queryRaw`
           SELECT id FROM "WhatsappMessage" WHERE "externalId" = ${messageId} LIMIT 1
@@ -82,9 +138,6 @@ export async function POST(req: Request) {
         console.error("whatsapp webhook: dedupe DB check failed", err);
       }
       try {
-        const from = message.from;
-        let text = message?.text?.body;
-
         // If no text, try to transcribe incoming audio/voice/document message
         if (!text) {
           const mediaId = message?.audio?.id || message?.voice?.id;
@@ -93,26 +146,6 @@ export async function POST(req: Request) {
           // message?.image?.id;
 
           if (mediaId) {
-            // helper: fetch with retries to mitigate transient timeouts
-            const fetchWithRetries = async (
-              url: string,
-              opts: RequestInit = {},
-              retries = 2,
-              delayMs = 500,
-            ): Promise<Response> => {
-              let lastErr: unknown = null;
-              for (let i = 0; i <= retries; i++) {
-                try {
-                  return await fetch(url, opts);
-                } catch (err) {
-                  lastErr = err;
-                  // small backoff
-                  await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
-                }
-              }
-              throw lastErr;
-            };
-
             try {
               const mediaMetaRes = await fetchWithRetries(
                 `https://graph.facebook.com/v20.0/${mediaId}`,
@@ -151,18 +184,20 @@ export async function POST(req: Request) {
                 const buffer = Buffer.from(arrayBuffer);
 
                 // Check size before attempting transcription to avoid large multipart uploads
-                const maxBytes = Number(
-                  process.env.GROQ_MAX_UPLOAD_BYTES || 5_000_000,
-                );
+                const maxBytes = Number(50);
                 if (buffer.length > maxBytes) {
                   console.warn(
                     `Incoming media too large for transcription: ${buffer.length} bytes (max ${maxBytes})`,
                   );
                   try {
-                    await sendWhatsAppMessage(
-                      from,
-                      "Sorry — your audio file is too large to transcribe. Please send a shorter voice note or try again with a smaller file.",
-                    );
+                    const largeFileMessage =
+                      whatsappUser?.language === "ar"
+                        ? "عذرًا - ملف الصوت الخاص بك كبير جدًا ليتم نسخه. يرجى إرسال ملاحظة صوتية أقصر أو المحاولة مرة أخرى باستخدام ملف أصغر."
+                        : whatsappUser?.language === "fr"
+                          ? "Désolé — votre fichier audio est trop volumineux pour être transcrit. Veuillez envoyer une note vocale plus courte ou réessayer avec un fichier plus petit."
+                          : "Sorry — your audio file is too large to transcribe. Please send a shorter voice note or try again with a smaller file.";
+
+                    await sendWhatsAppMessage(from, largeFileMessage);
                   } catch (err) {
                     console.error(
                       "Failed to send large-file notice to WhatsApp user:",
@@ -184,18 +219,6 @@ export async function POST(req: Request) {
               console.error("Failed to fetch WhatsApp media:", err);
             }
           }
-        }
-        let whatsappUser = undefined;
-        try {
-          whatsappUser = await getWhatsappUser(from);
-        } catch (err) {
-          // Prisma may time out; log and continue with no DB-backed user.
-          // We still proceed so the webhook remains responsive.
-          console.error(
-            "whatsapp webhook: getWhatsappUser failed, continuing without DB user",
-            err,
-          );
-          whatsappUser = undefined;
         }
 
         // Persist contact name to WhatsappUser.name when available
@@ -231,7 +254,11 @@ export async function POST(req: Request) {
           try {
             await sendWhatsAppMessage(
               from,
-              "Sorry, I couldn't process your audio message.",
+              whatsappUser?.language == "ar"
+                ? "عذرًا، لم أتمكن من فهم رسالتك. يرجى إرسال نص أو ملاحظة صوتية واضحة."
+                : whatsappUser?.language === "fr"
+                  ? "Désolé, je n'ai pas compris votre message. Veuillez envoyer un texte ou une note vocale claire."
+                  : "Sorry, I couldn't understand your message. Please send clear text or a voice note.",
             );
           } catch (err) {
             console.error(
@@ -243,46 +270,112 @@ export async function POST(req: Request) {
           return NextResponse.json({ ok: true });
         }
 
+        const currentTokenUsage = whatsappUser?.tokenUsage ?? 0;
+        const tokensLimit = whatsappUser?.tokensLimit ?? null;
+        const limitAlreadyReached = resolveWhatsappTokenLimitReached(
+          currentTokenUsage,
+          tokensLimit,
+        );
+
+        if (
+          whatsappUser?.id &&
+          whatsappUser.tokenLimitReached !== limitAlreadyReached
+        ) {
+          try {
+            await prisma.whatsappUser.update({
+              where: { id: whatsappUser.id },
+              data: { tokenLimitReached: limitAlreadyReached },
+            });
+            whatsappUser.tokenLimitReached = limitAlreadyReached;
+          } catch (err) {
+            console.error("Failed to normalize tokenLimitReached state:", err);
+          }
+        }
+
+        // Build payment link for token packages
+        const locale = whatsappUser?.language === "ar" ? "ar" : whatsappUser?.language === "fr" ? "fr" : "en";
+        const paymentPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}`;
+
+        const limitReachedMessage =
+          whatsappUser?.language === "ar"
+            ? `تم الوصول إلى حد استخدام الرموز لهذا الحساب. يرجى ترقية الخطة أو زيادة الحد للمتابعة مع المساعد.\n\n${paymentPageUrl}`
+            : whatsappUser?.language === "fr"
+              ? `La limite de jetons de ce compte a été atteinte. Veuillez augmenter la limite ou mettre à niveau le plan pour continuer à utiliser l'assistant.\n\n${paymentPageUrl}`
+              : `This account has reached its token usage limit. Please upgrade the plan or increase the limit to continue using the assistant.\n\n${paymentPageUrl}`;
+
+        if (whatsappUser?.id && limitAlreadyReached) {
+          try {
+            await prisma.whatsappUser.update({
+              where: { id: whatsappUser.id },
+              data: { tokenLimitReached: true },
+            });
+            whatsappUser.tokenLimitReached = true;
+          } catch (err) {
+            console.error("Failed to persist tokenLimitReached state:", err);
+          }
+
+          try {
+            await sendWhatsAppMessage(from, limitReachedMessage);
+          } catch (err) {
+            console.error("Failed to send token-limit warning:", err);
+          }
+
+          return NextResponse.json({ ok: true });
+        }
+
         let data: string | undefined = undefined;
         try {
           // Notify WhatsApp that we've received the message and show typing indicator
-          try {
-            const statusUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-            await fetchWithRetries(
-              statusUrl,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  messaging_product: "whatsapp",
-                  status: "read",
-                  message_id: messageId,
-                  typing_indicator: { type: "text" },
-                }),
-              },
-              1,
-              3000,
-            );
-          } catch (err) {
-            console.error(
-              "Failed to send WhatsApp typing/read indicator:",
-              err,
-            );
-          }
 
           const aiResponse = await llmAnalyze(text, whatsappUser?.id);
           data = aiResponse.response ?? "";
           const parsedAi = aiResponse as {
             role?: string;
             response?: string | null;
+            tokenUsage?: {
+              promptTokens: number;
+              completionTokens: number;
+              totalTokens: number;
+            } | null;
             properties?: Array<{
               id: string;
               imageUrl?: string | null;
               media?: Array<{ url: string }> | null;
             }>;
+          };
+
+          const usageTokens = parsedAi.tokenUsage?.totalTokens ?? 0;
+          const nextTokenUsage = currentTokenUsage + usageTokens;
+
+          const persistTokenUsageAndWarn = async () => {
+            if (!whatsappUser?.id || usageTokens <= 0) return;
+
+            const nextTokenLimitReached = resolveWhatsappTokenLimitReached(
+              nextTokenUsage,
+              tokensLimit,
+            );
+
+            try {
+              await prisma.whatsappUser.update({
+                where: { id: whatsappUser.id },
+                data: {
+                  tokenUsage: nextTokenUsage,
+                  tokenLimitReached: nextTokenLimitReached,
+                },
+              });
+              whatsappUser.tokenUsage = nextTokenUsage;
+              whatsappUser.tokenLimitReached = nextTokenLimitReached;
+            } catch (err) {
+              console.error("Failed to persist WhatsappUser.tokenUsage:", err);
+            }
+
+            if (nextTokenLimitReached) {
+              try {
+                await sendWhatsAppMessage(from, limitReachedMessage);
+              } catch (err) {
+                console.error("Failed to send token-limit warning:", err);
+              }
+            }
           };
 
           if (
@@ -293,7 +386,7 @@ export async function POST(req: Request) {
           ) {
             try {
               const prop = parsedAi.properties[0];
-              const baseUrl = "smssar.ma";
+              const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
               const locale = whatsappUser?.language || "ar";
               const link = `${baseUrl}/${locale}/properties/${prop.id}`;
               const imageUrl =
@@ -322,7 +415,11 @@ export async function POST(req: Request) {
                 // No matching property in DB — do not send images or links. Send only the textual response.
                 await sendWhatsAppMessage(
                   from,
-                  data || "No matching properties found.",
+                  data || whatsappUser?.language === "ar"
+                    ? "عذرًا، لم أتمكن من العثور على أي عقارات مطابقة لطلبك."
+                    : whatsappUser?.language === "fr"
+                      ? "Désolé, je n'ai trouvé aucune propriété correspondant à votre demande."
+                      : "Sorry, I couldn't find any properties matching your request.",
                 );
               }
 
@@ -338,25 +435,7 @@ export async function POST(req: Request) {
                 console.error("Failed to save outbound whatsapp message:", err);
               }
 
-              try {
-                const detected = await detectLang(text);
-                if (
-                  detected &&
-                  whatsappUser?.id &&
-                  whatsappUser.language !== detected
-                ) {
-                  await prisma.whatsappUser.update({
-                    where: { id: whatsappUser.id },
-                    data: { language: detected },
-                  });
-                  whatsappUser.language = detected;
-                }
-              } catch (err) {
-                console.error(
-                  "Failed to persist detected WhatsappUser.language:",
-                  err,
-                );
-              }
+              await persistTokenUsageAndWarn();
 
               return NextResponse.json({ ok: true });
             } catch (err) {
@@ -364,11 +443,21 @@ export async function POST(req: Request) {
             }
           }
 
+          const fallbackMessage =
+            data ||
+            (whatsappUser?.language === "ar"
+              ? "عذرًا، لم أتمكن من فهم رسالتك."
+              : whatsappUser?.language === "fr"
+                ? "Désolé, je n'ai pas compris votre message."
+                : "Sorry, I couldn't understand your message.");
+
           try {
-            await sendWhatsAppMessage(from, data || "No response");
+            await sendWhatsAppMessage(from, fallbackMessage);
           } catch (err) {
             console.error("Failed to send WhatsApp message:", err);
           }
+
+          await persistTokenUsageAndWarn();
         } catch (err) {
           // LLM or upstream API may fail (network/timeouts). Notify user gracefully.
           console.error("whatsapp webhook: llmAnalyze/send failed", err);
@@ -393,6 +482,27 @@ export async function POST(req: Request) {
           }
         } catch (err) {
           console.error("Failed to save outbound whatsapp message:", err);
+        }
+
+        try {
+          const detected = await detectLang(text);
+          console.log("detected:", detected);
+          if (
+            detected &&
+            whatsappUser?.id &&
+            whatsappUser.language !== detected
+          ) {
+            await prisma.whatsappUser.update({
+              where: { id: whatsappUser.id },
+              data: { language: detected },
+            });
+            whatsappUser.language = detected;
+          }
+        } catch (err) {
+          console.error(
+            "Failed to persist detected WhatsappUser.language:",
+            err,
+          );
         }
 
         return NextResponse.json({ ok: true });

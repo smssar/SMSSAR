@@ -3,6 +3,7 @@ import { hash } from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export const runtime = "nodejs";
 
@@ -164,12 +165,21 @@ export async function POST(request: Request) {
         ? body.bannedMessage.trim() || null
         : null;
 
+    let normalizedPhone: string | null = null;
+    if (phone) {
+      try {
+        normalizedPhone = normalizePhoneNumber(phone);
+      } catch {
+        return jsonError("Invalid phone number.", 400);
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         passwordHash,
-        phone: phone ? phone : null,
+          phone: normalizedPhone,
         bio: bio ? bio : null,
         role: role as "USER" | "SELLER" | "SMSSAR" | "ADMIN",
         status: status as "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED",

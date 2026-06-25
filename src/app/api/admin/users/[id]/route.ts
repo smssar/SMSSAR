@@ -3,6 +3,7 @@ import { hash } from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export const runtime = "nodejs";
 
@@ -98,7 +99,15 @@ export async function PATCH(
       return jsonError("Phone must be a string or null.", 400);
     }
     const phone = typeof body.phone === "string" ? body.phone.trim() : "";
-    data.phone = phone ? phone : null;
+    if (phone) {
+      try {
+        data.phone = normalizePhoneNumber(phone);
+      } catch {
+        return jsonError("Invalid phone number.", 400);
+      }
+    } else {
+      data.phone = null;
+    }
   }
 
   if (body.bio !== undefined) {

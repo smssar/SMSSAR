@@ -357,6 +357,7 @@ model WhatsappMessage {
 model WhatsappUser {
   id                  String            @id @default(cuid())
   phoneNumber         String            @unique
+  email               String?
   name                String?
   language            String?           @default("ar")
   memory              String?
@@ -371,13 +372,35 @@ model WhatsappUser {
   lastInteractionAt   DateTime?
   totalMessages       Int               @default(0)
   profileSummary      String?
-  tokensLimit         Int?
+  tokenUsage          Int?              @default(0)
+  tokenPackageSize    Int               @default(10000)
+  tokenPackagePrice   Int               @default(500)
+  tokensLimit         Int?              @default(1000)
+  tokenLimitReached   Boolean           @default(false)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   messages            WhatsappMessage[]
 
   @@index([phoneNumber])
+  @@index([email])
   @@index([lastInteractionAt])
+}
+
+model WhatsappTokenPayment {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  whatsappUserId  String
+  amount          Int
+  tokens          Int
+  dodoSessionId   String?
+  status          String   @default("PENDING")
+  email           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([whatsappUserId])
+  @@index([status])
+  @@index([dodoSessionId])
 }
 
 enum UserRole {

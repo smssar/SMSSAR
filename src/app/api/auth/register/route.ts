@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
 import { ensureFreePlan } from "@/lib/ensure-free-plan";
+import { normalizePhoneNumber } from "@/lib/phone";
 import {
   generateVerificationCode,
   hashVerificationCode,
@@ -64,6 +65,15 @@ export async function POST(request: Request) {
     );
   }
 
+  let normalizedPhone: string | null = null;
+  if (sellerPhone) {
+    try {
+      normalizedPhone = normalizePhoneNumber(sellerPhone);
+    } catch {
+      return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
+    }
+  }
+
   const passwordHash = await hash(password, 12);
 
   try {
@@ -82,7 +92,7 @@ export async function POST(request: Request) {
         passwordHash,
         planId: "plan_free",
         role,
-        phone: sellerPhone || null,
+        phone: normalizedPhone,
       },
       select: {
         id: true,
