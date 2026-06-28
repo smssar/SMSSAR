@@ -296,21 +296,15 @@ export async function POST(req: Request) {
         const limitReachedMessage =
           whatsappUser?.language === "ar"
             ? `لقد وصلت إلى الحد الشهري لاستخدام الرسائل لهذا الحساب. 😊
-
-            للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
-
+             للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
             ${paymentPageUrl}`
-                        : whatsappUser?.language === "fr"
-                          ? `Vous avez atteint la limite mensuelle de messages pour ce compte. 😊
-
-            Pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
-
-            ${paymentPageUrl}`
-                          : `You've reached your monthly message limit for this account. 😊
-
-            To continue chatting with the assistant, please purchase a new message package.
-
-            ${paymentPageUrl}`;
+            : whatsappUser?.language === "fr"
+              ? `Vous avez atteint la limite mensuelle de messages pour ce compte. 😊
+                Pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
+                ${paymentPageUrl}`
+              : `You've reached your monthly message limit for this account. 😊
+              To continue chatting with the assistant, please purchase a new message package.
+              ${paymentPageUrl}`;
         if (whatsappUser?.id && limitAlreadyReached) {
           try {
             await prisma.whatsappUser.update({
@@ -324,6 +318,26 @@ export async function POST(req: Request) {
 
           try {
             await sendWhatsAppMessage(from, limitReachedMessage);
+            try {
+              const detected = await detectLang(text);
+              console.log("detected:", detected);
+              if (
+                detected &&
+                whatsappUser?.id &&
+                whatsappUser.language !== detected
+              ) {
+                await prisma.whatsappUser.update({
+                  where: { id: whatsappUser.id },
+                  data: { language: detected },
+                });
+                whatsappUser.language = detected;
+              }
+            } catch (err) {
+              console.error(
+                "Failed to persist detected WhatsappUser.language:",
+                err,
+              );
+            }
           } catch (err) {
             console.error("Failed to send token-limit warning:", err);
           }
