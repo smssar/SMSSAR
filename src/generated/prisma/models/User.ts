@@ -50,6 +50,7 @@ export type UserMinAggregateOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  isVerified: boolean | null
   featuredproperties: number | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
@@ -73,6 +74,7 @@ export type UserMaxAggregateOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  isVerified: boolean | null
   featuredproperties: number | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
@@ -96,6 +98,7 @@ export type UserCountAggregateOutputType = {
   suspendedBy: number
   bannedMessage: number
   planId: number
+  isVerified: number
   featuredproperties: number
   role: number
   status: number
@@ -129,6 +132,7 @@ export type UserMinAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  isVerified?: true
   featuredproperties?: true
   role?: true
   status?: true
@@ -152,6 +156,7 @@ export type UserMaxAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  isVerified?: true
   featuredproperties?: true
   role?: true
   status?: true
@@ -175,6 +180,7 @@ export type UserCountAggregateInputType = {
   suspendedBy?: true
   bannedMessage?: true
   planId?: true
+  isVerified?: true
   featuredproperties?: true
   role?: true
   status?: true
@@ -285,6 +291,7 @@ export type UserGroupByOutputType = {
   suspendedBy: string | null
   bannedMessage: string | null
   planId: string | null
+  isVerified: boolean
   featuredproperties: number | null
   role: $Enums.UserRole
   status: $Enums.UserStatus
@@ -331,6 +338,7 @@ export type UserWhereInput = {
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  isVerified?: Prisma.BoolFilter<"User"> | boolean
   featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
@@ -362,6 +370,7 @@ export type UserOrderByWithRelationInput = {
   suspendedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   bannedMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   featuredproperties?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -396,6 +405,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  isVerified?: Prisma.BoolFilter<"User"> | boolean
   featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
@@ -427,6 +437,7 @@ export type UserOrderByWithAggregationInput = {
   suspendedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   bannedMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   featuredproperties?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -458,6 +469,7 @@ export type UserScalarWhereWithAggregatesInput = {
   suspendedBy?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   planId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  isVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   featuredproperties?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
@@ -480,6 +492,7 @@ export type UserCreateInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -511,6 +524,7 @@ export type UserUncheckedCreateInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -540,6 +554,7 @@ export type UserUpdateInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -571,6 +586,7 @@ export type UserUncheckedUpdateInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -601,6 +617,7 @@ export type UserCreateManyInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -623,6 +640,7 @@ export type UserUpdateManyMutationInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -646,6 +664,7 @@ export type UserUncheckedUpdateManyInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -684,6 +703,7 @@ export type UserCountOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -711,6 +731,7 @@ export type UserMaxOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -734,6 +755,7 @@ export type UserMinOrderByAggregateInput = {
   suspendedBy?: Prisma.SortOrder
   bannedMessage?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   featuredproperties?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -908,6 +930,7 @@ export type UserCreateWithoutPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -937,6 +960,7 @@ export type UserUncheckedCreateWithoutPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -996,6 +1020,7 @@ export type UserScalarWhereInput = {
   suspendedBy?: Prisma.StringNullableFilter<"User"> | string | null
   bannedMessage?: Prisma.StringNullableFilter<"User"> | string | null
   planId?: Prisma.StringNullableFilter<"User"> | string | null
+  isVerified?: Prisma.BoolFilter<"User"> | boolean
   featuredproperties?: Prisma.IntNullableFilter<"User"> | number | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
@@ -1018,6 +1043,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1048,6 +1074,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1092,6 +1119,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1122,6 +1150,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1150,6 +1179,7 @@ export type UserCreateWithoutAccountsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1180,6 +1210,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1224,6 +1255,7 @@ export type UserUpdateWithoutAccountsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1254,6 +1286,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1282,6 +1315,7 @@ export type UserCreateWithoutSessionsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1312,6 +1346,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1356,6 +1391,7 @@ export type UserUpdateWithoutSessionsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1386,6 +1422,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1414,6 +1451,7 @@ export type UserCreateWithoutPropertiesInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1444,6 +1482,7 @@ export type UserUncheckedCreateWithoutPropertiesInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1488,6 +1527,7 @@ export type UserUpdateWithoutPropertiesInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1518,6 +1558,7 @@ export type UserUncheckedUpdateWithoutPropertiesInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1546,6 +1587,7 @@ export type UserCreateWithoutAdsInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1576,6 +1618,7 @@ export type UserUncheckedCreateWithoutAdsInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1620,6 +1663,7 @@ export type UserUpdateWithoutAdsInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1650,6 +1694,7 @@ export type UserUncheckedUpdateWithoutAdsInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1678,6 +1723,7 @@ export type UserCreateWithoutFavoritesInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1708,6 +1754,7 @@ export type UserUncheckedCreateWithoutFavoritesInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1752,6 +1799,7 @@ export type UserUpdateWithoutFavoritesInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1782,6 +1830,7 @@ export type UserUncheckedUpdateWithoutFavoritesInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1810,6 +1859,7 @@ export type UserCreateWithoutPurchasesInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1840,6 +1890,7 @@ export type UserUncheckedCreateWithoutPurchasesInput = {
   suspendedBy?: string | null
   bannedMessage?: string | null
   planId?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1884,6 +1935,7 @@ export type UserUpdateWithoutPurchasesInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1914,6 +1966,7 @@ export type UserUncheckedUpdateWithoutPurchasesInput = {
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1942,6 +1995,7 @@ export type UserCreateManyPlanInput = {
   suspendedMessage?: string | null
   suspendedBy?: string | null
   bannedMessage?: string | null
+  isVerified?: boolean
   featuredproperties?: number | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
@@ -1964,6 +2018,7 @@ export type UserUpdateWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -1993,6 +2048,7 @@ export type UserUncheckedUpdateWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -2022,6 +2078,7 @@ export type UserUncheckedUpdateManyWithoutPlanInput = {
   suspendedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspendedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannedMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   featuredproperties?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
@@ -2130,6 +2187,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  isVerified?: boolean
   featuredproperties?: boolean
   role?: boolean
   status?: boolean
@@ -2162,6 +2220,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  isVerified?: boolean
   featuredproperties?: boolean
   role?: boolean
   status?: boolean
@@ -2186,6 +2245,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  isVerified?: boolean
   featuredproperties?: boolean
   role?: boolean
   status?: boolean
@@ -2210,6 +2270,7 @@ export type UserSelectScalar = {
   suspendedBy?: boolean
   bannedMessage?: boolean
   planId?: boolean
+  isVerified?: boolean
   featuredproperties?: boolean
   role?: boolean
   status?: boolean
@@ -2217,7 +2278,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "avatar" | "phone" | "city" | "bio" | "suspendedAt" | "suspendedUntil" | "suspendedMessage" | "suspendedBy" | "bannedMessage" | "planId" | "featuredproperties" | "role" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "avatar" | "phone" | "city" | "bio" | "suspendedAt" | "suspendedUntil" | "suspendedMessage" | "suspendedBy" | "bannedMessage" | "planId" | "isVerified" | "featuredproperties" | "role" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   ads?: boolean | Prisma.User$adsArgs<ExtArgs>
@@ -2264,6 +2325,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     suspendedBy: string | null
     bannedMessage: string | null
     planId: string | null
+    isVerified: boolean
     featuredproperties: number | null
     role: $Enums.UserRole
     status: $Enums.UserStatus
@@ -2715,6 +2777,7 @@ export interface UserFieldRefs {
   readonly suspendedBy: Prisma.FieldRef<"User", 'String'>
   readonly bannedMessage: Prisma.FieldRef<"User", 'String'>
   readonly planId: Prisma.FieldRef<"User", 'String'>
+  readonly isVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly featuredproperties: Prisma.FieldRef<"User", 'Int'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>

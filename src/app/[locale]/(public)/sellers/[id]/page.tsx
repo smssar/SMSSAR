@@ -9,6 +9,7 @@ import {
   Phone,
   ShieldCheck,
   UserRound,
+  BadgeCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,13 +19,30 @@ import {
 } from "@/components/property/property-card";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
+import {
+  defaultPhoneCountry,
+  detectPhoneCountry,
+  formatPhoneDisplay,
+  getPhoneCountryByCode,
+} from "@/lib/phone";
 
 export default async function SellerProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: Locale; id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale, id } = await params;
+  const resolvedSearchParams = await searchParams;
+  const pageParam =
+    typeof resolvedSearchParams.page === "string"
+      ? resolvedSearchParams.page
+      : undefined;
+  const requestedPage = Number.parseInt(pageParam ?? "1", 10);
+  const currentPage =
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const PAGE_SIZE = 9;
 
   const seller = await prisma.user.findUnique({
     where: { id },
@@ -35,7 +53,13 @@ export default async function SellerProfilePage({
       phone: true,
       city: true,
       bio: true,
+      isVerified: true,
       createdAt: true,
+      _count: {
+        select: {
+          properties: true,
+        },
+      },
       properties: {
         select: {
           id: true,
@@ -59,6 +83,8 @@ export default async function SellerProfilePage({
           },
         },
         orderBy: { createdAt: "desc" },
+        take: PAGE_SIZE,
+        skip: (currentPage - 1) * PAGE_SIZE,
       },
     },
   });
@@ -67,8 +93,20 @@ export default async function SellerProfilePage({
     notFound();
   }
 
-  const listingCount = seller.properties.length;
+  const listingCount = seller._count.properties;
+  const totalPages = Math.max(1, Math.ceil(listingCount / PAGE_SIZE));
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
+  const buildPageHref = (page: number) => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    return `/${locale}/sellers/${id}?${params.toString()}`;
+  };
   const memberSince = new Date(seller.createdAt).toLocaleDateString(locale);
+  const phoneCountryCode = seller.phone
+    ? (detectPhoneCountry(seller.phone) ?? defaultPhoneCountry.code)
+    : defaultPhoneCountry.code;
+  const selectedPhoneCountry = getPhoneCountryByCode(phoneCountryCode);
 
   const sellerProperties: PropertyCardProps[] = seller.properties.map(
     (property) => ({
@@ -112,7 +150,12 @@ export default async function SellerProfilePage({
               <div className="text-sm text-muted-foreground">
                 {locale === "ar" ? "الاسم" : "Name"}
               </div>
-              <div className="text-2xl font-semibold">{seller.name}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-2xl font-semibold">{seller.name}</div>
+                {seller.isVerified && (
+                  <BadgeCheck className="h-6 w-6 fill-blue-500 text-white" />
+                )}
+              </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
@@ -156,20 +199,41 @@ export default async function SellerProfilePage({
               </div>
 
               {seller.phone ? (
-                <a
-                  href={`tel:${seller.phone}`}
-                  className="inline-flex flex-row items-center gap-2 font-medium text-foreground transition hover:text-violet-500"
-                >
-                  <Phone className="h-4 w-4" />
-                  <span dir="ltr">{seller.phone}</span>
-                </a>
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">
+                    {locale === "ar" ? "رقم الهاتف" : "Phone"}
+                  </div>
+                  <a
+                    href={`tel:${seller.phone}`}
+                    className="inline-flex w-full max-w-sm items-stretch overflow-hidden rounded-2xl border border-border/70 transition hover:border-violet-400/60"
+                  >
+                    <span className="inline-flex items-center gap-2 border-r border-border/70 bg-muted/40 px-3 py-2 text-sm rtl:border-l rtl:border-r-0">
+                      {selectedPhoneCountry.flag}{" "}
+                      {selectedPhoneCountry.dialCode}
+                    </span>
+                    <span className="inline-flex items-center gap-2 px-3 py-2 font-medium text-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span dir="ltr">{formatPhoneDisplay(seller.phone)}</span>
+                    </span>
+                  </a>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedPhoneCountry.flag} {selectedPhoneCountry.dialCode}{" "}
+                    {locale === "ar"
+                      ? "• تم التحقق من تنسيق الرقم تلقائياً."
+                      : locale === "fr"
+                        ? "• Format vérifié automatiquement."
+                        : "• Format checked automatically."}
+                  </p>
+                </div>
               ) : null}
 
               <div className="flex items-center gap-2 text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 {locale === "ar"
                   ? "بائع موثق مع استجابة سريعة"
-                  : "Verified seller with fast response"}
+                  : locale === "fr"
+                    ? "Vendeur vérifié avec réponse rapide"
+                    : "Verified seller with fast response"}
               </div>
             </div>
 
@@ -177,11 +241,17 @@ export default async function SellerProfilePage({
               <Badge variant="secondary">
                 {locale === "ar"
                   ? `${listingCount} عقار`
-                  : `${listingCount} listings`}
+                  : locale === "fr"
+                    ? `${listingCount} annonces`
+                    : `${listingCount} listings`}
               </Badge>
               {seller.phone ? (
                 <Badge variant="outline">
-                  {locale === "ar" ? "متاح للاتصال" : "Available by phone"}
+                  {locale === "ar"
+                    ? "متاح للاتصال"
+                    : locale === "fr"
+                      ? "Disponible par téléphone"
+                      : "Available by phone"}
                 </Badge>
               ) : null}
             </div>
@@ -197,27 +267,86 @@ export default async function SellerProfilePage({
               <p className="mt-2 text-sm text-muted-foreground">
                 {locale === "ar"
                   ? "تصفح جميع العقارات المنشورة بواسطة هذا البائع."
-                  : "Browse all properties published by this seller."}
+                  : locale === "fr"
+                    ? "Parcourez toutes les propriétés publiées par ce vendeur."
+                    : "Browse all properties published by this seller."}
               </p>
             </div>
           </div>
 
           {sellerProperties.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {sellerProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  locale={locale}
-                  property={property}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {sellerProperties.map((property) => (
+                  <PropertyCard
+                    key={property.id}
+                    locale={locale}
+                    property={property}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/20 px-4 py-3">
+                <p className="text-sm text-muted-foreground">
+                  {locale === "ar"
+                    ? `الصفحة ${currentPage} من ${totalPages}`
+                    : locale === "fr"
+                      ? `Page ${currentPage} sur ${totalPages}`
+                      : `Page ${currentPage} of ${totalPages}`}
+                </p>
+                <div className="flex items-center gap-2">
+                  {hasPreviousPage ? (
+                    <Link
+                      href={buildPageHref(currentPage - 1)}
+                      className="inline-flex items-center rounded-xl border border-border/70 px-3 py-1.5 text-sm font-medium transition hover:bg-muted"
+                    >
+                      {locale === "ar"
+                        ? "السابق"
+                        : locale === "fr"
+                          ? "Precedent"
+                          : "Previous"}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex cursor-not-allowed items-center rounded-xl border border-border/50 px-3 py-1.5 text-sm text-muted-foreground/70">
+                      {locale === "ar"
+                        ? "السابق"
+                        : locale === "fr"
+                          ? "Precedent"
+                          : "Previous"}
+                    </span>
+                  )}
+
+                  {hasNextPage ? (
+                    <Link
+                      href={buildPageHref(currentPage + 1)}
+                      className="inline-flex items-center rounded-xl border border-border/70 px-3 py-1.5 text-sm font-medium transition hover:bg-muted"
+                    >
+                      {locale === "ar"
+                        ? "التالي"
+                        : locale === "fr"
+                          ? "Suivant"
+                          : "Next"}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex cursor-not-allowed items-center rounded-xl border border-border/50 px-3 py-1.5 text-sm text-muted-foreground/70">
+                      {locale === "ar"
+                        ? "التالي"
+                        : locale === "fr"
+                          ? "Suivant"
+                          : "Next"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </>
           ) : (
             <Card className="border-border/70">
               <CardContent className="py-10 text-center text-muted-foreground">
                 {locale === "ar"
                   ? "لا توجد عقارات منشورة حتى الآن."
-                  : "No listings published yet."}
+                  : locale === "fr"
+                    ? "Aucune annonce publiee pour le moment."
+                    : "No listings published yet."}
               </CardContent>
             </Card>
           )}

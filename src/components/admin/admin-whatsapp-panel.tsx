@@ -94,7 +94,7 @@ function StatCard({
   hint: string;
 }) {
   return (
-    <div className="rounded-3xl border border-border/70 bg-gradient-to-br from-background to-muted/25 p-4 shadow-sm">
+    <div className="rounded-3xl border border-border/70 bg-linear-to-br from-background to-muted/25 p-4 shadow-sm">
       <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         {label}
       </div>
@@ -422,7 +422,7 @@ export function AdminWhatsappPanel({
                     params.delete("page");
                     router.push(`?${params.toString()}`);
                   }}
-                  className="min-w-[280px] rounded-2xl border-border/70 pl-9"
+                  className="min-w-70 rounded-2xl border-border/70 pl-9"
                 />
               </div>
               <select
@@ -553,14 +553,14 @@ export function AdminWhatsappPanel({
             <div
               role="dialog"
               aria-modal="true"
-              className="fixed inset-0 z-[50] flex items-start justify-center px-4 pb-4  backdrop-blur-2xl backdrop-saturate-150"
+              className="fixed inset-0 z-50 flex items-start justify-center px-4 pb-4  backdrop-blur-2xl backdrop-saturate-150"
               onClick={() => setSelectedUser(null)}
             >
               <div
                 className="relative w-full max-w-7xl max-h-[calc(100vh-7rem)] overflow-hidden rounded-4xl border border-border/60 bg-card shadow-[0_30px_120px_-40px_rgba(15,23,42,0.8)]"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-violet-500 to-cyan-500" />
+                <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-primary via-violet-500 to-cyan-500" />
 
                 <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
                   <div className="flex items-center gap-4">
@@ -594,7 +594,7 @@ export function AdminWhatsappPanel({
                 </div>
 
                 <div className="grid max-h-[calc(90vh-5rem)] gap-0 overflow-hidden lg:grid-cols-[360px_1fr]">
-                  <div className="border-b border-border/60 bg-gradient-to-b from-muted/30 to-background p-6 lg:border-b-0 lg:border-r lg:border-border/60">
+                  <div className="border-b border-border/60 bg-linear-to-b from-muted/30 to-background p-6 lg:border-b-0 lg:border-r lg:border-border/60">
                     <div className="rounded-[1.75rem] border border-border/60 bg-background p-5 shadow-sm">
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -624,7 +624,7 @@ export function AdminWhatsappPanel({
                         ))}
                       </div>
 
-                      <div className="mt-6 rounded-[1.5rem] border border-border/60 bg-muted/20 p-4">
+                      <div className="mt-6 rounded-3xl border border-border/60 bg-muted/20 p-4">
                         <Label className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
                           {locale === "ar"
                             ? "تعديل حد الرموز"
@@ -708,7 +708,7 @@ export function AdminWhatsappPanel({
                             onChange={(event) =>
                               setMsgSearch(event.target.value)
                             }
-                            className="min-w-[260px] rounded-2xl border-border/70 pl-9"
+                            className="min-w-65 rounded-2xl border-border/70 pl-9"
                           />
                         </div>
                         <Button
@@ -734,7 +734,7 @@ export function AdminWhatsappPanel({
                             <Loader2 className="h-5 w-5 animate-spin" />
                           </div>
                         ) : messages.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/60 px-6 py-16 text-center text-sm text-muted-foreground">
+                          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/60 px-6 py-16 text-center text-sm text-muted-foreground">
                             <MessageSquare className="mb-3 h-6 w-6" />
                             {texts?.usersTable?.noMessages ?? "No messages."}
                           </div>
@@ -742,7 +742,7 @@ export function AdminWhatsappPanel({
                           messages.map((message) => (
                             <div
                               key={message.id}
-                              className="rounded-[1.35rem] border border-border/60 bg-gradient-to-br from-background to-muted/20 p-4 shadow-sm"
+                              className="rounded-[1.35rem] border border-border/60 bg-linear-to-br from-background to-muted/20 p-4 shadow-sm"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-2">
@@ -791,7 +791,7 @@ export function AdminWhatsappPanel({
                                 </div>
                               </div>
 
-                              <div className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-foreground/90">
+                              <div className="mt-3 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-foreground/90">
                                 {message.content}
                               </div>
                             </div>
@@ -840,8 +840,8 @@ export function AdminWhatsappPanel({
           ) : null}
 
           {pendingDelete ? (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-              <div className="w-full max-w-xl rounded-[2rem] border border-border/60 bg-card p-6 shadow-2xl">
+            <div className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-sm">
+              <div className="w-full max-w-xl rounded-4xl border border-border/60 bg-card p-6 shadow-2xl">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
@@ -872,7 +872,7 @@ export function AdminWhatsappPanel({
                     </Badge>
                     <span>{pendingDelete.id}</span>
                   </div>
-                  <div className="line-clamp-4 whitespace-pre-wrap break-words">
+                  <div className="line-clamp-4 whitespace-pre-wrap wrap-break-word">
                     {pendingDelete.content}
                   </div>
                 </div>

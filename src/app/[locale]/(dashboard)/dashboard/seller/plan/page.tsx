@@ -14,6 +14,7 @@ import {
 import { PricingCheckoutButton } from "@/components/payment/pricing-checkout-button";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 
 export default async function SellerPlanPage({
   params,
@@ -43,11 +44,16 @@ export default async function SellerPlanPage({
     orderBy: { price: "asc" },
   });
 
-  const currentPlan = plans.find((plan) => plan.id === currentPlanId) ?? null;
+  const effectivePlans = plans.map((plan) =>
+    resolvePlanForRole(plan, session.user.role),
+  );
+
+  const currentPlan =
+    effectivePlans.find((plan) => plan.id === currentPlanId) ?? null;
   const visiblePlans =
     currentPlanId === "plan_free"
-      ? plans
-      : plans.filter((plan) => plan.id !== "plan_free");
+      ? effectivePlans
+      : effectivePlans.filter((plan) => plan.id !== "plan_free");
 
   const activeSubscription = await getActiveSubscription(session.user.id);
   const scheduledSubscription = await getScheduledSubscription(session.user.id);

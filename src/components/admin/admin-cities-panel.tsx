@@ -228,28 +228,46 @@ export function AdminCitiesPanel({
                 id="city-name-en"
                 value={nameEn}
                 onChange={(event) => setNameEn(event.target.value)}
-                placeholder="Dubai"
+                placeholder="Rabat"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city-name-ar">Arabic name</Label>
+              <Label htmlFor="city-name-ar">
+                {locale === "ar"
+                  ? "الاسم العربي"
+                  : locale === "fr"
+                    ? "Nom arabe"
+                    : "Arabic name"}
+              </Label>
               <Input
                 id="city-name-ar"
                 value={nameAr}
                 onChange={(event) => setNameAr(event.target.value)}
-                placeholder="دبي"
+                placeholder="الرباط"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city-name-fr">French name</Label>
+              <Label htmlFor="city-name-fr">
+                {locale === "ar"
+                  ? "الاسم الفرنسي"
+                  : locale === "fr"
+                    ? "Nom français"
+                    : "French name"}
+              </Label>
               <Input
                 id="city-name-fr"
                 value={nameFr}
                 onChange={(event) => setNameFr(event.target.value)}
-                placeholder="Dubaï"
+                placeholder={
+                  locale === "ar"
+                    ? "الرباط"
+                    : locale === "fr"
+                      ? "rabat"
+                      : "rabat"
+                }
               />
             </div>
 
@@ -261,7 +279,13 @@ export function AdminCitiesPanel({
                 id="city-slug"
                 value={slug}
                 onChange={(event) => setSlug(event.target.value)}
-                placeholder={locale === "ar" ? "dubai" : "dubai"}
+                placeholder={
+                  locale === "ar"
+                    ? "الرباط"
+                    : locale === "fr"
+                      ? "rabat"
+                      : "rabat"
+                }
               />
             </div>
 

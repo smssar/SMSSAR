@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import type { Locale } from "@/lib/locales";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Zap, Mail, Phone } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -92,7 +98,9 @@ const translations = {
   },
 };
 
-export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClientProps) {
+export function WhatsappTokenPaymentClient({
+  locale,
+}: WhatsappTokenPaymentClientProps) {
   const t = translations[locale] || translations.en;
   const searchParams = useSearchParams();
 
@@ -103,7 +111,9 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
     size: number;
     price: number;
   } | null>(null);
-  const [selectedTokens, setSelectedTokens] = useState(10000);
+  const [selectedTokens, setSelectedTokens] = useState(
+    tokenData ? tokenData.size : 8000,
+  );
 
   useEffect(() => {
     // Fetch token package data
@@ -156,7 +166,9 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
 
     try {
       // Calculate proportional price based on selected tokens
-      const proportionalPrice = tokenData ? Math.round((selectedTokens / tokenData.size) * tokenData.price) : 500;
+      const proportionalPrice = tokenData
+        ? Math.round((selectedTokens / tokenData.size) * tokenData.price)
+        : 500;
 
       // First, update/create WhatsApp user with email
       const updateResponse = await fetch("/api/whatsapp/update-user-contact", {
@@ -170,11 +182,20 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
       }
 
       // Then proceed to checkout with custom token amount and price
-      const checkoutResponse = await fetch("/api/payments/whatsapp/dodo-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalizedPhone, email, locale, tokens: selectedTokens, amount: proportionalPrice }),
-      });
+      const checkoutResponse = await fetch(
+        "/api/payments/whatsapp/dodo-checkout",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: normalizedPhone,
+            email,
+            locale,
+            tokens: selectedTokens,
+            amount: proportionalPrice,
+          }),
+        },
+      );
 
       if (!checkoutResponse.ok) {
         const error = await checkoutResponse.json();
@@ -218,7 +239,11 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
             <Card className="border-border/70 bg-card/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>
-                  {locale === "ar" ? "معلوماتك" : locale === "fr" ? "Vos informations" : "Your Information"}
+                  {locale === "ar"
+                    ? "معلوماتك"
+                    : locale === "fr"
+                      ? "Vos informations"
+                      : "Your Information"}
                 </CardTitle>
                 <CardDescription>
                   {locale === "ar"
@@ -279,23 +304,36 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
                       <div className="space-y-3">
                         <input
                           type="range"
-                          min={Math.max(1000, Math.round(tokenData.size * 0.1))}
+                          min={Math.max(8000, Math.round(tokenData.size * 0.1))}
                           max={Math.round(tokenData.size * 5)}
                           step={Math.round(tokenData.size * 0.1)}
                           value={selectedTokens}
-                          onChange={(e) => setSelectedTokens(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            setSelectedTokens(parseInt(e.target.value))
+                          }
                           disabled={loading}
                           className="w-full cursor-pointer"
                         />
                         <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{t.min}: {Math.max(1000, Math.round(tokenData.size * 0.1)).toLocaleString()}</span>
-                          <span>{t.max}: {Math.round(tokenData.size * 5).toLocaleString()}</span>
+                          <span>
+                            {t.min}:{" "}
+                            {Math.max(
+                              8000,
+                              Math.round(tokenData.size * 0.1),
+                            ).toLocaleString()}
+                          </span>
+                          <span>
+                            {t.max}:{" "}
+                            {Math.round(tokenData.size * 5).toLocaleString()}
+                          </span>
                         </div>
                         <div className="rounded-lg bg-primary/5 p-3 text-center">
                           <p className="text-2xl font-bold text-primary">
                             {selectedTokens.toLocaleString()}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">{t.tokens}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t.tokens}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -323,19 +361,27 @@ export function WhatsappTokenPaymentClient({ locale }: WhatsappTokenPaymentClien
               <CardContent className="space-y-6">
                 {/* Price Box */}
                 <div className="rounded-lg border border-primary/20 bg-background/50 p-4">
-                  <p className="mb-2 text-sm text-muted-foreground">{t.tokenPackage}</p>
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    {t.tokenPackage}
+                  </p>
                   <div className="flex items-baseline justify-between">
                     <span className="text-3xl font-bold">
                       {selectedTokens.toLocaleString()}
                     </span>
-                    <span className="text-sm text-muted-foreground">{t.tokens}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {t.tokens}
+                    </span>
                   </div>
                   <div className="mt-4 border-t border-border/50 pt-4">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">{t.price}:</span>
                       <span className="font-semibold">
                         {tokenData
-                          ? Math.round((selectedTokens / tokenData.size) * tokenData.price / 10)
+                          ? Math.round(
+                              ((selectedTokens / tokenData.size) *
+                                tokenData.price) /
+                                10,
+                            )
                           : Math.round(500 / 10)}{" "}
                         DH
                       </span>

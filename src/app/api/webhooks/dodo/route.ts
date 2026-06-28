@@ -10,6 +10,7 @@ import { ensurePlan } from "@/lib/ensure-plan";
 import { sendBillingEmail } from "@/lib/billing-email";
 import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
 import type { Locale } from "@/lib/locales";
+import { resolvePurchaseProductPrice } from "@/lib/role-pricing";
 
 type DodoWebhookData = {
   customer?: {
@@ -199,7 +200,25 @@ export const POST = Webhooks({
 
   onPaymentSucceeded: async (payload) => {
     try {
-      const metadata = payload.data?.metadata as any;
+      const metadata = payload.data?.metadata as
+        | {
+            amount?: number | string | null;
+            productId?: string | null;
+            userId?: string | null;
+            userName?: string | null;
+            userEmail?: string | null;
+            locale?: string | null;
+            activationMode?: string | null;
+            paymentId?: string | null;
+            subscriptionId?: string | null;
+            localSessionId?: string | null;
+            local_session_id?: string | null;
+            purchases?: string | null;
+            userRole?: string | null;
+            type?: string | null;
+            phone?: string | null;
+          }
+        | undefined;
       const customerName =
         payload.data?.customer?.name ?? metadata?.userName ?? null;
       const productId =
@@ -221,7 +240,6 @@ export const POST = Webhooks({
       // Handle WhatsApp token payments
       if (metadata?.type === "whatsapp_tokens") {
         const whatsappUserId = metadata?.userId;
-        const phone = metadata?.phone;
 
         if (!whatsappUserId) {
           console.error("Missing whatsappUserId in WhatsApp token payment");
@@ -238,11 +256,14 @@ export const POST = Webhooks({
             orderBy: {
               createdAt: "desc",
             },
-          }); 
-
-          console.log(`Processing WhatsApp token payment for user ${whatsappUserId}:`, {
-            payment,
           });
+
+          console.log(
+            `Processing WhatsApp token payment for user ${whatsappUserId}:`,
+            {
+              payment,
+            },
+          );
 
           if (payment) {
             // Update the payment status to COMPLETED
@@ -295,7 +316,10 @@ export const POST = Webhooks({
                   createdAt: payment.createdAt,
                 });
               } catch (emailError) {
-                console.error("Failed to send WhatsApp token payment email:", emailError);
+                console.error(
+                  "Failed to send WhatsApp token payment email:",
+                  emailError,
+                );
               }
             }
           } else {
@@ -304,10 +328,7 @@ export const POST = Webhooks({
             );
           }
         } catch (error) {
-          console.error(
-            "Failed to process WhatsApp token payment:",
-            error,
-          );
+          console.error("Failed to process WhatsApp token payment:", error);
         }
         return;
       }
@@ -394,6 +415,10 @@ export const POST = Webhooks({
           return;
         }
 
+        const buyerRole = (
+          user.role === "SMSSAR" ? "SMSSAR" : (metadata?.userRole ?? user.role)
+        ) as "USER" | "SELLER" | "ADMIN" | "SMSSAR";
+
         await prisma.$transaction(async (tx) => {
           for (const item of purchases) {
             if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
@@ -413,6 +438,16 @@ export const POST = Webhooks({
               continue;
             }
 
+            const effectiveUnitPrice = resolvePurchaseProductPrice(
+              product,
+              buyerRole,
+            );
+            const effectiveTotal = effectiveUnitPrice * item.quantity;
+            const smssarUnitPrice =
+              (product as typeof product & { smmsarPrice?: number | null })
+                .smmsarPrice ?? product.price;
+            const smssarTotal = smssarUnitPrice * item.quantity;
+
             const existingPurchase = await tx.purchase.findFirst({
               where: {
                 userId: user.id,
@@ -429,11 +464,13 @@ export const POST = Webhooks({
                 where: { id: existingPurchase.id },
                 data: {
                   quantity: { increment: item.quantity },
-                  totalPrice: { increment: product.price * item.quantity },
+                  unitPrice: effectiveUnitPrice,
+                  totalPrice: { increment: effectiveTotal },
+                  totalPriceSmmsar: { increment: smssarTotal },
                   status: "ACTIVE",
                   ...(existingPurchase.paymentId ? {} : { paymentId }),
                   updatedAt: new Date(),
-                },
+                } as unknown as Prisma.PurchaseUncheckedUpdateInput,
               });
             } else {
               await tx.purchase.create({
@@ -441,11 +478,12 @@ export const POST = Webhooks({
                   userId: user.id,
                   purchaseProductId: product.id,
                   quantity: item.quantity,
-                  unitPrice: product.price,
-                  totalPrice: product.price * item.quantity,
+                  unitPrice: effectiveUnitPrice,
+                  totalPrice: effectiveTotal,
+                  totalPriceSmmsar: smssarTotal,
                   paymentId,
                   status: "ACTIVE",
-                },
+                } as unknown as Prisma.PurchaseUncheckedCreateInput,
               });
             }
           }

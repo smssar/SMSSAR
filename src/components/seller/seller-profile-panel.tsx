@@ -292,6 +292,7 @@ export function SellerProfilePanel({
                 <Input
                   id="seller-email"
                   type="email"
+                  disabled
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   className="h-11"
@@ -386,9 +387,9 @@ export function SellerProfilePanel({
                   value={city}
                   onChange={(event) => setCity(event.target.value)}
                   placeholder={t(locale, {
-                    en: "Dubai",
-                    ar: "دبي",
-                    fr: "Dubaï",
+                    en: "Rabat",
+                    ar: "الرباط",
+                    fr: "Rabat",
                   })}
                 />
               </div>

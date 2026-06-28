@@ -120,6 +120,7 @@ export default async function AdminUsersPage({
         emailVerified: true,
         phone: true,
         bio: true,
+        isVerified: true,
         role: true,
         status: true,
         suspendedAt: true,

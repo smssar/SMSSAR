@@ -13,6 +13,7 @@ type UpdateUserBody = {
   role?: string;
   status?: string;
   phone?: string | null;
+  isVerified?: boolean;
   bio?: string | null;
   planId?: string;
   emailVerified?: string | null;
@@ -51,10 +52,16 @@ export async function PATCH(
     | "BANNED"
     | undefined;
 
+  console.log(body);
+
   if (typeof body.name === "string") {
     const name = body.name.trim();
     if (!name) return jsonError("Name cannot be empty.", 400);
     data.name = name;
+  }
+
+  if (typeof body.isVerified === "boolean") {
+    data.isVerified = body.isVerified;
   }
 
   if (typeof body.role === "string") {
@@ -239,6 +246,7 @@ export async function PATCH(
         email: true,
         emailVerified: true,
         phone: true,
+        isVerified: true,
         bio: true,
         role: true,
         status: true,

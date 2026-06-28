@@ -3,6 +3,7 @@ import { getRequestBaseUrl } from "@/lib/api-utils";
 import { NextRequest, NextResponse } from "next/server";
 import type { Locale } from "@/lib/locales";
 import { prisma } from "@/lib/prisma";
+import { resolvePurchaseProductPrice } from "@/lib/role-pricing";
 
 // ---------------------------------------------------------------------------
 // Request / Response types
@@ -50,6 +51,7 @@ type DodoMetadata = {
   localSessionId: string;
   amount?: string; // MUST be string
   userEmail?: string;
+  userRole?: string;
 };
 
 type CheckoutPayload = {
@@ -121,8 +123,9 @@ export async function POST(req: NextRequest) {
       orderBy: { createdAt: "asc" },
     });
 
+    let calculatedTotal = 0;
+
     if (purchases && purchases.length > 0) {
-      let calculatedTotal = 0;
       for (const purchase of purchases) {
         const product = products.find((p) => p.code === purchase.type);
         if (!product) {
@@ -132,7 +135,9 @@ export async function POST(req: NextRequest) {
             { status: 400 },
           );
         }
-        calculatedTotal += product.price * purchase.quantity;
+        calculatedTotal +=
+          resolvePurchaseProductPrice(product, session.user.role) *
+          purchase.quantity;
       }
 
       if (amount !== undefined) {
@@ -202,12 +207,6 @@ export async function POST(req: NextRequest) {
         ? globalThis.crypto.randomUUID()
         : `local_${Date.now()}`;
 
-    const amountNumber = typeof amount === "string" ? Number(amount) : amount;
-    const safeAmount =
-      typeof amountNumber === "number" && !Number.isNaN(amountNumber)
-        ? amountNumber
-        : undefined;
-
     const returnUrl = `${resolvedBaseUrl}/${safeLocale}/payments/success?session=${encodeURIComponent(localSessionId)}`;
     const cancelUrl = `${resolvedBaseUrl}/${safeLocale}/dashboard/seller`;
 
@@ -217,7 +216,7 @@ export async function POST(req: NextRequest) {
         {
           product_id: DODO_PRODUCT_ID,
           quantity: 1,
-          amount: safeAmount !== undefined ? safeAmount * 10 : undefined,
+          amount: calculatedTotal * 10,
         },
       ],
       customer: { email: customerEmail, name: customerName },
@@ -227,7 +226,8 @@ export async function POST(req: NextRequest) {
         purchases: purchases ? JSON.stringify(purchases) : undefined,
         locale: safeLocale,
         localSessionId,
-        amount: safeAmount !== undefined ? String(safeAmount) : undefined,
+        amount: String(calculatedTotal),
+        userRole: session.user.role,
         userEmail: customerEmail,
       },
       return_url: returnUrl,

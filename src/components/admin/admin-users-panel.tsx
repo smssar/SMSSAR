@@ -38,6 +38,7 @@ type UserRow = {
   suspendedMessage?: string | null;
   suspendedBy?: string | null;
   bannedMessage?: string | null;
+  isVerified: boolean;
   planId?: string | null;
   createdAt: Date | string;
 };
@@ -88,6 +89,7 @@ export function AdminUsersPanel({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailVerified, setEmailVerified] = useState("");
+  const [userVerified, setUserVerified] = useState<boolean>(false);
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [suspendedUntil, setSuspendedUntil] = useState("");
@@ -183,6 +185,7 @@ export function AdminUsersPanel({
     setName(user.name ?? "");
     setEmail(user.email ?? "");
     setEmailVerified(formatDateTimeLocal(user.emailVerified));
+    setUserVerified(user.isVerified ?? false);
     setPhone(user.phone ?? "");
     setBio(user.bio ?? "");
     setSuspendedUntil(formatDateTimeLocal(user.suspendedUntil));
@@ -201,6 +204,7 @@ export function AdminUsersPanel({
     setName("");
     setEmail("");
     setEmailVerified("");
+    setUserVerified(false);
     setPhone("");
     setBio("");
     setSuspendedUntil("");
@@ -215,6 +219,7 @@ export function AdminUsersPanel({
   const openCreateDialog = () => {
     setEditingId(null);
     setSelectedUser(null);
+    setUserVerified(false);
     setName("");
     setEmail("");
     setEmailVerified("");
@@ -238,6 +243,7 @@ export function AdminUsersPanel({
     setPhone("");
     setBio("");
     setSuspendedUntil("");
+    setUserVerified(false);
     setSuspendedMessage("");
     setBannedMessage("");
     setPassword("");
@@ -291,6 +297,7 @@ export function AdminUsersPanel({
               bio,
               password: password || null,
               emailVerified: emailVerified || null,
+              isVerified: userVerified,
               role,
               status,
               suspendedUntil: normalizedSuspendedUntil,
@@ -309,6 +316,7 @@ export function AdminUsersPanel({
               bio,
               password,
               emailVerified: emailVerified || null,
+              isVerified: userVerified || null,
               role,
               status,
               suspendedUntil: normalizedSuspendedUntil,
@@ -793,28 +801,53 @@ export function AdminUsersPanel({
                     {locale === "ar" ? "الاسم" : "Name"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "البريد الإلكتروني" : "Email"}
+                    {locale === "ar"
+                      ? "البريد الإلكتروني"
+                      : locale === "fr"
+                        ? "Email"
+                        : "Email"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "الهاتف" : "Phone"}
+                    {locale === "ar"
+                      ? "الهاتف"
+                      : locale === "fr"
+                        ? "Téléphone"
+                        : "Phone"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "الدور" : "Role"}
+                    {locale === "ar"
+                      ? "الحالة"
+                      : locale === "fr"
+                        ? "Statut"
+                        : "Status"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "الحالة" : "Status"}
+                    {locale === "ar"
+                      ? "التحقق من البريد الإلكتروني في"
+                      : locale === "fr"
+                        ? "Email vérifié à "
+                        : "Verified email at"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "التحقق" : "Verified at"}
+                    {locale === "ar"
+                      ? "الخطة"
+                      : locale === "fr"
+                        ? "Plan"
+                        : "Plan"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "الخطة" : "Plan"}
+                    {locale === "ar"
+                      ? "تاريخ الإنشاء"
+                      : locale === "fr"
+                        ? "Créé le"
+                        : "Created at"}
                   </th>
                   <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "تاريخ الإنشاء" : "Created at"}
-                  </th>
-                  <th className="px-4 py-3 font-medium">
-                    {locale === "ar" ? "إجراء" : "Action"}
+                    {locale === "ar"
+                      ? "إجراء"
+                      : locale === "fr"
+                        ? "Action"
+                        : "Action"}
                   </th>
                 </tr>
               </thead>
@@ -827,7 +860,9 @@ export function AdminUsersPanel({
                     >
                       {locale === "ar"
                         ? "لا توجد مستخدمون بعد."
-                        : "No users yet."}
+                        : locale === "fr"
+                          ? "Aucun utilisateur pour le moment."
+                          : "No users yet."}
                     </td>
                   </tr>
                 ) : (
@@ -983,7 +1018,28 @@ export function AdminUsersPanel({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="create-user-name">
-                    {locale === "ar" ? "الاسم" : "Name"}
+                    {locale === "ar"
+                      ? "الاسم"
+                      : locale === "fr"
+                        ? "Nom"
+                        : "Name"}
+                  </Label>
+                  <Input
+                    id="create-user-name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder={locale === "ar" ? "أحمد علي" : "John Doe"}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="create-user-name">
+                    {locale === "ar"
+                      ? "الاسم"
+                      : locale === "fr"
+                        ? "Nom"
+                        : "Name"}
                   </Label>
                   <Input
                     id="create-user-name"
@@ -996,7 +1052,11 @@ export function AdminUsersPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="create-user-email">
-                    {locale === "ar" ? "البريد الإلكتروني" : "Email"}
+                    {locale === "ar"
+                      ? "البريد الإلكتروني"
+                      : locale === "fr"
+                        ? "Email"
+                        : "Email"}
                   </Label>
                   <Input
                     id="create-user-email"
@@ -1012,7 +1072,11 @@ export function AdminUsersPanel({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="create-user-password">
-                    {locale === "ar" ? "كلمة المرور" : "Password"}
+                    {locale === "ar"
+                      ? "كلمة المرور"
+                      : locale === "fr"
+                        ? "Mot de passe"
+                        : "Password"}
                   </Label>
                   <PasswordInput
                     id="create-user-password"
@@ -1025,7 +1089,11 @@ export function AdminUsersPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="create-user-phone">
-                    {locale === "ar" ? "رقم الهاتف" : "Phone"}
+                    {locale === "ar"
+                      ? "رقم الهاتف"
+                      : locale === "fr"
+                        ? "Téléphone"
+                        : "Phone"}
                   </Label>
                   <Input
                     id="create-user-phone"
@@ -1037,11 +1105,48 @@ export function AdminUsersPanel({
                 </div>
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="create-user-verified">
+                    {locale === "ar"
+                      ? " التحقق"
+                      : locale === "fr"
+                        ? "Vérifié"
+                        : "Verified"}
+                  </Label>
+
+                  <Select
+                    id="create-user-verified"
+                    value={userVerified ? "true" : "false"}
+                    onChange={(event) =>
+                      setUserVerified(event.target.value === "true")
+                    }
+                  >
+                    <option value="false">
+                      {locale === "ar"
+                        ? "غير معتمد"
+                        : locale === "fr"
+                          ? "Non vérifié"
+                          : "Not verified"}
+                    </option>
+                    <option value="true">
+                      {locale === "ar"
+                        ? "تم التحقق"
+                        : locale === "fr"
+                          ? "Vérifié"
+                          : "Verified"}
+                    </option>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="create-user-email-verified">
                   {locale === "ar"
                     ? "تم التحقق من البريد"
-                    : "Email verified at"}
+                    : locale === "fr"
+                      ? "Email vérifié le"
+                      : "Email verified at"}
                 </Label>
                 <Input
                   id="create-user-email-verified"
@@ -1052,13 +1157,15 @@ export function AdminUsersPanel({
                 <p className="text-xs text-muted-foreground">
                   {locale === "ar"
                     ? "اتركه فارغًا إذا لم يتم التحقق من البريد بعد."
-                    : "Leave blank if the email has not been verified yet."}
+                    : locale === "fr"
+                      ? "Laissez vide si l'email n'est pas encore vérifié."
+                      : "Leave empty if email is not verified yet."}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="create-user-bio">
-                  {locale === "ar" ? "نبذة" : "Bio"}
+                  {locale === "ar" ? "نبذة" : locale === "fr" ? "Bio" : "Bio"}
                 </Label>
                 <Textarea
                   id="create-user-bio"
@@ -1068,7 +1175,9 @@ export function AdminUsersPanel({
                   placeholder={
                     locale === "ar"
                       ? "نبذة قصيرة عن المستخدم"
-                      : "Short bio about the user"
+                      : locale === "fr"
+                        ? "Bio courte sur l'utilisateur"
+                        : "Short bio about the user"
                   }
                 />
               </div>
@@ -1077,7 +1186,11 @@ export function AdminUsersPanel({
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="create-user-suspended-until">
-                      {locale === "ar" ? "موقوف حتى" : "Suspended until"}
+                      {locale === "ar"
+                        ? "موقوف حتى"
+                        : locale === "fr"
+                          ? "Suspendu jusqu'au"
+                          : "Suspended until"}
                     </Label>
                     <Input
                       id="create-user-suspended-until"
@@ -1091,7 +1204,11 @@ export function AdminUsersPanel({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="create-user-suspended-message">
-                      {locale === "ar" ? "رسالة الإيقاف" : "Suspended message"}
+                      {locale === "ar"
+                        ? "رسالة الإيقاف"
+                        : locale === "fr"
+                          ? "Message de suspension"
+                          : "Suspended message"}
                     </Label>
                     <Textarea
                       id="create-user-suspended-message"
@@ -1103,7 +1220,9 @@ export function AdminUsersPanel({
                       placeholder={
                         locale === "ar"
                           ? "رسالة تظهر للمستخدم أثناء الإيقاف"
-                          : "Message shown to user while suspended"
+                          : locale === "fr"
+                            ? "Message affiché à l'utilisateur pendant la suspension"
+                            : "Message shown to user while suspended"
                       }
                     />
                   </div>
@@ -1151,16 +1270,32 @@ export function AdminUsersPanel({
                     }
                   >
                     <option value="USER">
-                      {locale === "ar" ? "مستخدم" : "User"}
+                      {locale === "ar"
+                        ? "مستخدم"
+                        : locale === "fr"
+                          ? "Utilisateur"
+                          : "User"}
                     </option>
                     <option value="SELLER">
-                      {locale === "ar" ? "بائع" : "Seller"}
+                      {locale === "ar"
+                        ? "بائع"
+                        : locale === "fr"
+                          ? "Vendeur"
+                          : "Seller"}
                     </option>
                     <option value="SMSSAR">
-                      {locale === "ar" ? "سمسار" : "Smssar"}
+                      {locale === "ar"
+                        ? "سمسار"
+                        : locale === "fr"
+                          ? "Smssar"
+                          : "Smssar"}
                     </option>
                     <option value="ADMIN">
-                      {locale === "ar" ? "مدير" : "Admin"}
+                      {locale === "ar"
+                        ? "مدير"
+                        : locale === "fr"
+                          ? "Administrateur"
+                          : "Admin"}
                     </option>
                   </Select>
                 </div>
@@ -1183,13 +1318,25 @@ export function AdminUsersPanel({
                     }
                   >
                     <option value="ACTIVE">
-                      {locale === "ar" ? "نشط" : "Active"}
+                      {locale === "ar"
+                        ? "نشط"
+                        : locale === "fr"
+                          ? "Actif"
+                          : "Active"}
                     </option>
                     <option value="PENDING">
-                      {locale === "ar" ? "قيد الانتظار" : "Pending"}
+                      {locale === "ar"
+                        ? "قيد الانتظار"
+                        : locale === "fr"
+                          ? "En attente"
+                          : "Pending"}
                     </option>
                     <option value="SUSPENDED">
-                      {locale === "ar" ? "موقوف مؤقتًا" : "Suspended"}
+                      {locale === "ar"
+                        ? "موقوف مؤقتًا"
+                        : locale === "fr"
+                          ? "Suspendu"
+                          : "Suspended"}
                     </option>
                     <option value="BANNED">
                       {locale === "ar"
@@ -1244,7 +1391,11 @@ export function AdminUsersPanel({
                   ) : (
                     <Plus className="h-4 w-4" />
                   )}
-                  {locale === "ar" ? "إنشاء المستخدم" : "Create user"}
+                  {locale === "ar"
+                    ? "إنشاء المستخدم"
+                    : locale === "fr"
+                      ? "Créer l'utilisateur"
+                      : "Create user"}
                 </Button>
               </div>
             </form>
@@ -1258,12 +1409,18 @@ export function AdminUsersPanel({
             <div className="flex items-start justify-between border-b border-border/60 px-6 py-5">
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight">
-                  {locale === "ar" ? "تفاصيل المستخدم" : "Manage user"}
+                  {locale === "ar"
+                    ? "تفاصيل المستخدم"
+                    : locale === "fr"
+                      ? "Détails de l'utilisateur"
+                      : "Manage user"}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {locale === "ar"
                     ? "حرّر أي حقل، ثم احفظ التغييرات من هنا مباشرة."
-                    : "Edit any field and save changes directly from this dialog."}
+                    : locale === "fr"
+                      ? "Modifiez n'importe quel champ et enregistrez les modifications directement à partir de cette boîte de dialogue."
+                      : "Edit any field and save changes directly from this dialog."}
                 </p>
               </div>
               <Button
@@ -1275,7 +1432,11 @@ export function AdminUsersPanel({
                 disabled={loading}
               >
                 <X className="h-4 w-4" />
-                {locale === "ar" ? "إغلاق" : "Close"}
+                {locale === "ar"
+                  ? "إغلاق"
+                  : locale === "fr"
+                    ? "Fermer"
+                    : "Close"}
               </Button>
             </div>
 
@@ -1283,7 +1444,11 @@ export function AdminUsersPanel({
               <div className="space-y-4 rounded-3xl border border-border/70 bg-muted/20 p-5">
                 <div>
                   <div className="text-sm text-muted-foreground">
-                    {locale === "ar" ? "الاسم" : "Name"}
+                    {locale === "ar"
+                      ? "الاسم"
+                      : locale === "fr"
+                        ? "Nom"
+                        : "Name"}
                   </div>
                   <div className="mt-1 text-2xl font-semibold">
                     {selectedUser.name || "-"}
@@ -1292,34 +1457,74 @@ export function AdminUsersPanel({
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <InfoPill
-                    label={locale === "ar" ? "البريد" : "Email"}
+                    label={
+                      locale === "ar"
+                        ? "البريد"
+                        : locale === "fr"
+                          ? "Email"
+                          : "Email"
+                    }
                     value={selectedUser.email || "-"}
                   />
                   <InfoPill
-                    label={locale === "ar" ? "الهاتف" : "Phone"}
+                    label={
+                      locale === "ar"
+                        ? "الهاتف"
+                        : locale === "fr"
+                          ? "Téléphone"
+                          : "Phone"
+                    }
                     value={selectedUser.phone || "-"}
                   />
                   <InfoPill
-                    label={locale === "ar" ? "الدور" : "Role"}
+                    label={
+                      locale === "ar"
+                        ? "الدور"
+                        : locale === "fr"
+                          ? "Rôle"
+                          : "Role"
+                    }
                     value={selectedUser.role}
                   />
                   <InfoPill
-                    label={locale === "ar" ? "الحالة" : "Status"}
+                    label={
+                      locale === "ar"
+                        ? "الحالة"
+                        : locale === "fr"
+                          ? "Statut"
+                          : "Status"
+                    }
                     value={getStatusLabel(selectedUser.status)}
                   />
                   <InfoPill
-                    label={locale === "ar" ? "التحقق" : "Verified at"}
+                    label={
+                      locale === "ar"
+                        ? "التحقق"
+                        : locale === "fr"
+                          ? "Vérifié à"
+                          : "Verified at"
+                    }
                     value={formatVerifiedAt(selectedUser.emailVerified, locale)}
                   />
                   <InfoPill
-                    label={locale === "ar" ? "التاريخ" : "Created"}
+                    label={
+                      locale === "ar"
+                        ? "التاريخ"
+                        : locale === "fr"
+                          ? "Date de création"
+                          : "Created"
+                    }
                     value={formatCreatedAt(selectedUser.createdAt, locale)}
                   />
                 </div>
 
                 <div className="rounded-2xl border border-border/60 bg-background p-4">
                   <div className="text-sm text-muted-foreground">
-                    {locale === "ar" ? "الخطة" : "Plan"}
+                    {locale === "ar"
+                      ? "الخطة"
+                      : locale === "fr"
+                        ? "Plan"
+                        : "Plan"}
                   </div>
                   <div className="mt-2">
                     <Badge variant="secondary">
@@ -1353,12 +1558,18 @@ export function AdminUsersPanel({
                     <div className="text-sm font-medium text-foreground">
                       {locale === "ar"
                         ? "تفاصيل الإيقاف"
-                        : "Suspension details"}
+                        : locale === "fr"
+                          ? "Détails de la suspension"
+                          : "Suspension details"}
                     </div>
                     <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                       <div>
-                        {locale === "ar" ? "موقوف حتى" : "Suspended until"}:{" "}
-                        {formatDateTime(selectedUser.suspendedUntil)}
+                        {locale === "ar"
+                          ? "موقوف حتى"
+                          : locale === "fr"
+                            ? "Suspendu jusqu'au"
+                            : "Suspended until"}
+                        : {formatDateTime(selectedUser.suspendedUntil)}
                       </div>
                     </div>
                   </div>
@@ -1367,7 +1578,11 @@ export function AdminUsersPanel({
                 {selectedUser.status === "BANNED" ? (
                   <div className="rounded-2xl border border-border/60 bg-rose-500/5 p-4">
                     <div className="text-sm font-medium text-foreground">
-                      {locale === "ar" ? "تفاصيل الحظر" : "Blocked details"}
+                      {locale === "ar"
+                        ? "تفاصيل الحظر"
+                        : locale === "fr"
+                          ? "Détails du bannissement"
+                          : "Blocked details"}
                     </div>
                     <div className="mt-2 text-sm text-muted-foreground">
                       {selectedUser.bannedMessage || "-"}
@@ -1426,7 +1641,9 @@ export function AdminUsersPanel({
                     <Label htmlFor="dialog-user-email-verified">
                       {locale === "ar"
                         ? "تم التحقق من البريد"
-                        : "Email verified at"}
+                        : locale === "fr"
+                          ? "Email vérifié le"
+                          : "Email verified at"}
                     </Label>
                     <Input
                       id="dialog-user-email-verified"
@@ -1439,7 +1656,11 @@ export function AdminUsersPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="dialog-user-password">
-                    {locale === "ar" ? "كلمة المرور" : "Password"}
+                    {locale === "ar"
+                      ? "كلمة المرور"
+                      : locale === "fr"
+                        ? "Mot de passe"
+                        : "Password"}
                   </Label>
                   <PasswordInput
                     id="dialog-user-password"
@@ -1448,15 +1669,52 @@ export function AdminUsersPanel({
                     placeholder={
                       locale === "ar"
                         ? "اتركه فارغًا إذا لا تريد تغييره"
-                        : "Leave empty to keep current password"
+                        : locale === "fr"
+                          ? "Laisser vide pour conserver le mot de passe actuel"
+                          : "Leave empty to keep current password"
                     }
                     required={!editingId}
                   />
                 </div>
 
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="create-user-verified">
+                      {locale === "ar"
+                        ? " التحقق"
+                        : locale === "fr"
+                          ? "Vérifié"
+                          : "Verified"}
+                    </Label>
+
+                    <Select
+                      id="create-user-verified"
+                      value={userVerified ? "true" : "false"}
+                      onChange={(event) =>
+                        setUserVerified(event.target.value === "true")
+                      }
+                    >
+                      <option value="false">
+                        {locale === "ar"
+                          ? "غير معتمد"
+                          : locale === "fr"
+                            ? "Non vérifié"
+                            : "Not verified"}
+                      </option>
+                      <option value="true">
+                        {locale === "ar"
+                          ? "تم التحقق"
+                          : locale === "fr"
+                            ? "Vérifié"
+                            : "Verified"}
+                      </option>
+                    </Select>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="dialog-user-bio">
-                    {locale === "ar" ? "نبذة" : "Bio"}
+                    {locale === "ar" ? "نبذة" : locale === "fr" ? "Bio" : "Bio"}
                   </Label>
                   <Textarea
                     id="dialog-user-bio"
@@ -1470,7 +1728,11 @@ export function AdminUsersPanel({
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="dialog-user-suspended-until">
-                        {locale === "ar" ? "موقوف حتى" : "Suspended until"}
+                        {locale === "ar"
+                          ? "موقوف حتى"
+                          : locale === "fr"
+                            ? "Suspendu jusqu'au"
+                            : "Suspended until"}
                       </Label>
                       <Input
                         id="dialog-user-suspended-until"
@@ -1486,7 +1748,9 @@ export function AdminUsersPanel({
                       <Label htmlFor="dialog-user-suspended-message">
                         {locale === "ar"
                           ? "رسالة الإيقاف"
-                          : "Suspended message"}
+                          : locale === "fr"
+                            ? "Message de suspension"
+                            : "Suspended message"}
                       </Label>
                       <Textarea
                         id="dialog-user-suspended-message"
@@ -1498,7 +1762,9 @@ export function AdminUsersPanel({
                         placeholder={
                           locale === "ar"
                             ? "رسالة تظهر للمستخدم أثناء الإيقاف"
-                            : "Message shown to user while suspended"
+                            : locale === "fr"
+                              ? "Message affiché à l'utilisateur pendant la suspension"
+                              : "Message shown to user while suspended"
                         }
                       />
                     </div>
@@ -1521,7 +1787,9 @@ export function AdminUsersPanel({
                       placeholder={
                         locale === "ar"
                           ? "سبب الحظر للمستخدم"
-                          : "Reason for banning the user"
+                          : locale === "fr"
+                            ? "Raison du bannissement de l'utilisateur"
+                            : "Reason for banning the user"
                       }
                     />
                   </div>
@@ -1530,7 +1798,11 @@ export function AdminUsersPanel({
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
                     <Label htmlFor="dialog-user-role">
-                      {locale === "ar" ? "الدور" : "Role"}
+                      {locale === "ar"
+                        ? "الدور"
+                        : locale === "fr"
+                          ? "Rôle"
+                          : "Role"}
                     </Label>
                     <Select
                       id="dialog-user-role"
@@ -1546,23 +1818,43 @@ export function AdminUsersPanel({
                       }
                     >
                       <option value="USER">
-                        {locale === "ar" ? "مستخدم" : "User"}
+                        {locale === "ar"
+                          ? "مستخدم"
+                          : locale === "fr"
+                            ? "Utilisateur"
+                            : "User"}
                       </option>
                       <option value="SELLER">
-                        {locale === "ar" ? "بائع" : "Seller"}
+                        {locale === "ar"
+                          ? "بائع"
+                          : locale === "fr"
+                            ? "Vendeur"
+                            : "Seller"}
                       </option>
                       <option value="SMSSAR">
-                        {locale === "ar" ? "سمسار" : "Smssar"}
+                        {locale === "ar"
+                          ? "سمسار"
+                          : locale === "fr"
+                            ? "Smssar"
+                            : "Smssar"}
                       </option>
                       <option value="ADMIN">
-                        {locale === "ar" ? "مدير" : "Admin"}
+                        {locale === "ar"
+                          ? "مدير"
+                          : locale === "fr"
+                            ? "Administrateur"
+                            : "Admin"}
                       </option>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="dialog-user-status">
-                      {locale === "ar" ? "الحالة" : "Status"}
+                      {locale === "ar"
+                        ? "الحالة"
+                        : locale === "fr"
+                          ? "Statut"
+                          : "Status"}
                     </Label>
                     <Select
                       id="dialog-user-status"
@@ -1578,13 +1870,25 @@ export function AdminUsersPanel({
                       }
                     >
                       <option value="ACTIVE">
-                        {locale === "ar" ? "نشط" : "Active"}
+                        {locale === "ar"
+                          ? "نشط"
+                          : locale === "fr"
+                            ? "Actif"
+                            : "Active"}
                       </option>
                       <option value="PENDING">
-                        {locale === "ar" ? "قيد الانتظار" : "Pending"}
+                        {locale === "ar"
+                          ? "قيد الانتظار"
+                          : locale === "fr"
+                            ? "En attente"
+                            : "Pending"}
                       </option>
                       <option value="SUSPENDED">
-                        {locale === "ar" ? "موقوف مؤقتًا" : "Suspended"}
+                        {locale === "ar"
+                          ? "موقوف مؤقتًا"
+                          : locale === "fr"
+                            ? "Suspendu"
+                            : "Suspended"}
                       </option>
                       <option value="BANNED">
                         {locale === "ar"
@@ -1598,7 +1902,11 @@ export function AdminUsersPanel({
 
                   <div className="space-y-2">
                     <Label htmlFor="dialog-user-plan">
-                      {locale === "ar" ? "الخطة" : "Plan"}
+                      {locale === "ar"
+                        ? "الخطة"
+                        : locale === "fr"
+                          ? "Plan"
+                          : "Plan"}
                     </Label>
                     <Select
                       id="dialog-user-plan"
@@ -1609,7 +1917,9 @@ export function AdminUsersPanel({
                         <option value="">
                           {locale === "ar"
                             ? "لا توجد باقات بعد"
-                            : "No plans available yet"}
+                            : locale === "fr"
+                              ? "Aucun plan disponible pour le moment"
+                              : "No plans available yet"}
                         </option>
                       ) : (
                         plans.map((plan) => (
@@ -1631,7 +1941,11 @@ export function AdminUsersPanel({
                     disabled={loading || selectedUser.role === "ADMIN"}
                   >
                     <Trash2 className="h-4 w-4" />
-                    {locale === "ar" ? "حذف المستخدم" : "Delete user"}
+                    {locale === "ar"
+                      ? "حذف المستخدم"
+                      : locale === "fr"
+                        ? "Supprimer l'utilisateur"
+                        : "Delete user"}
                   </Button>
 
                   <div className="flex flex-col gap-3 sm:flex-row">
@@ -1643,7 +1957,11 @@ export function AdminUsersPanel({
                       disabled={loading}
                     >
                       <X className="h-4 w-4" />
-                      {locale === "ar" ? "إلغاء" : "Cancel"}
+                      {locale === "ar"
+                        ? "إلغاء"
+                        : locale === "fr"
+                          ? "Annuler"
+                          : "Cancel"}
                     </Button>
                     <Button type="submit" className="gap-2" disabled={loading}>
                       {loading ? (
@@ -1651,7 +1969,11 @@ export function AdminUsersPanel({
                       ) : (
                         <Edit3 className="h-4 w-4" />
                       )}
-                      {locale === "ar" ? "حفظ التغييرات" : "Save changes"}
+                      {locale === "ar"
+                        ? "حفظ التغييرات"
+                        : locale === "fr"
+                          ? "Enregistrer les modifications"
+                          : "Save changes"}
                     </Button>
                   </div>
                 </div>
@@ -1694,7 +2016,11 @@ export function AdminUsersPanel({
                 disabled={loading}
               >
                 <X className="h-4 w-4" />
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {locale === "ar"
+                  ? "إلغاء"
+                  : locale === "fr"
+                    ? "Annuler"
+                    : "Cancel"}
               </Button>
               <Button
                 type="button"
@@ -1715,10 +2041,14 @@ export function AdminUsersPanel({
                     {pendingAction.type === "save"
                       ? locale === "ar"
                         ? "جارٍ الحفظ..."
-                        : "Saving..."
+                        : locale === "fr"
+                          ? "En cours d'enregistrement..."
+                          : "Saving..."
                       : locale === "ar"
                         ? "جارٍ الحذف..."
-                        : "Deleting..."}
+                        : locale === "fr"
+                          ? "En cours de suppression..."
+                          : "Deleting..."}
                   </>
                 ) : (
                   <>

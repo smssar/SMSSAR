@@ -420,98 +420,95 @@ async function main() {
   //       name_ar: "عين عتيق",
   //       name_fr: "Aïn Attig",
   //       slug: "ain-attig",
-  //     }, 
-  //     { 
+  //     },
+  //     {
   //       id: "city_merzouga",
   //       name: "Merzouga",
   //       name_en: "Merzouga",
   //       name_ar: "مرزوغة",
   //       name_fr: "Merzouga",
   //       slug: "merzouga",
-  //     }, 
+  //     },
   //   ],
-     
-    
-    
-    
+
   //   skipDuplicates: true,
   // });
 
-  await prisma.propertyType.createMany({
-    data: [
-      {
-        name: "Apartment",
-        name_en: "Apartment",
-        name_ar: "شقة",
-        name_fr: "Appartement",
-        slug: "apartment",
-      },
-      {
-        name: "Villa",
-        name_en: "Villa",
-        name_ar: "فيلا",
-        name_fr: "Villa",
-        slug: "villa",
-      },
-      {
-        name: "House",
-        name_en: "House",
-        name_ar: "منزل",
-        name_fr: "Maison",
-        slug: "house",
-      },
-      {
-        name: "Studio",
-        name_en: "Studio",
-        name_ar: "استوديو",
-        name_fr: "Studio",
-        slug: "studio",
-      },
-      {
-        name: "Office",
-        name_en: "Office",
-        name_ar: "مكتب",
-        name_fr: "Bureau",
-        slug: "office",
-      },
-      {
-        name: "Shop",
-        name_en: "Shop",
-        name_ar: "محل تجاري",
-        name_fr: "Magasin",
-        slug: "shop",
-      },
-      {
-        name: "Commercial Space",
-        name_en: "Commercial Space",
-        name_ar: "مساحة تجارية",
-        name_fr: "Local commercial",
-        slug: "commercial-space",
-      },
-      {
-        name: "Warehouse",
-        name_en: "Warehouse",
-        name_ar: "مستودع",
-        name_fr: "Entrepôt",
-        slug: "warehouse",
-      },
-      {
-        name: "Room",
-        name_en: "Room",
-        name_ar: "غرفة",
-        name_fr: "Chambre",
-        slug: "room",
-      },
-      {
-        name: "Shared Accommodation",
-        name_en: "Shared Accommodation",
-        name_ar: "سكن مشترك",
-        name_fr: "Colocation",
-        slug: "shared-accommodation",
-      },
-    ],
-    skipDuplicates: true,
-  });
+  // await prisma.propertyType.createMany({
+  //   data: [
+  //     {
+  //       name: "Apartment",
+  //       name_en: "Apartment",
+  //       name_ar: "شقة",
+  //       name_fr: "Appartement",
+  //       slug: "apartment",
+  //     },
+  //     {
+  //       name: "Villa",
+  //       name_en: "Villa",
+  //       name_ar: "فيلا",
+  //       name_fr: "Villa",
+  //       slug: "villa",
+  //     },
+  //     {
+  //       name: "House",
+  //       name_en: "House",
+  //       name_ar: "منزل",
+  //       name_fr: "Maison",
+  //       slug: "house",
+  //     },
+  //     {
+  //       name: "Studio",
+  //       name_en: "Studio",
+  //       name_ar: "استوديو",
+  //       name_fr: "Studio",
+  //       slug: "studio",
+  //     },
+  //     {
+  //       name: "Office",
+  //       name_en: "Office",
+  //       name_ar: "مكتب",
+  //       name_fr: "Bureau",
+  //       slug: "office",
+  //     },
+  //     {
+  //       name: "Shop",
+  //       name_en: "Shop",
+  //       name_ar: "محل تجاري",
+  //       name_fr: "Magasin",
+  //       slug: "shop",
+  //     },
+  //     {
+  //       name: "Commercial Space",
+  //       name_en: "Commercial Space",
+  //       name_ar: "مساحة تجارية",
+  //       name_fr: "Local commercial",
+  //       slug: "commercial-space",
+  //     },
+  //     {
+  //       name: "Warehouse",
+  //       name_en: "Warehouse",
+  //       name_ar: "مستودع",
+  //       name_fr: "Entrepôt",
+  //       slug: "warehouse",
+  //     },
+  //     {
+  //       name: "Room",
+  //       name_en: "Room",
+  //       name_ar: "غرفة",
+  //       name_fr: "Chambre",
+  //       slug: "room",
+  //     },
+  //     {
+  //       name: "Shared Accommodation",
+  //       name_en: "Shared Accommodation",
+  //       name_ar: "سكن مشترك",
+  //       name_fr: "Colocation",
+  //       slug: "shared-accommodation",
+  //     },
+  //   ],
+  //   skipDuplicates: true,
+  // });
 
   await prisma.purchaseProduct.createMany({
     data: [
@@ -522,6 +519,7 @@ async function main() {
         title_fr: "Images supplémentaires",
         description: "Add extra images to a listing",
         price: 5,
+        smmsarPrice: 4,
         active: true,
       },
       {
@@ -531,6 +529,7 @@ async function main() {
         title_fr: "Durée quotidienne de l'annonce",
         description: "Extend advertisement duration by one day",
         price: 5,
+        smmsarPrice: 4,
         active: true,
       },
       {
@@ -540,6 +539,7 @@ async function main() {
         title_fr: "Vidéos supplémentaires",
         description: "Add extra videos to a listing",
         price: 10,
+        smmsarPrice: 8,
         active: true,
       },
       {
@@ -549,6 +549,7 @@ async function main() {
         title_fr: "Annonces supplémentaires",
         description: "Increase the number of listings allowed",
         price: 25,
+        smmsarPrice: 20,
         active: true,
       },
       {
@@ -558,11 +559,339 @@ async function main() {
         title_fr: "Annonces mises en avant supplémentaires",
         description: "Add more featured listing slots",
         price: 20,
+        smmsarPrice: 18,
         active: true,
       },
     ],
     skipDuplicates: true,
   });
+
+  //   await prisma.neighborhood.createMany({
+  //   data: [
+  //     // Casablanca
+  //     {
+  //       name: "Maarif",
+  //       name_en: "Maarif",
+  //       name_ar: "المعاريف",
+  //       name_fr: "Maarif",
+  //       slug: "maarif",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Anfa",
+  //       name_en: "Anfa",
+  //       name_ar: "أنفا",
+  //       name_fr: "Anfa",
+  //       slug: "anfa",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Ain Diab",
+  //       name_en: "Ain Diab",
+  //       name_ar: "عين الذئاب",
+  //       name_fr: "Aïn Diab",
+  //       slug: "ain-diab",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Sidi Maarouf",
+  //       name_en: "Sidi Maarouf",
+  //       name_ar: "سيدي معروف",
+  //       name_fr: "Sidi Maârouf",
+  //       slug: "sidi-maarouf",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Bourgogne",
+  //       name_en: "Bourgogne",
+  //       name_ar: "بورغون",
+  //       name_fr: "Bourgogne",
+  //       slug: "bourgogne",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Palmier",
+  //       name_en: "Palmier",
+  //       name_ar: "بالمييه",
+  //       name_fr: "Palmier",
+  //       slug: "palmier",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Hay Hassani",
+  //       name_en: "Hay Hassani",
+  //       name_ar: "حي الحسني",
+  //       name_fr: "Hay Hassani",
+  //       slug: "hay-hassani",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Racine",
+  //       name_en: "Racine",
+  //       name_ar: "راسين",
+  //       name_fr: "Racine",
+  //       slug: "racine",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Oasis",
+  //       name_en: "Oasis",
+  //       name_ar: "الواحة",
+  //       name_fr: "L'Oasis",
+  //       slug: "oasis",
+  //       cityId: "city_casablanca",
+  //     },
+  //     {
+  //       name: "Californie",
+  //       name_en: "Californie",
+  //       name_ar: "كاليفورنيا",
+  //       name_fr: "Californie",
+  //       slug: "californie",
+  //       cityId: "city_casablanca",
+  //     },
+
+  //     // Rabat
+  //     {
+  //       name: "Agdal",
+  //       name_en: "Agdal",
+  //       name_ar: "أكدال",
+  //       name_fr: "Agdal",
+  //       slug: "agdal",
+  //       cityId: "city_rabat",
+  //     },
+  //     {
+  //       name: "Hay Riad",
+  //       name_en: "Hay Riad",
+  //       name_ar: "حي الرياض",
+  //       name_fr: "Hay Riad",
+  //       slug: "hay-riad",
+  //       cityId: "city_rabat",
+  //     },
+  //     {
+  //       name: "Souissi",
+  //       name_en: "Souissi",
+  //       name_ar: "السويسي",
+  //       name_fr: "Souissi",
+  //       slug: "souissi",
+  //       cityId: "city_rabat",
+  //     },
+  //     {
+  //       name: "Hassan",
+  //       name_en: "Hassan",
+  //       name_ar: "حسان",
+  //       name_fr: "Hassan",
+  //       slug: "hassan",
+  //       cityId: "city_rabat",
+  //     },
+  //     {
+  //       name: "Yacoub El Mansour",
+  //       name_en: "Yacoub El Mansour",
+  //       name_ar: "يعقوب المنصور",
+  //       name_fr: "Yacoub El Mansour",
+  //       slug: "yacoub-el-mansour",
+  //       cityId: "city_rabat",
+  //     },
+
+  //     // Marrakech
+  //     {
+  //       name: "Gueliz",
+  //       name_en: "Guéliz",
+  //       name_ar: "جيليز",
+  //       name_fr: "Guéliz",
+  //       slug: "gueliz",
+  //       cityId: "city_marrakech",
+  //     },
+  //     {
+  //       name: "Hivernage",
+  //       name_en: "Hivernage",
+  //       name_ar: "الحي الشتوي",
+  //       name_fr: "Hivernage",
+  //       slug: "hivernage",
+  //       cityId: "city_marrakech",
+  //     },
+  //     {
+  //       name: "Medina",
+  //       name_en: "Medina",
+  //       name_ar: "المدينة",
+  //       name_fr: "Médina",
+  //       slug: "medina",
+  //       cityId: "city_marrakech",
+  //     },
+  //     {
+  //       name: "Sidi Ghanem",
+  //       name_en: "Sidi Ghanem",
+  //       name_ar: "سيدي غانم",
+  //       name_fr: "Sidi Ghanem",
+  //       slug: "sidi-ghanem",
+  //       cityId: "city_marrakech",
+  //     },
+  //     {
+  //       name: "Targa",
+  //       name_en: "Targa",
+  //       name_ar: "تاركة",
+  //       name_fr: "Targa",
+  //       slug: "targa",
+  //       cityId: "city_marrakech",
+  //     },
+
+  //     // Tangier
+  //     {
+  //       name: "Malabata",
+  //       name_en: "Malabata",
+  //       name_ar: "مالاباطا",
+  //       name_fr: "Malabata",
+  //       slug: "malabata",
+  //       cityId: "city_tangier",
+  //     },
+  //     {
+  //       name: "Iberia",
+  //       name_en: "Iberia",
+  //       name_ar: "إيبيريا",
+  //       name_fr: "Iberia",
+  //       slug: "iberia",
+  //       cityId: "city_tangier",
+  //     },
+  //     {
+  //       name: "Marshan",
+  //       name_en: "Marshan",
+  //       name_ar: "مرشان",
+  //       name_fr: "Marshan",
+  //       slug: "marshan",
+  //       cityId: "city_tangier",
+  //     },
+  //     {
+  //       name: "Branes",
+  //       name_en: "Branes",
+  //       name_ar: "برانس",
+  //       name_fr: "Branes",
+  //       slug: "branes",
+  //       cityId: "city_tangier",
+  //     },
+
+  //     // Agadir
+  //     {
+  //       name: "Founty",
+  //       name_en: "Founty",
+  //       name_ar: "فونتي",
+  //       name_fr: "Founty",
+  //       slug: "founty",
+  //       cityId: "city_agadir",
+  //     },
+  //     {
+  //       name: "Hay Mohammadi",
+  //       name_en: "Hay Mohammadi",
+  //       name_ar: "حي المحمدي",
+  //       name_fr: "Hay Mohammadi",
+  //       slug: "hay-mohammadi",
+  //       cityId: "city_agadir",
+  //     },
+  //     {
+  //       name: "Talborjt",
+  //       name_en: "Talborjt",
+  //       name_ar: "تالبرجت",
+  //       name_fr: "Talborjt",
+  //       slug: "talborjt",
+  //       cityId: "city_agadir",
+  //     },
+  //     {
+  //       name: "Dakhla",
+  //       name_en: "Dakhla",
+  //       name_ar: "الداخلة",
+  //       name_fr: "Dakhla",
+  //       slug: "dakhla",
+  //       cityId: "city_agadir",
+  //     },
+
+  //     // Fes
+  //     {
+  //       name: "Ville Nouvelle",
+  //       name_en: "Ville Nouvelle",
+  //       name_ar: "المدينة الجديدة",
+  //       name_fr: "Ville Nouvelle",
+  //       slug: "ville-nouvelle",
+  //       cityId: "city_fes",
+  //     },
+  //     {
+  //       name: "Saiss",
+  //       name_en: "Saiss",
+  //       name_ar: "سايس",
+  //       name_fr: "Saiss",
+  //       slug: "saiss",
+  //       cityId: "city_fes",
+  //     },
+  //     {
+  //       name: "Narjiss",
+  //       name_en: "Narjiss",
+  //       name_ar: "النرجس",
+  //       name_fr: "Narjiss",
+  //       slug: "narjiss",
+  //       cityId: "city_fes",
+  //     },
+  //     {
+  //       name: "Medina",
+  //       name_en: "Medina",
+  //       name_ar: "المدينة",
+  //       name_fr: "Médina",
+  //       slug: "medina",
+  //       cityId: "city_fes",
+  //     },
+
+  //     // Meknes
+  //     {
+  //       name: "Hamria",
+  //       name_en: "Hamria",
+  //       name_ar: "حمرية",
+  //       name_fr: "Hamria",
+  //       slug: "hamria",
+  //       cityId: "city_meknes",
+  //     },
+  //     {
+  //       name: "Ville Nouvelle",
+  //       name_en: "Ville Nouvelle",
+  //       name_ar: "المدينة الجديدة",
+  //       name_fr: "Ville Nouvelle",
+  //       slug: "ville-nouvelle",
+  //       cityId: "city_meknes",
+  //     },
+
+  //     // Sale
+  //     {
+  //       name: "Tabriquet",
+  //       name_en: "Tabriquet",
+  //       name_ar: "تابريكت",
+  //       name_fr: "Tabriquet",
+  //       slug: "tabriquet",
+  //       cityId: "city_sale",
+  //     },
+  //     {
+  //       name: "Hay Salam",
+  //       name_en: "Hay Salam",
+  //       name_ar: "حي السلام",
+  //       name_fr: "Hay Salam",
+  //       slug: "hay-salam",
+  //       cityId: "city_sale",
+  //     },
+
+  //     // Mohammedia
+  //     {
+  //       name: "Alia",
+  //       name_en: "Alia",
+  //       name_ar: "العالية",
+  //       name_fr: "Alia",
+  //       slug: "alia",
+  //       cityId: "city_mohammedia",
+  //     },
+  //     {
+  //       name: "Parc",
+  //       name_en: "Parc",
+  //       name_ar: "البارك",
+  //       name_fr: "Parc",
+  //       slug: "parc",
+  //       cityId: "city_mohammedia",
+  //     },
+  //   ],
+  //   skipDuplicates: true,
+  // });
 
   // await prisma.plan.createMany({
   //   data: [

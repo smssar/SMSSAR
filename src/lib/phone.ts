@@ -67,7 +67,9 @@ export function getPhoneCountryByCode(code: string) {
 }
 
 export function getPhoneCountryByDialCode(dialCode: string) {
-  const normalizedDialCode = dialCode.startsWith("+") ? dialCode : `+${dialCode}`;
+  const normalizedDialCode = dialCode.startsWith("+")
+    ? dialCode
+    : `+${dialCode}`;
 
   return (
     phoneCountries.find((country) => country.dialCode === normalizedDialCode) ??
@@ -80,11 +82,36 @@ export function formatPhonePreview(value: string, countryCode: string) {
   return asYouType.input(value);
 }
 
-// Group digits in pairs for display: "501234567" -> "50 12 34 56 7"
+// Group digits for display: "690201401" -> "690 20 14 01"
 export function groupDigitsPairs(value: string) {
   const digits = String(value).replace(/\D/g, "");
   if (!digits) return "";
-  return digits.replace(/(.{2})/g, "$1 ").trim();
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  const firstGroupLength = digits.length % 2 === 1 ? 3 : 2;
+  const groups: string[] = [digits.slice(0, firstGroupLength)];
+
+  for (let index = firstGroupLength; index < digits.length; index += 2) {
+    groups.push(digits.slice(index, index + 2));
+  }
+
+  return groups.join(" ");
+}
+
+export function formatPhoneDisplay(value: string) {
+  const raw = value.trim();
+  if (!raw) return "";
+
+  try {
+    const parsed = parsePhoneNumberFromString(raw as string);
+    const national = parsed ? parsed.formatNational() : raw.replace(/^\+/, "");
+    return groupDigitsPairs(String(national).replace(/^0+/, ""));
+  } catch {
+    return groupDigitsPairs(raw.replace(/^\+/, "").replace(/^0+/, ""));
+  }
 }
 
 export function detectPhoneCountry(value: string): string | null {

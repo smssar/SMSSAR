@@ -53,31 +53,76 @@ const customStyles = {
     boxShadow: state.isFocused ? "0 0 0 4px rgba(124, 58, 237, 0.1)" : "none",
     transition: "border-color 150ms ease, box-shadow 150ms ease",
     backgroundColor: "var(--background)",
-  }),
-  menu: (provided: any) => ({
-    ...provided,
-    borderRadius: 24,
-    boxShadow: "0 20px 60px rgba(15, 23, 42, 0.15)",
-    overflow: "hidden",
-  }),
-  option: (provided: any, state: any) => ({
-    ...provided,
-    backgroundColor: state.isFocused
-      ? "rgba(124, 58, 237, 0.08)"
-      : "transparent",
     color: "var(--foreground)",
-    cursor: "pointer",
   }),
-  placeholder: (provided: any) => ({
+
+  valueContainer: (provided: any) => ({
     ...provided,
-    color: "rgba(100, 116, 139, 1)",
+    color: "var(--foreground)",
   }),
+
+  input: (provided: any) => ({
+    ...provided,
+    color: "var(--foreground)",
+  }),
+
   singleValue: (provided: any) => ({
     ...provided,
     color: "var(--foreground)",
   }),
-};
 
+  placeholder: (provided: any) => ({
+    ...provided,
+    color: "var(--muted-foreground)",
+  }),
+
+  menu: (provided: any) => ({
+    ...provided,
+    borderRadius: 24,
+    overflow: "hidden",
+    backgroundColor: "var(--background)",
+    color: "var(--foreground)",
+    zIndex: 9999,
+  }),
+
+  menuList: (provided: any) => ({
+    ...provided,
+    backgroundColor: "#fff",
+    color: "#000",
+  }),
+
+  option: (provided: any, state: any) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? "#7c3aed"
+      : state.isFocused
+        ? "rgba(124,58,237,0.12)"
+        : "var(--foreground)",
+    color: state.isSelected ? "#fff" : "var(--foreground)",
+    cursor: "pointer",
+  }),
+
+  noOptionsMessage: (provided: any) => ({
+    ...provided,
+    color: "var(--muted-foreground)",
+    backgroundColor: "var(--background)",
+  }),
+
+  clearIndicator: (provided: any) => ({
+    ...provided,
+    color: "var(--foreground)",
+  }),
+
+  dropdownIndicator: (provided: any) => ({
+    ...provided,
+    color: "var(--foreground)",
+  }),
+
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    backgroundColor: "var(--border)",
+  }),
+};
 export default function CityNeighborhoodSelector({
   cities,
   neighborhoods,
@@ -123,8 +168,6 @@ export default function CityNeighborhoodSelector({
     if (byValue) return byValue;
 
     // Listing form stores neighborhood as the raw `name` string in state
-    // (not the localized label). If a name was passed, try to resolve it
-    // back to an id and select the matching option.
     const foundByName = neighborhoods.find((n) => n.name === neighborhoodId);
     if (foundByName) {
       return (

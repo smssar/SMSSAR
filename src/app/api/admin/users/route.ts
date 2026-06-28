@@ -10,6 +10,7 @@ export const runtime = "nodejs";
 type CreateUserBody = {
   name?: string;
   email?: string;
+  isVerified?: boolean;
   password?: string;
   role?: string;
   status?: string;
@@ -39,6 +40,7 @@ export async function GET() {
       name: true,
       email: true,
       emailVerified: true,
+      isVerified: true,
       phone: true,
       bio: true,
       role: true,
@@ -152,6 +154,7 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hash(password, 12);
+    const isVerified = body.isVerified ?? false;
     const phone = body.phone?.trim();
     const bio = body.bio?.trim();
     const isSuspended = status === "SUSPENDED";
@@ -179,7 +182,7 @@ export async function POST(request: Request) {
         name,
         email,
         passwordHash,
-          phone: normalizedPhone,
+        phone: normalizedPhone,
         bio: bio ? bio : null,
         role: role as "USER" | "SELLER" | "SMSSAR" | "ADMIN",
         status: status as "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED",
@@ -190,6 +193,7 @@ export async function POST(request: Request) {
         bannedMessage: isBanned ? bannedMessage : null,
         planId,
         emailVerified: verifiedAt,
+        isVerified,
       },
       select: {
         id: true,

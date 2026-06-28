@@ -8,17 +8,9 @@ import { detectLang } from "@/lib/utils";
 import { normalizePhoneNumber } from "@/lib/phone";
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
+import { WhatsappUserWithTokenLock } from "@/lib/types";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "";
-
-type WhatsappUserWithTokenLock = Awaited<ReturnType<typeof getWhatsappUser>> & {
-  tokenLimitReached?: boolean | null;
-  tokenUsage?: number | null;
-  tokensLimit?: number | null;
-  language?: string | null;
-  id?: string;
-  name?: string | null;
-};
 
 // Shared fetch helper with retries and timeout
 async function fetchWithRetries(
@@ -270,7 +262,7 @@ export async function POST(req: Request) {
           return NextResponse.json({ ok: true });
         }
 
-        const currentTokenUsage = whatsappUser?.tokenUsage ?? 0;
+        const currentTokenUsage = whatsappUser?.monthlyUsageTokens ?? 0;
         const tokensLimit = whatsappUser?.tokensLimit ?? null;
         const limitAlreadyReached = resolveWhatsappTokenLimitReached(
           currentTokenUsage,
@@ -293,16 +285,32 @@ export async function POST(req: Request) {
         }
 
         // Build payment link for token packages
-        const locale = whatsappUser?.language === "ar" ? "ar" : whatsappUser?.language === "fr" ? "fr" : "en";
+        const locale =
+          whatsappUser?.language === "ar"
+            ? "ar"
+            : whatsappUser?.language === "fr"
+              ? "fr"
+              : "en";
         const paymentPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}`;
 
         const limitReachedMessage =
           whatsappUser?.language === "ar"
-            ? `تم الوصول إلى حد استخدام الرموز لهذا الحساب. يرجى ترقية الخطة أو زيادة الحد للمتابعة مع المساعد.\n\n${paymentPageUrl}`
-            : whatsappUser?.language === "fr"
-              ? `La limite de jetons de ce compte a été atteinte. Veuillez augmenter la limite ou mettre à niveau le plan pour continuer à utiliser l'assistant.\n\n${paymentPageUrl}`
-              : `This account has reached its token usage limit. Please upgrade the plan or increase the limit to continue using the assistant.\n\n${paymentPageUrl}`;
+            ? `لقد وصلت إلى الحد الشهري لاستخدام الرسائل لهذا الحساب. 😊
 
+            للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
+
+            ${paymentPageUrl}`
+                        : whatsappUser?.language === "fr"
+                          ? `Vous avez atteint la limite mensuelle de messages pour ce compte. 😊
+
+            Pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
+
+            ${paymentPageUrl}`
+                          : `You've reached your monthly message limit for this account. 😊
+
+            To continue chatting with the assistant, please purchase a new message package.
+
+            ${paymentPageUrl}`;
         if (whatsappUser?.id && limitAlreadyReached) {
           try {
             await prisma.whatsappUser.update({
@@ -327,7 +335,7 @@ export async function POST(req: Request) {
         try {
           // Notify WhatsApp that we've received the message and show typing indicator
 
-          const aiResponse = await llmAnalyze(text, whatsappUser?.id);
+          const aiResponse = await llmAnalyze(text, whatsappUser);
           data = aiResponse.response ?? "";
           const parsedAi = aiResponse as {
             role?: string;

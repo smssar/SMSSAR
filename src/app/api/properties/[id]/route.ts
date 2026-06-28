@@ -10,6 +10,7 @@ import {
   getActivePurchasesWithProduct,
   sumPurchaseQuantityByCode,
 } from "@/lib/purchase-allowances";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 
 export const runtime = "nodejs";
 
@@ -143,6 +144,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     ? await prisma.plan.findUnique({
         where: { id: sellerAccount.planId },
       })
+    : null;
+
+  const effectiveSellerPlan = sellerPlan
+    ? resolvePlanForRole(sellerPlan, session.user.role)
     : null;
 
   // All ACTIVE purchases for the seller — same query as POST
@@ -301,7 +306,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (session.user.role === "SELLER" || session.user.role === "SMSSAR") {
       if (!sellerPlan) return jsonError("User plan not found.", 500);
 
-      const planFeaturedLimit = sellerPlan.maxFeaturedListings ?? 0;
+      const planFeaturedLimit = effectiveSellerPlan?.maxFeaturedListings ?? 0;
       const maxFeatured = planFeaturedLimit + extraFeatured; // ← purchases included
       const currentFeatured = sellerAccount?.featuredproperties ?? 0;
 
@@ -377,14 +382,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     const nextVideoCount = retainedVideoCount + incomingVideos;
 
     // Max = plan limit + purchased extras
-    const maxImages = (sellerPlan.maxImagesPerListing ?? 0) + extraImages;
+    const maxImages =
+      (effectiveSellerPlan?.maxImagesPerListing ?? 0) + extraImages;
     const maxVideos =
-      sellerPlan.maxVideosPerListing === null
+      effectiveSellerPlan?.maxVideosPerListing === null
         ? Infinity
-        : (sellerPlan.maxVideosPerListing ?? 0) + extraVideos;
+        : (effectiveSellerPlan?.maxVideosPerListing ?? 0) + extraVideos;
 
     if (
-      typeof sellerPlan.maxImagesPerListing === "number" &&
+      typeof effectiveSellerPlan?.maxImagesPerListing === "number" &&
       nextImageCount > maxImages
     ) {
       return NextResponse.json(
@@ -490,12 +496,12 @@ export async function PATCH(request: Request, context: RouteContext) {
     const imageQuantityDelta = getExtraQuantityDelta(
       existingImageCount,
       nextImageCount,
-      sellerPlan?.maxImagesPerListing,
+      effectiveSellerPlan?.maxImagesPerListing,
     );
     const videoQuantityDelta = getExtraQuantityDelta(
       existingVideoCount,
       nextVideoCount,
-      sellerPlan?.maxVideosPerListing,
+      effectiveSellerPlan?.maxVideosPerListing,
     );
 
     const property = await prisma.$transaction(async (tx) => {

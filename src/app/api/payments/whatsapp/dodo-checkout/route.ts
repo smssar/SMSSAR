@@ -19,7 +19,13 @@ type WhatsappTokenCheckoutRequest = {
 export async function POST(req: NextRequest) {
   try {
     const body: WhatsappTokenCheckoutRequest = await req.json();
-    const { phone, email, locale = "en", tokens: customTokens, amount: customAmount } = body;
+    const {
+      phone,
+      email,
+      locale = "en",
+      tokens: customTokens,
+      amount: customAmount,
+    } = body;
 
     if (!phone?.trim()) {
       return NextResponse.json(
@@ -59,6 +65,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (customAmount && customAmount < 1000) {
+      return NextResponse.json(
+        { error: "Amount must be at least 1000 cents" },
+        { status: 400 },
+      );
+    }
+
     const baseUrl = getRequestBaseUrl(req.headers) ?? "http://localhost:3000";
     const safeLocale: Locale =
       locale === "ar" || locale === "fr" ? locale : "en";
@@ -73,17 +86,17 @@ export async function POST(req: NextRequest) {
     // Get Dodo credentials and product ID
     const dodoApiKey = process.env.DODO_API_KEY;
     const dodoProductId = process.env.DODO_PRODUCT_ID_WHATSAPPBOOT;
-    
+
     if (!dodoApiKey || !dodoProductId) {
-        console.error(
-            "Missing Dodo API credentials or DODO_WHATSAPP_TOKEN_PRODUCT_ID",
-        );
-        return NextResponse.json(
-            { error: "Payment service not configured" },
-            { status: 500 },
-        );
+      console.error(
+        "Missing Dodo API credentials or DODO_WHATSAPP_TOKEN_PRODUCT_ID",
+      );
+      return NextResponse.json(
+        { error: "Payment service not configured" },
+        { status: 500 },
+      );
     }
-    console.log("Creating Dodo checkout session for WhatsApp tokens:")
+    console.log("Creating Dodo checkout session for WhatsApp tokens:");
 
     // Call Dodo API to create checkout session
     const dodoResponse = await fetch(

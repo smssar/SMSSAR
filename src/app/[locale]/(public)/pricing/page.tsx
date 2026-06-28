@@ -14,6 +14,7 @@ import {
   getScheduledSubscription,
 } from "@/lib/getActiveSubscription";
 import { formatCurrency } from "@/lib/format";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -64,10 +65,14 @@ export default async function PricingPage({
     scheduledSubscription = await getScheduledSubscription(session.user.id);
   }
 
+  const effectivePlans = plans.map((plan) =>
+    resolvePlanForRole(plan, session?.user?.role),
+  );
+
   const visiblePlans =
     currentPlanId && currentPlanId !== "plan_free"
-      ? plans.filter((plan) => plan.id !== "plan_free")
-      : plans;
+      ? effectivePlans.filter((plan) => plan.id !== "plan_free")
+      : effectivePlans;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
+import { formatPhoneDisplay } from "@/lib/phone";
 
 export default async function PublicProfilePage({
   params,
@@ -76,7 +77,7 @@ export default async function PublicProfilePage({
               className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-violet-500"
             >
               <Phone className="h-4 w-4" />
-              {user.phone}
+              <span dir="ltr">{formatPhoneDisplay(user.phone)}</span>
             </a>
           ) : null}
 

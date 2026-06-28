@@ -13,6 +13,7 @@ import {
   getActivePurchasesWithProduct,
   sumPurchaseQuantityByCode,
 } from "@/lib/purchase-allowances";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 
 type CreatePropertyBody = {
   title?: string;
@@ -82,7 +83,8 @@ const createPropertyHandler = async (
     "EXTRA_LISTINGS",
   );
 
-  const planLimit = buildPlanAllowance(userPlan.listings, extraListings);
+  const effectivePlan = resolvePlanForRole(userPlan, session.user.role);
+  const planLimit = buildPlanAllowance(effectivePlan.listings, extraListings);
   const existingCount = await prisma.property.count({
     where: { sellerId: session.user.id },
   });
@@ -297,7 +299,7 @@ const createPropertyHandler = async (
   );
 
   const maxImages = buildPlanAllowance(
-    userPlan.maxImagesPerListing,
+    effectivePlan.maxImagesPerListing,
     extraImages,
   );
 
@@ -329,7 +331,7 @@ const createPropertyHandler = async (
   );
 
   const maxVideos = buildPlanAllowance(
-    userPlan.maxVideosPerListing,
+    effectivePlan.maxVideosPerListing,
     extraVideos,
   );
 
@@ -370,7 +372,7 @@ const createPropertyHandler = async (
         "EXTRA_FEATURED_LISTINGS",
       );
 
-      const planFeaturedLimit = userPlan.maxFeaturedListings ?? 0;
+      const planFeaturedLimit = effectivePlan.maxFeaturedListings ?? 0;
       const maxFeatured = planFeaturedLimit + featuredPurchases;
       const currentFeatured = sellerExists.featuredproperties ?? 0;
 

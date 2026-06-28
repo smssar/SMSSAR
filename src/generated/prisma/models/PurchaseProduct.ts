@@ -28,10 +28,12 @@ export type AggregatePurchaseProduct = {
 
 export type PurchaseProductAvgAggregateOutputType = {
   price: number | null
+  smmsarPrice: number | null
 }
 
 export type PurchaseProductSumAggregateOutputType = {
   price: number | null
+  smmsarPrice: number | null
 }
 
 export type PurchaseProductMinAggregateOutputType = {
@@ -41,6 +43,7 @@ export type PurchaseProductMinAggregateOutputType = {
   title_fr: string | null
   description: string | null
   price: number | null
+  smmsarPrice: number | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -56,6 +59,7 @@ export type PurchaseProductMaxAggregateOutputType = {
   title_fr: string | null
   description: string | null
   price: number | null
+  smmsarPrice: number | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,6 +75,7 @@ export type PurchaseProductCountAggregateOutputType = {
   title_fr: number
   description: number
   price: number
+  smmsarPrice: number
   active: number
   createdAt: number
   updatedAt: number
@@ -83,10 +88,12 @@ export type PurchaseProductCountAggregateOutputType = {
 
 export type PurchaseProductAvgAggregateInputType = {
   price?: true
+  smmsarPrice?: true
 }
 
 export type PurchaseProductSumAggregateInputType = {
   price?: true
+  smmsarPrice?: true
 }
 
 export type PurchaseProductMinAggregateInputType = {
@@ -96,6 +103,7 @@ export type PurchaseProductMinAggregateInputType = {
   title_fr?: true
   description?: true
   price?: true
+  smmsarPrice?: true
   active?: true
   createdAt?: true
   updatedAt?: true
@@ -111,6 +119,7 @@ export type PurchaseProductMaxAggregateInputType = {
   title_fr?: true
   description?: true
   price?: true
+  smmsarPrice?: true
   active?: true
   createdAt?: true
   updatedAt?: true
@@ -126,6 +135,7 @@ export type PurchaseProductCountAggregateInputType = {
   title_fr?: true
   description?: true
   price?: true
+  smmsarPrice?: true
   active?: true
   createdAt?: true
   updatedAt?: true
@@ -228,6 +238,7 @@ export type PurchaseProductGroupByOutputType = {
   title_fr: string | null
   description: string | null
   price: number
+  smmsarPrice: number | null
   active: boolean
   createdAt: Date
   updatedAt: Date
@@ -266,6 +277,7 @@ export type PurchaseProductWhereInput = {
   title_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntFilter<"PurchaseProduct"> | number
+  smmsarPrice?: Prisma.IntNullableFilter<"PurchaseProduct"> | number | null
   active?: Prisma.BoolFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
@@ -282,6 +294,7 @@ export type PurchaseProductOrderByWithRelationInput = {
   title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -302,6 +315,7 @@ export type PurchaseProductWhereUniqueInput = Prisma.AtLeast<{
   title_fr?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntFilter<"PurchaseProduct"> | number
+  smmsarPrice?: Prisma.IntNullableFilter<"PurchaseProduct"> | number | null
   active?: Prisma.BoolFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PurchaseProduct"> | Date | string
@@ -317,6 +331,7 @@ export type PurchaseProductOrderByWithAggregationInput = {
   title_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -340,6 +355,7 @@ export type PurchaseProductScalarWhereWithAggregatesInput = {
   title_fr?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"PurchaseProduct"> | string | null
   price?: Prisma.IntWithAggregatesFilter<"PurchaseProduct"> | number
+  smmsarPrice?: Prisma.IntNullableWithAggregatesFilter<"PurchaseProduct"> | number | null
   active?: Prisma.BoolWithAggregatesFilter<"PurchaseProduct"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PurchaseProduct"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PurchaseProduct"> | Date | string
@@ -355,6 +371,7 @@ export type PurchaseProductCreateInput = {
   title_fr?: string | null
   description?: string | null
   price: number
+  smmsarPrice?: number | null
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -371,6 +388,7 @@ export type PurchaseProductUncheckedCreateInput = {
   title_fr?: string | null
   description?: string | null
   price: number
+  smmsarPrice?: number | null
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -387,6 +405,7 @@ export type PurchaseProductUpdateInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -403,6 +422,7 @@ export type PurchaseProductUncheckedUpdateInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -419,6 +439,7 @@ export type PurchaseProductCreateManyInput = {
   title_fr?: string | null
   description?: string | null
   price: number
+  smmsarPrice?: number | null
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -434,6 +455,7 @@ export type PurchaseProductUpdateManyMutationInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -449,6 +471,7 @@ export type PurchaseProductUncheckedUpdateManyInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,6 +487,7 @@ export type PurchaseProductCountOrderByAggregateInput = {
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -474,6 +498,7 @@ export type PurchaseProductCountOrderByAggregateInput = {
 
 export type PurchaseProductAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
 }
 
 export type PurchaseProductMaxOrderByAggregateInput = {
@@ -483,6 +508,7 @@ export type PurchaseProductMaxOrderByAggregateInput = {
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -498,6 +524,7 @@ export type PurchaseProductMinOrderByAggregateInput = {
   title_fr?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -508,6 +535,7 @@ export type PurchaseProductMinOrderByAggregateInput = {
 
 export type PurchaseProductSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
 }
 
 export type PurchaseProductScalarRelationFilter = {
@@ -540,6 +568,7 @@ export type PurchaseProductCreateWithoutPurchasesInput = {
   title_fr?: string | null
   description?: string | null
   price: number
+  smmsarPrice?: number | null
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -555,6 +584,7 @@ export type PurchaseProductUncheckedCreateWithoutPurchasesInput = {
   title_fr?: string | null
   description?: string | null
   price: number
+  smmsarPrice?: number | null
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -586,6 +616,7 @@ export type PurchaseProductUpdateWithoutPurchasesInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -601,6 +632,7 @@ export type PurchaseProductUncheckedUpdateWithoutPurchasesInput = {
   title_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -647,6 +679,7 @@ export type PurchaseProductSelect<ExtArgs extends runtime.Types.Extensions.Inter
   title_fr?: boolean
   description?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -664,6 +697,7 @@ export type PurchaseProductSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   title_fr?: boolean
   description?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -679,6 +713,7 @@ export type PurchaseProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   title_fr?: boolean
   description?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -694,6 +729,7 @@ export type PurchaseProductSelectScalar = {
   title_fr?: boolean
   description?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -702,7 +738,7 @@ export type PurchaseProductSelectScalar = {
   description_fr?: boolean
 }
 
-export type PurchaseProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "price" | "active" | "createdAt" | "updatedAt" | "code" | "description_ar" | "description_fr", ExtArgs["result"]["purchaseProduct"]>
+export type PurchaseProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "price" | "smmsarPrice" | "active" | "createdAt" | "updatedAt" | "code" | "description_ar" | "description_fr", ExtArgs["result"]["purchaseProduct"]>
 export type PurchaseProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   purchases?: boolean | Prisma.PurchaseProduct$purchasesArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -722,6 +758,7 @@ export type $PurchaseProductPayload<ExtArgs extends runtime.Types.Extensions.Int
     title_fr: string | null
     description: string | null
     price: number
+    smmsarPrice: number | null
     active: boolean
     createdAt: Date
     updatedAt: Date
@@ -1158,6 +1195,7 @@ export interface PurchaseProductFieldRefs {
   readonly title_fr: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly description: Prisma.FieldRef<"PurchaseProduct", 'String'>
   readonly price: Prisma.FieldRef<"PurchaseProduct", 'Int'>
+  readonly smmsarPrice: Prisma.FieldRef<"PurchaseProduct", 'Int'>
   readonly active: Prisma.FieldRef<"PurchaseProduct", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"PurchaseProduct", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PurchaseProduct", 'DateTime'>

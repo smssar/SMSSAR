@@ -20,13 +20,18 @@ type PlanRow = {
   description_ar: string | null;
   description_fr: string | null;
   price: number;
+  smmsarPrice: number | null;
   listings: number | null;
+  smssarListings: number | null;
   featured: boolean;
   ads: number | null;
   adsduration: number | null;
   maxFeaturedListings: number | null;
+  smssarMaxFeaturedListings: number | null;
   maxImagesPerListing: number | null;
+  smssarMaxImagesPerListing: number | null;
   maxVideosPerListing: number | null;
+  smssarMaxVideosPerListing: number | null;
 };
 
 type FormState = {
@@ -38,13 +43,18 @@ type FormState = {
   descriptionAr: string;
   descriptionFr: string;
   price: string;
+  smmsarPrice: string;
   listings: string;
+  smssarListings: string;
   featured: boolean;
   ads: string;
   adsduration: string;
   maxFeaturedListings: string;
+  smssarMaxFeaturedListings: string;
   maxImagesPerListing: string;
+  smssarMaxImagesPerListing: string;
   maxVideosPerListing: string;
+  smssarMaxVideosPerListing: string;
 };
 
 const emptyForm = (): FormState => ({
@@ -56,13 +66,18 @@ const emptyForm = (): FormState => ({
   descriptionAr: "",
   descriptionFr: "",
   price: "0",
+  smmsarPrice: "",
   listings: "",
+  smssarListings: "",
   featured: false,
   ads: "",
   adsduration: "",
   maxFeaturedListings: "",
+  smssarMaxFeaturedListings: "",
   maxImagesPerListing: "",
+  smssarMaxImagesPerListing: "",
   maxVideosPerListing: "",
+  smssarMaxVideosPerListing: "",
 });
 
 export function AdminPlansPanel({
@@ -103,7 +118,10 @@ export function AdminPlansPanel({
       descriptionAr: plan.description_ar ?? "",
       descriptionFr: plan.description_fr ?? "",
       price: String(plan.price),
+      smmsarPrice: plan.smmsarPrice === null ? "" : String(plan.smmsarPrice),
       listings: plan.listings === null ? "" : String(plan.listings),
+      smssarListings:
+        plan.smssarListings === null ? "" : String(plan.smssarListings),
       featured: plan.featured,
       ads: plan.ads === null ? "" : String(plan.ads),
       adsduration: plan.adsduration === null ? "" : String(plan.adsduration),
@@ -111,14 +129,26 @@ export function AdminPlansPanel({
         plan.maxFeaturedListings === null
           ? ""
           : String(plan.maxFeaturedListings),
+      smssarMaxFeaturedListings:
+        plan.smssarMaxFeaturedListings === null
+          ? ""
+          : String(plan.smssarMaxFeaturedListings),
       maxImagesPerListing:
         plan.maxImagesPerListing === null
           ? ""
           : String(plan.maxImagesPerListing),
+      smssarMaxImagesPerListing:
+        plan.smssarMaxImagesPerListing === null
+          ? ""
+          : String(plan.smssarMaxImagesPerListing),
       maxVideosPerListing:
         plan.maxVideosPerListing === null
           ? ""
           : String(plan.maxVideosPerListing),
+      smssarMaxVideosPerListing:
+        plan.smssarMaxVideosPerListing === null
+          ? ""
+          : String(plan.smssarMaxVideosPerListing),
     });
   };
 
@@ -134,7 +164,11 @@ export function AdminPlansPanel({
       description_ar: form.descriptionAr.trim() || undefined,
       description_fr: form.descriptionFr.trim() || undefined,
       price: Number(form.price || 0),
+      smmsarPrice:
+        form.smmsarPrice.trim() === "" ? null : Number(form.smmsarPrice),
       listings: form.listings.trim() === "" ? null : Number(form.listings),
+      smssarListings:
+        form.smssarListings.trim() === "" ? null : Number(form.smssarListings),
       featured: form.featured,
       ads: form.ads.trim() === "" ? null : Number(form.ads),
       adsduration:
@@ -143,14 +177,26 @@ export function AdminPlansPanel({
         form.maxFeaturedListings.trim() === ""
           ? null
           : Number(form.maxFeaturedListings),
+      smssarMaxFeaturedListings:
+        form.smssarMaxFeaturedListings.trim() === ""
+          ? null
+          : Number(form.smssarMaxFeaturedListings),
       maxImagesPerListing:
         form.maxImagesPerListing.trim() === ""
           ? null
           : Number(form.maxImagesPerListing),
+      smssarMaxImagesPerListing:
+        form.smssarMaxImagesPerListing.trim() === ""
+          ? null
+          : Number(form.smssarMaxImagesPerListing),
       maxVideosPerListing:
         form.maxVideosPerListing.trim() === ""
           ? null
           : Number(form.maxVideosPerListing),
+      smssarMaxVideosPerListing:
+        form.smssarMaxVideosPerListing.trim() === ""
+          ? null
+          : Number(form.smssarMaxVideosPerListing),
     };
 
     if (!payload.id || !payload.title || !payload.description) {
@@ -337,6 +383,25 @@ export function AdminPlansPanel({
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="plan-smmsarPrice">SMSSAR price</Label>
+                <Input
+                  id="plan-smmsarPrice"
+                  type="number"
+                  min={0}
+                  value={form.smmsarPrice}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      smmsarPrice: e.target.value,
+                    }))
+                  }
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
                 <Label htmlFor="plan-listings">{t.listingsLabel}</Label>
                 <Input
                   id="plan-listings"
@@ -347,6 +412,22 @@ export function AdminPlansPanel({
                     setForm((prev) => ({ ...prev, listings: e.target.value }))
                   }
                   placeholder="3"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plan-smssarListings">SMSSAR listings</Label>
+                <Input
+                  id="plan-smssarListings"
+                  type="number"
+                  min={0}
+                  value={form.smssarListings}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      smssarListings: e.target.value,
+                    }))
+                  }
+                  placeholder="5"
                 />
               </div>
             </div>
@@ -404,6 +485,27 @@ export function AdminPlansPanel({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
+                <Label htmlFor="plan-smssarMaxFeaturedListings">
+                  SMSSAR featured listings
+                </Label>
+                <Input
+                  id="plan-smssarMaxFeaturedListings"
+                  type="number"
+                  min={0}
+                  value={form.smssarMaxFeaturedListings}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      smssarMaxFeaturedListings: e.target.value,
+                    }))
+                  }
+                  placeholder="1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
                 <Label htmlFor="plan-maxImagesPerListing">
                   {t.maxImagesPerListingLabel}
                 </Label>
@@ -422,6 +524,27 @@ export function AdminPlansPanel({
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="plan-smssarMaxImagesPerListing">
+                  SMSSAR images
+                </Label>
+                <Input
+                  id="plan-smssarMaxImagesPerListing"
+                  type="number"
+                  min={0}
+                  value={form.smssarMaxImagesPerListing}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      smssarMaxImagesPerListing: e.target.value,
+                    }))
+                  }
+                  placeholder="10"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
                 <Label htmlFor="plan-maxVideosPerListing">
                   {t.maxVideosPerListingLabel}
                 </Label>
@@ -434,6 +557,24 @@ export function AdminPlansPanel({
                     setForm((prev) => ({
                       ...prev,
                       maxVideosPerListing: e.target.value,
+                    }))
+                  }
+                  placeholder="1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plan-smssarMaxVideosPerListing">
+                  SMSSAR videos
+                </Label>
+                <Input
+                  id="plan-smssarMaxVideosPerListing"
+                  type="number"
+                  min={0}
+                  value={form.smssarMaxVideosPerListing}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      smssarMaxVideosPerListing: e.target.value,
                     }))
                   }
                   placeholder="1"
@@ -502,6 +643,11 @@ export function AdminPlansPanel({
                     {plan.price === 0
                       ? t.freeLabel
                       : formatCurrency(plan.price, locale)}
+                    {plan.smmsarPrice !== null ? (
+                      <span className="ml-2 text-xs opacity-80">
+                        / SMSSAR {formatCurrency(plan.smmsarPrice, locale)}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="text-muted-foreground">
                     {plan.description}

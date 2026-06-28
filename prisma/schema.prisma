@@ -49,26 +49,31 @@ model PropertyType {
 }
 
 model Plan {
-  id                  String         @id
-  title               String
-  title_ar            String?
-  title_fr            String?
-  description         String
-  description_ar      String?
-  description_fr      String?
-  price               Int
-  listings            Int?
-  featured            Boolean
-  ads                 Int?           @default(0)
-  adsduration         Int?
-  maxFeaturedListings Int?
-  maxImagesPerListing Int?
-  maxVideosPerListing Int?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  adCampaigns         Ad[]
-  subscriptions       Subscription[]
-  users               User[]
+  id                        String         @id
+  title                     String
+  title_ar                  String?
+  title_fr                  String?
+  description               String
+  description_ar            String?
+  description_fr            String?
+  price                     Int
+  smmsarPrice               Int?
+  listings                  Int?
+  smssarListings            Int?
+  featured                  Boolean
+  ads                       Int?           @default(0)
+  adsduration               Int?
+  maxFeaturedListings       Int?
+  smssarMaxFeaturedListings Int?
+  maxImagesPerListing       Int?
+  smssarMaxImagesPerListing Int?
+  maxVideosPerListing       Int?
+  smssarMaxVideosPerListing Int?
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+  adCampaigns               Ad[]
+  subscriptions             Subscription[]
+  users                     User[]
 }
 
 model Subscription {
@@ -111,6 +116,7 @@ model User {
   suspendedBy        String?
   bannedMessage      String?
   planId             String?
+  isVerified         Boolean        @default(false)
   featuredproperties Int?           @default(0)
   role               UserRole       @default(USER)
   status             UserStatus     @default(ACTIVE)
@@ -181,6 +187,7 @@ model Property {
   imageUrl       String?
   videoUrl       String?
   sellerId       String
+  isVerified     Boolean       @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   ads            Ad[]
@@ -268,6 +275,7 @@ model PurchaseProduct {
   title_fr       String?
   description    String?
   price          Int
+  smmsarPrice    Int?
   active         Boolean       @default(true)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -284,6 +292,7 @@ model Purchase {
   quantity          Int
   unitPrice         Int
   totalPrice        Int
+  totalPriceSmmsar  Int
   status            PurchaseStatus  @default(PENDING)
   paymentId         String?         @unique
   createdAt         DateTime        @default(now())
@@ -373,6 +382,7 @@ model WhatsappUser {
   totalMessages       Int               @default(0)
   profileSummary      String?
   tokenUsage          Int?              @default(0)
+  monthlyUsageTokens  Int?              @default(0)
   tokenPackageSize    Int               @default(10000)
   tokenPackagePrice   Int               @default(500)
   tokensLimit         Int?              @default(1000)
@@ -387,16 +397,16 @@ model WhatsappUser {
 }
 
 model WhatsappTokenPayment {
-  id              String   @id @default(cuid())
-  orderId         String   @unique
-  whatsappUserId  String
-  amount          Int
-  tokens          Int
-  dodoSessionId   String?
-  status          String   @default("PENDING")
-  email           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  orderId        String   @unique
+  whatsappUserId String
+  amount         Int
+  tokens         Int
+  dodoSessionId  String?
+  status         String   @default("PENDING")
+  email          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([whatsappUserId])
   @@index([status])

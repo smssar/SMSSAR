@@ -28,22 +28,32 @@ export type AggregatePlan = {
 
 export type PlanAvgAggregateOutputType = {
   price: number | null
+  smmsarPrice: number | null
   listings: number | null
+  smssarListings: number | null
   ads: number | null
   adsduration: number | null
   maxFeaturedListings: number | null
+  smssarMaxFeaturedListings: number | null
   maxImagesPerListing: number | null
+  smssarMaxImagesPerListing: number | null
   maxVideosPerListing: number | null
+  smssarMaxVideosPerListing: number | null
 }
 
 export type PlanSumAggregateOutputType = {
   price: number | null
+  smmsarPrice: number | null
   listings: number | null
+  smssarListings: number | null
   ads: number | null
   adsduration: number | null
   maxFeaturedListings: number | null
+  smssarMaxFeaturedListings: number | null
   maxImagesPerListing: number | null
+  smssarMaxImagesPerListing: number | null
   maxVideosPerListing: number | null
+  smssarMaxVideosPerListing: number | null
 }
 
 export type PlanMinAggregateOutputType = {
@@ -55,13 +65,18 @@ export type PlanMinAggregateOutputType = {
   description_ar: string | null
   description_fr: string | null
   price: number | null
+  smmsarPrice: number | null
   listings: number | null
+  smssarListings: number | null
   featured: boolean | null
   ads: number | null
   adsduration: number | null
   maxFeaturedListings: number | null
+  smssarMaxFeaturedListings: number | null
   maxImagesPerListing: number | null
+  smssarMaxImagesPerListing: number | null
   maxVideosPerListing: number | null
+  smssarMaxVideosPerListing: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -75,13 +90,18 @@ export type PlanMaxAggregateOutputType = {
   description_ar: string | null
   description_fr: string | null
   price: number | null
+  smmsarPrice: number | null
   listings: number | null
+  smssarListings: number | null
   featured: boolean | null
   ads: number | null
   adsduration: number | null
   maxFeaturedListings: number | null
+  smssarMaxFeaturedListings: number | null
   maxImagesPerListing: number | null
+  smssarMaxImagesPerListing: number | null
   maxVideosPerListing: number | null
+  smssarMaxVideosPerListing: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -95,13 +115,18 @@ export type PlanCountAggregateOutputType = {
   description_ar: number
   description_fr: number
   price: number
+  smmsarPrice: number
   listings: number
+  smssarListings: number
   featured: number
   ads: number
   adsduration: number
   maxFeaturedListings: number
+  smssarMaxFeaturedListings: number
   maxImagesPerListing: number
+  smssarMaxImagesPerListing: number
   maxVideosPerListing: number
+  smssarMaxVideosPerListing: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -110,22 +135,32 @@ export type PlanCountAggregateOutputType = {
 
 export type PlanAvgAggregateInputType = {
   price?: true
+  smmsarPrice?: true
   listings?: true
+  smssarListings?: true
   ads?: true
   adsduration?: true
   maxFeaturedListings?: true
+  smssarMaxFeaturedListings?: true
   maxImagesPerListing?: true
+  smssarMaxImagesPerListing?: true
   maxVideosPerListing?: true
+  smssarMaxVideosPerListing?: true
 }
 
 export type PlanSumAggregateInputType = {
   price?: true
+  smmsarPrice?: true
   listings?: true
+  smssarListings?: true
   ads?: true
   adsduration?: true
   maxFeaturedListings?: true
+  smssarMaxFeaturedListings?: true
   maxImagesPerListing?: true
+  smssarMaxImagesPerListing?: true
   maxVideosPerListing?: true
+  smssarMaxVideosPerListing?: true
 }
 
 export type PlanMinAggregateInputType = {
@@ -137,13 +172,18 @@ export type PlanMinAggregateInputType = {
   description_ar?: true
   description_fr?: true
   price?: true
+  smmsarPrice?: true
   listings?: true
+  smssarListings?: true
   featured?: true
   ads?: true
   adsduration?: true
   maxFeaturedListings?: true
+  smssarMaxFeaturedListings?: true
   maxImagesPerListing?: true
+  smssarMaxImagesPerListing?: true
   maxVideosPerListing?: true
+  smssarMaxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -157,13 +197,18 @@ export type PlanMaxAggregateInputType = {
   description_ar?: true
   description_fr?: true
   price?: true
+  smmsarPrice?: true
   listings?: true
+  smssarListings?: true
   featured?: true
   ads?: true
   adsduration?: true
   maxFeaturedListings?: true
+  smssarMaxFeaturedListings?: true
   maxImagesPerListing?: true
+  smssarMaxImagesPerListing?: true
   maxVideosPerListing?: true
+  smssarMaxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -177,13 +222,18 @@ export type PlanCountAggregateInputType = {
   description_ar?: true
   description_fr?: true
   price?: true
+  smmsarPrice?: true
   listings?: true
+  smssarListings?: true
   featured?: true
   ads?: true
   adsduration?: true
   maxFeaturedListings?: true
+  smssarMaxFeaturedListings?: true
   maxImagesPerListing?: true
+  smssarMaxImagesPerListing?: true
   maxVideosPerListing?: true
+  smssarMaxVideosPerListing?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -284,13 +334,18 @@ export type PlanGroupByOutputType = {
   description_ar: string | null
   description_fr: string | null
   price: number
+  smmsarPrice: number | null
   listings: number | null
+  smssarListings: number | null
   featured: boolean
   ads: number | null
   adsduration: number | null
   maxFeaturedListings: number | null
+  smssarMaxFeaturedListings: number | null
   maxImagesPerListing: number | null
+  smssarMaxImagesPerListing: number | null
   maxVideosPerListing: number | null
+  smssarMaxVideosPerListing: number | null
   createdAt: Date
   updatedAt: Date
   _count: PlanCountAggregateOutputType | null
@@ -327,13 +382,18 @@ export type PlanWhereInput = {
   description_ar?: Prisma.StringNullableFilter<"Plan"> | string | null
   description_fr?: Prisma.StringNullableFilter<"Plan"> | string | null
   price?: Prisma.IntFilter<"Plan"> | number
+  smmsarPrice?: Prisma.IntNullableFilter<"Plan"> | number | null
   listings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarListings?: Prisma.IntNullableFilter<"Plan"> | number | null
   featured?: Prisma.BoolFilter<"Plan"> | boolean
   ads?: Prisma.IntNullableFilter<"Plan"> | number | null
   adsduration?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   adCampaigns?: Prisma.AdListRelationFilter
@@ -350,13 +410,18 @@ export type PlanOrderByWithRelationInput = {
   description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
   description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   listings?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarListings?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
   ads?: Prisma.SortOrderInput | Prisma.SortOrder
   adsduration?: Prisma.SortOrderInput | Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   adCampaigns?: Prisma.AdOrderByRelationAggregateInput
@@ -376,13 +441,18 @@ export type PlanWhereUniqueInput = Prisma.AtLeast<{
   description_ar?: Prisma.StringNullableFilter<"Plan"> | string | null
   description_fr?: Prisma.StringNullableFilter<"Plan"> | string | null
   price?: Prisma.IntFilter<"Plan"> | number
+  smmsarPrice?: Prisma.IntNullableFilter<"Plan"> | number | null
   listings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarListings?: Prisma.IntNullableFilter<"Plan"> | number | null
   featured?: Prisma.BoolFilter<"Plan"> | boolean
   ads?: Prisma.IntNullableFilter<"Plan"> | number | null
   adsduration?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxFeaturedListings?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxImagesPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   maxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
+  smssarMaxVideosPerListing?: Prisma.IntNullableFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   adCampaigns?: Prisma.AdListRelationFilter
@@ -399,13 +469,18 @@ export type PlanOrderByWithAggregationInput = {
   description_ar?: Prisma.SortOrderInput | Prisma.SortOrder
   description_fr?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   listings?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarListings?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
   ads?: Prisma.SortOrderInput | Prisma.SortOrder
   adsduration?: Prisma.SortOrderInput | Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrderInput | Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlanCountOrderByAggregateInput
@@ -427,13 +502,18 @@ export type PlanScalarWhereWithAggregatesInput = {
   description_ar?: Prisma.StringNullableWithAggregatesFilter<"Plan"> | string | null
   description_fr?: Prisma.StringNullableWithAggregatesFilter<"Plan"> | string | null
   price?: Prisma.IntWithAggregatesFilter<"Plan"> | number
+  smmsarPrice?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   listings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  smssarListings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   featured?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
   ads?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   adsduration?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   maxFeaturedListings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  smssarMaxFeaturedListings?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   maxImagesPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  smssarMaxImagesPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   maxVideosPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
+  smssarMaxVideosPerListing?: Prisma.IntNullableWithAggregatesFilter<"Plan"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
 }
@@ -447,13 +527,18 @@ export type PlanCreateInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
@@ -470,13 +555,18 @@ export type PlanUncheckedCreateInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
@@ -493,13 +583,18 @@ export type PlanUpdateInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
@@ -516,13 +611,18 @@ export type PlanUncheckedUpdateInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
@@ -539,13 +639,18 @@ export type PlanCreateManyInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -559,13 +664,18 @@ export type PlanUpdateManyMutationInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -579,13 +689,18 @@ export type PlanUncheckedUpdateManyInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -599,25 +714,35 @@ export type PlanCountOrderByAggregateInput = {
   description_ar?: Prisma.SortOrder
   description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  smssarListings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   ads?: Prisma.SortOrder
   adsduration?: Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PlanAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  smssarListings?: Prisma.SortOrder
   ads?: Prisma.SortOrder
   adsduration?: Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrder
 }
 
 export type PlanMaxOrderByAggregateInput = {
@@ -629,13 +754,18 @@ export type PlanMaxOrderByAggregateInput = {
   description_ar?: Prisma.SortOrder
   description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  smssarListings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   ads?: Prisma.SortOrder
   adsduration?: Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -649,25 +779,35 @@ export type PlanMinOrderByAggregateInput = {
   description_ar?: Prisma.SortOrder
   description_fr?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  smssarListings?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   ads?: Prisma.SortOrder
   adsduration?: Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PlanSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  smmsarPrice?: Prisma.SortOrder
   listings?: Prisma.SortOrder
+  smssarListings?: Prisma.SortOrder
   ads?: Prisma.SortOrder
   adsduration?: Prisma.SortOrder
   maxFeaturedListings?: Prisma.SortOrder
+  smssarMaxFeaturedListings?: Prisma.SortOrder
   maxImagesPerListing?: Prisma.SortOrder
+  smssarMaxImagesPerListing?: Prisma.SortOrder
   maxVideosPerListing?: Prisma.SortOrder
+  smssarMaxVideosPerListing?: Prisma.SortOrder
 }
 
 export type PlanScalarRelationFilter = {
@@ -755,13 +895,18 @@ export type PlanCreateWithoutSubscriptionsInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
@@ -777,13 +922,18 @@ export type PlanUncheckedCreateWithoutSubscriptionsInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
@@ -815,13 +965,18 @@ export type PlanUpdateWithoutSubscriptionsInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
@@ -837,13 +992,18 @@ export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
@@ -859,13 +1019,18 @@ export type PlanCreateWithoutUsersInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdCreateNestedManyWithoutPlanInput
@@ -881,13 +1046,18 @@ export type PlanUncheckedCreateWithoutUsersInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   adCampaigns?: Prisma.AdUncheckedCreateNestedManyWithoutPlanInput
@@ -919,13 +1089,18 @@ export type PlanUpdateWithoutUsersInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUpdateManyWithoutPlanNestedInput
@@ -941,13 +1116,18 @@ export type PlanUncheckedUpdateWithoutUsersInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   adCampaigns?: Prisma.AdUncheckedUpdateManyWithoutPlanNestedInput
@@ -963,13 +1143,18 @@ export type PlanCreateWithoutAdCampaignsInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
@@ -985,13 +1170,18 @@ export type PlanUncheckedCreateWithoutAdCampaignsInput = {
   description_ar?: string | null
   description_fr?: string | null
   price: number
+  smmsarPrice?: number | null
   listings?: number | null
+  smssarListings?: number | null
   featured: boolean
   ads?: number | null
   adsduration?: number | null
   maxFeaturedListings?: number | null
+  smssarMaxFeaturedListings?: number | null
   maxImagesPerListing?: number | null
+  smssarMaxImagesPerListing?: number | null
   maxVideosPerListing?: number | null
+  smssarMaxVideosPerListing?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
@@ -1023,13 +1213,18 @@ export type PlanUpdateWithoutAdCampaignsInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
@@ -1045,13 +1240,18 @@ export type PlanUncheckedUpdateWithoutAdCampaignsInput = {
   description_ar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description_fr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
+  smmsarPrice?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   listings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ads?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   adsduration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxFeaturedListings?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxImagesPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  smssarMaxVideosPerListing?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
@@ -1116,13 +1316,18 @@ export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   description_ar?: boolean
   description_fr?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   listings?: boolean
+  smssarListings?: boolean
   featured?: boolean
   ads?: boolean
   adsduration?: boolean
   maxFeaturedListings?: boolean
+  smssarMaxFeaturedListings?: boolean
   maxImagesPerListing?: boolean
+  smssarMaxImagesPerListing?: boolean
   maxVideosPerListing?: boolean
+  smssarMaxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
@@ -1140,13 +1345,18 @@ export type PlanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description_ar?: boolean
   description_fr?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   listings?: boolean
+  smssarListings?: boolean
   featured?: boolean
   ads?: boolean
   adsduration?: boolean
   maxFeaturedListings?: boolean
+  smssarMaxFeaturedListings?: boolean
   maxImagesPerListing?: boolean
+  smssarMaxImagesPerListing?: boolean
   maxVideosPerListing?: boolean
+  smssarMaxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -1160,13 +1370,18 @@ export type PlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description_ar?: boolean
   description_fr?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   listings?: boolean
+  smssarListings?: boolean
   featured?: boolean
   ads?: boolean
   adsduration?: boolean
   maxFeaturedListings?: boolean
+  smssarMaxFeaturedListings?: boolean
   maxImagesPerListing?: boolean
+  smssarMaxImagesPerListing?: boolean
   maxVideosPerListing?: boolean
+  smssarMaxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -1180,18 +1395,23 @@ export type PlanSelectScalar = {
   description_ar?: boolean
   description_fr?: boolean
   price?: boolean
+  smmsarPrice?: boolean
   listings?: boolean
+  smssarListings?: boolean
   featured?: boolean
   ads?: boolean
   adsduration?: boolean
   maxFeaturedListings?: boolean
+  smssarMaxFeaturedListings?: boolean
   maxImagesPerListing?: boolean
+  smssarMaxImagesPerListing?: boolean
   maxVideosPerListing?: boolean
+  smssarMaxVideosPerListing?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "listings" | "featured" | "ads" | "adsduration" | "maxFeaturedListings" | "maxImagesPerListing" | "maxVideosPerListing" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
+export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "title_ar" | "title_fr" | "description" | "description_ar" | "description_fr" | "price" | "smmsarPrice" | "listings" | "smssarListings" | "featured" | "ads" | "adsduration" | "maxFeaturedListings" | "smssarMaxFeaturedListings" | "maxImagesPerListing" | "smssarMaxImagesPerListing" | "maxVideosPerListing" | "smssarMaxVideosPerListing" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
 export type PlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   adCampaigns?: boolean | Prisma.Plan$adCampaignsArgs<ExtArgs>
   subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
@@ -1217,13 +1437,18 @@ export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     description_ar: string | null
     description_fr: string | null
     price: number
+    smmsarPrice: number | null
     listings: number | null
+    smssarListings: number | null
     featured: boolean
     ads: number | null
     adsduration: number | null
     maxFeaturedListings: number | null
+    smssarMaxFeaturedListings: number | null
     maxImagesPerListing: number | null
+    smssarMaxImagesPerListing: number | null
     maxVideosPerListing: number | null
+    smssarMaxVideosPerListing: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["plan"]>
@@ -1660,13 +1885,18 @@ export interface PlanFieldRefs {
   readonly description_ar: Prisma.FieldRef<"Plan", 'String'>
   readonly description_fr: Prisma.FieldRef<"Plan", 'String'>
   readonly price: Prisma.FieldRef<"Plan", 'Int'>
+  readonly smmsarPrice: Prisma.FieldRef<"Plan", 'Int'>
   readonly listings: Prisma.FieldRef<"Plan", 'Int'>
+  readonly smssarListings: Prisma.FieldRef<"Plan", 'Int'>
   readonly featured: Prisma.FieldRef<"Plan", 'Boolean'>
   readonly ads: Prisma.FieldRef<"Plan", 'Int'>
   readonly adsduration: Prisma.FieldRef<"Plan", 'Int'>
   readonly maxFeaturedListings: Prisma.FieldRef<"Plan", 'Int'>
+  readonly smssarMaxFeaturedListings: Prisma.FieldRef<"Plan", 'Int'>
   readonly maxImagesPerListing: Prisma.FieldRef<"Plan", 'Int'>
+  readonly smssarMaxImagesPerListing: Prisma.FieldRef<"Plan", 'Int'>
   readonly maxVideosPerListing: Prisma.FieldRef<"Plan", 'Int'>
+  readonly smssarMaxVideosPerListing: Prisma.FieldRef<"Plan", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Plan", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Plan", 'DateTime'>
 }

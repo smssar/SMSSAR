@@ -43,18 +43,24 @@ export function SiteNavbar({
   const showAuthActions = !session?.user?.id;
 
   const manageHref =
-    role === "SELLER" || role === "SMSSAR"
+    role === "SELLER"
       ? `/${locale}/dashboard/seller/profile`
-      : role === "ADMIN"
-        ? `/${locale}/dashboard/admin`
-        : `/${locale}/dashboard/profile`;
+      : role === "SMSSAR"
+        ? `/${locale}/dashboard/smssar/profile`
+        : role === "ADMIN"
+          ? `/${locale}/dashboard/admin`
+          : `/${locale}/dashboard/profile`;
 
   const manageLabel =
-    role === "SELLER" || role === "SMSSAR"
+    role === "SELLER"
       ? messages.nav.seller
-      : role === "ADMIN"
-        ? messages.nav.admin
-        : messages.nav.profile;
+      : role === "SMSSAR"
+        ? locale === "ar"
+          ? "Smssar"
+          : "Smssar"
+        : role === "ADMIN"
+          ? messages.nav.admin
+          : messages.nav.profile;
 
   const userName =
     session?.user?.name?.trim() || session?.user?.email || "User";
@@ -68,8 +74,10 @@ export function SiteNavbar({
     { key: "contact", href: `/${locale}/contact` },
   ];
 
-  if (showSellerLink) {
+  if (role === "SELLER") {
     links.push({ key: "seller", href: `/${locale}/dashboard/seller` });
+  } else if (role === "SMSSAR") {
+    links.push({ key: "smssar", href: `/${locale}/dashboard/smssar` });
   }
   if (showAdminLink) {
     links.push({ key: "admin", href: `/${locale}/dashboard/admin` });

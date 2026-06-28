@@ -392,7 +392,7 @@ export const testimonials: Testimonial[] = [
       ar: "التجربة بالعربية أنيقة وسريعة وتبدو فاخرة بشكل ملحوظ.",
       fr: "L'expérience arabe semble soignée, rapide et surprenamment premium.",
     },
-    location: { en: "Dubai", ar: "rabat", fr: "Rabat" },
+    location: { en: "Rabat", ar: "الرباط", fr: "Rabat" },
   },
   {
     name: "Omar Al Farsi",
@@ -402,7 +402,7 @@ export const testimonials: Testimonial[] = [
       ar: "أستطيع إدارة العقارات والرد على الاستفسارات وترقية الباقة من مكان واحد.",
       fr: "Je peux gérer les annonces, répondre aux prospects et améliorer mes forfaits en un seul endroit.",
     },
-    location: { en: "Muscat", ar: "مسقط", fr: "Masqat" },
+    location: { en: "Rabat", ar: "الرباط", fr: "Rabat" },
   },
   {
     name: "Leila Haddad",

@@ -261,7 +261,7 @@ export function ListingForm({
     mediaCounts.imageCount < imageLimit;
 
   const openCloudinaryWidget = async () => {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
@@ -521,9 +521,17 @@ export function ListingForm({
         const res = await fetch("/api/plans/user", { cache: "no-store" });
         const payload = await res.json().catch(() => null);
         if (!res.ok || !payload?.data) return;
+        // Prefer SMSSAR-specific fields when present (for SMSSAR users)
+        const maxImages =
+          payload.data.smssarMaxImagesPerListing ??
+          payload.data.maxImagesPerListing;
+        const maxVideos =
+          payload.data.smssarMaxVideosPerListing ??
+          payload.data.maxVideosPerListing;
+
         setPlanMediaLimits({
-          maxImagesPerListing: payload.data.maxImagesPerListing,
-          maxVideosPerListing: payload.data.maxVideosPerListing,
+          maxImagesPerListing: maxImages,
+          maxVideosPerListing: maxVideos,
         });
       } catch {
         // Keep form usable even if plan lookup fails

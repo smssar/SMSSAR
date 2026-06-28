@@ -43,6 +43,14 @@ export async function PATCH(request: Request) {
     updateData.phone = phoneResult.e164;
   }
 
+  if (typeof body.bio === "string") {
+    updateData.bio = body.bio.trim();
+  }
+  if (typeof body.city === "string") {
+    updateData.city = body.city.trim();
+  }
+
+  console.log(updateData);
   try {
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -54,6 +62,8 @@ export async function PATCH(request: Request) {
         role: true,
         phone: true,
         avatar: true,
+        bio: true,
+        city: true,
       },
     });
 

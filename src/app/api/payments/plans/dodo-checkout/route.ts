@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { cancelSubscriptionInDodo } from "@/app/api/subscriptions/cancel/route";
 import { NextRequest, NextResponse } from "next/server";
 import type { Locale } from "@/lib/locales";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 
 type DodoCheckoutRequest = {
   planId: string;
@@ -58,9 +59,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Plan not found" }, { status: 404 });
     }
 
+    const effectivePlan = resolvePlanForRole(plan, session.user.role);
+    const effectivePrice = effectivePlan?.price ?? plan.price;
+
     const BASE_URL = getRequestBaseUrl(req.headers) ?? "http://localhost:3000";
 
-    if (planId === "plan_free" || plan.price === 0) {
+    if (planId === "plan_free" || effectivePrice === 0) {
       if (activationMode === "scheduled") {
         // Schedule free plan for when current active subscription ends
         const existingActive = await prisma.subscription.findFirst({
@@ -213,12 +217,19 @@ export async function POST(req: NextRequest) {
 
     const checkoutPayload = {
       price: { tax_inclusive: true },
-      product_cart: [{ product_id: DODO_PRODUCT_ID, quantity: 1 }],
+      product_cart: [
+        {
+          product_id: DODO_PRODUCT_ID,
+          quantity: 1,
+          amount: effectivePrice,
+        },
+      ],
       customer: { email: customerEmail, name: customerName },
       billing_currency: "MAD",
       metadata: {
         userId: session.user.id,
         planId,
+        userRole: session.user.role,
         productId: DODO_PRODUCT_ID,
         userEmail: customerEmail,
         paymentMethod,

@@ -10,9 +10,11 @@ import { formatCompactNumber } from "@/lib/format";
 import { getMessages } from "@/lib/messages";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
+import { resolvePlanForRole } from "@/lib/role-pricing";
 import {
   getActivePurchasesWithProduct,
   sumPurchaseQuantityByCode,
+  buildPlanAllowance,
 } from "@/lib/purchase-allowances";
 
 const getLocalizedPlanText = (
@@ -54,7 +56,7 @@ export default async function SmssarOverviewPage({
 
   const freePlan = currentPlan
     ? null
-    : await prisma.plan.findUnique({ where: { id: "free" } });
+    : await prisma.plan.findUnique({ where: { id: "plan_free" } });
 
   const plan = currentPlan ?? freePlan;
 
@@ -62,16 +64,22 @@ export default async function SmssarOverviewPage({
     redirect(`/${locale}/dashboard/smssar/plan`);
   }
 
+  // Resolve plan for SMSSAR user role
+  const effectivePlan = resolvePlanForRole(plan, session.user.role);
+
   const activePurchases = await getActivePurchasesWithProduct(session.user.id);
 
   const extraListings = sumPurchaseQuantityByCode(
     activePurchases,
     "EXTRA_LISTINGS",
   );
-  const baseLimitReached =
-    typeof plan.listings === "number"
-      ? listingCount >= plan.listings + extraListings
-      : false;
+
+  // Calculate effective limit using resolved plan
+  const planLimit = buildPlanAllowance(
+    effectivePlan.smssarListings,
+    extraListings,
+  );
+  const baseLimitReached = planLimit !== Infinity && listingCount >= planLimit;
 
   const sellerProperties = await prisma.property.findMany({
     where: { sellerId: session.user.id },
@@ -91,11 +99,6 @@ export default async function SmssarOverviewPage({
   const uniqueCities = new Set(
     sellerProperties.map((property) => property.city),
   ).size;
-  const planLimit = plan.listings
-    ? plan.listings + extraListings
-    : plan.listings == null
-      ? null
-      : extraListings;
 
   const extraPurchases = await prisma.purchase.findMany({
     where: {
@@ -113,8 +116,8 @@ export default async function SmssarOverviewPage({
   );
 
   const extraSlotsUsed =
-    typeof plan.listings === "number"
-      ? Math.max(0, listingCount - plan.listings)
+    typeof plan.smssarListings === "number"
+      ? Math.max(0, listingCount - plan.smssarListings)
       : 0;
   const remainingExtraListings = Math.max(
     0,
@@ -293,16 +296,16 @@ export default async function SmssarOverviewPage({
           <CardContent className="space-y-4">
             <div className="text-3xl font-semibold">
               {getLocalizedPlanText(locale, {
-                en: plan.title,
-                ar: plan.title_ar,
-                fr: plan.title_fr,
+                en: effectivePlan.title,
+                ar: effectivePlan.title_ar,
+                fr: effectivePlan.title_fr,
               })}
             </div>
             <p className="text-sm text-muted-foreground">
               {getLocalizedPlanText(locale, {
-                en: plan.description,
-                ar: plan.description_ar,
-                fr: plan.description_fr,
+                en: effectivePlan.description,
+                ar: effectivePlan.description_ar,
+                fr: effectivePlan.description_fr,
               })}
             </p>
           </CardContent>
@@ -332,7 +335,7 @@ export default async function SmssarOverviewPage({
               </div>
             </div>
             <div className="text-sm text-muted-foreground">
-              {listingCount}/{planLimit === null ? "∞" : planLimit}{" "}
+              {listingCount}/{planLimit === Infinity ? "∞" : planLimit}{" "}
               {messages.common.listingCount}
             </div>
             <div className="h-2 rounded-full bg-muted">
@@ -340,7 +343,7 @@ export default async function SmssarOverviewPage({
                 <div
                   className="h-full rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 transition-all"
                   style={{
-                    width: `${planLimit === null ? 100 : Math.min(100, (listingCount / planLimit) * 100)}%`,
+                    width: `${planLimit === Infinity ? 100 : Math.min(100, (listingCount / planLimit) * 100)}%`,
                   }}
                 />
               </div>

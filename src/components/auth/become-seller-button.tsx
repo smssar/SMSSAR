@@ -191,7 +191,7 @@ export function BecomeSellerButton({ locale }: { locale: Locale }) {
               </div>
               <p className="text-xs text-muted-foreground">
                 {selectedCountry.flag} {selectedCountry.dialCode}{" "}
-                {phone.trim() ? "•" : ""} format checked automatically.
+                {phone.trim() ? "•" : ""} .
               </p>
             </div>
 

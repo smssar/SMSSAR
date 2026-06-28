@@ -5,6 +5,7 @@ import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { redirect } from "next/navigation";
 import { PurchaseCheckoutClient } from "@/components/payment/purchase-checkout-client";
+import { resolvePurchaseProductPrice } from "@/lib/role-pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,11 @@ export default async function SellerPurchasesPage({
     orderBy: { createdAt: "asc" },
   });
 
+  const effectiveProducts = products.map((product) => ({
+    ...product,
+    price: resolvePurchaseProductPrice(product, session.user.role),
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -86,7 +92,7 @@ export default async function SellerPurchasesPage({
         </div>
       ) : null}
 
-      <PurchaseCheckoutClient locale={locale} products={products} />
+      <PurchaseCheckoutClient locale={locale} products={effectiveProducts} />
     </div>
   );
 }

@@ -57,6 +57,7 @@ export type PropertyMinAggregateOutputType = {
   imageUrl: string | null
   videoUrl: string | null
   sellerId: string | null
+  isVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +79,7 @@ export type PropertyMaxAggregateOutputType = {
   imageUrl: string | null
   videoUrl: string | null
   sellerId: string | null
+  isVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -99,6 +101,7 @@ export type PropertyCountAggregateOutputType = {
   imageUrl: number
   videoUrl: number
   sellerId: number
+  isVerified: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -136,6 +139,7 @@ export type PropertyMinAggregateInputType = {
   imageUrl?: true
   videoUrl?: true
   sellerId?: true
+  isVerified?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -157,6 +161,7 @@ export type PropertyMaxAggregateInputType = {
   imageUrl?: true
   videoUrl?: true
   sellerId?: true
+  isVerified?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -178,6 +183,7 @@ export type PropertyCountAggregateInputType = {
   imageUrl?: true
   videoUrl?: true
   sellerId?: true
+  isVerified?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -286,6 +292,7 @@ export type PropertyGroupByOutputType = {
   imageUrl: string | null
   videoUrl: string | null
   sellerId: string
+  isVerified: boolean
   createdAt: Date
   updatedAt: Date
   _count: PropertyCountAggregateOutputType | null
@@ -330,6 +337,7 @@ export type PropertyWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   videoUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   sellerId?: Prisma.StringFilter<"Property"> | string
+  isVerified?: Prisma.BoolFilter<"Property"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   ads?: Prisma.AdListRelationFilter
@@ -356,6 +364,7 @@ export type PropertyOrderByWithRelationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   ads?: Prisma.AdOrderByRelationAggregateInput
@@ -385,6 +394,7 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   imageUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   videoUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   sellerId?: Prisma.StringFilter<"Property"> | string
+  isVerified?: Prisma.BoolFilter<"Property"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   ads?: Prisma.AdListRelationFilter
@@ -411,6 +421,7 @@ export type PropertyOrderByWithAggregationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PropertyCountOrderByAggregateInput
@@ -440,6 +451,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   videoUrl?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   sellerId?: Prisma.StringWithAggregatesFilter<"Property"> | string
+  isVerified?: Prisma.BoolWithAggregatesFilter<"Property"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Property"> | Date | string
 }
@@ -459,6 +471,7 @@ export type PropertyCreateInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
@@ -485,6 +498,7 @@ export type PropertyUncheckedCreateInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
@@ -507,6 +521,7 @@ export type PropertyUpdateInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
@@ -533,6 +548,7 @@ export type PropertyUncheckedUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
@@ -557,6 +573,7 @@ export type PropertyCreateManyInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -576,6 +593,7 @@ export type PropertyUpdateManyMutationInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -597,6 +615,7 @@ export type PropertyUncheckedUpdateManyInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -628,6 +647,7 @@ export type PropertyCountOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -656,6 +676,7 @@ export type PropertyMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -677,6 +698,7 @@ export type PropertyMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -841,6 +863,7 @@ export type PropertyCreateWithoutPropertyTypeInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
@@ -865,6 +888,7 @@ export type PropertyUncheckedCreateWithoutPropertyTypeInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
@@ -918,6 +942,7 @@ export type PropertyScalarWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   videoUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   sellerId?: Prisma.StringFilter<"Property"> | string
+  isVerified?: Prisma.BoolFilter<"Property"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
 }
@@ -937,6 +962,7 @@ export type PropertyCreateWithoutSellerInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
@@ -961,6 +987,7 @@ export type PropertyUncheckedCreateWithoutSellerInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
@@ -1009,6 +1036,7 @@ export type PropertyCreateWithoutAdsInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   favorites?: Prisma.FavoriteCreateNestedManyWithoutPropertyInput
@@ -1034,6 +1062,7 @@ export type PropertyUncheckedCreateWithoutAdsInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutPropertyInput
@@ -1071,6 +1100,7 @@ export type PropertyUpdateWithoutAdsInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   favorites?: Prisma.FavoriteUpdateManyWithoutPropertyNestedInput
@@ -1096,6 +1126,7 @@ export type PropertyUncheckedUpdateWithoutAdsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutPropertyNestedInput
@@ -1117,6 +1148,7 @@ export type PropertyCreateWithoutFavoritesInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
@@ -1142,6 +1174,7 @@ export type PropertyUncheckedCreateWithoutFavoritesInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
@@ -1179,6 +1212,7 @@ export type PropertyUpdateWithoutFavoritesInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
@@ -1204,6 +1238,7 @@ export type PropertyUncheckedUpdateWithoutFavoritesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
@@ -1225,6 +1260,7 @@ export type PropertyCreateWithoutMediaInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdCreateNestedManyWithoutPropertyInput
@@ -1250,6 +1286,7 @@ export type PropertyUncheckedCreateWithoutMediaInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ads?: Prisma.AdUncheckedCreateNestedManyWithoutPropertyInput
@@ -1287,6 +1324,7 @@ export type PropertyUpdateWithoutMediaInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
@@ -1312,6 +1350,7 @@ export type PropertyUncheckedUpdateWithoutMediaInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
@@ -1334,6 +1373,7 @@ export type PropertyCreateManyPropertyTypeInput = {
   imageUrl?: string | null
   videoUrl?: string | null
   sellerId: string
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1353,6 +1393,7 @@ export type PropertyUpdateWithoutPropertyTypeInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
@@ -1377,6 +1418,7 @@ export type PropertyUncheckedUpdateWithoutPropertyTypeInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
@@ -1400,6 +1442,7 @@ export type PropertyUncheckedUpdateManyWithoutPropertyTypeInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1420,6 +1463,7 @@ export type PropertyCreateManySellerInput = {
   priceType?: string
   imageUrl?: string | null
   videoUrl?: string | null
+  isVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1439,6 +1483,7 @@ export type PropertyUpdateWithoutSellerInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUpdateManyWithoutPropertyNestedInput
@@ -1463,6 +1508,7 @@ export type PropertyUncheckedUpdateWithoutSellerInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ads?: Prisma.AdUncheckedUpdateManyWithoutPropertyNestedInput
@@ -1486,6 +1532,7 @@ export type PropertyUncheckedUpdateManyWithoutSellerInput = {
   priceType?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1556,6 +1603,7 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   imageUrl?: boolean
   videoUrl?: boolean
   sellerId?: boolean
+  isVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   ads?: boolean | Prisma.Property$adsArgs<ExtArgs>
@@ -1583,6 +1631,7 @@ export type PropertySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   videoUrl?: boolean
   sellerId?: boolean
+  isVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   propertyType?: boolean | Prisma.Property$propertyTypeArgs<ExtArgs>
@@ -1606,6 +1655,7 @@ export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   videoUrl?: boolean
   sellerId?: boolean
+  isVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   propertyType?: boolean | Prisma.Property$propertyTypeArgs<ExtArgs>
@@ -1629,11 +1679,12 @@ export type PropertySelectScalar = {
   imageUrl?: boolean
   videoUrl?: boolean
   sellerId?: boolean
+  isVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "city" | "neighborhood" | "area" | "rooms" | "bathrooms" | "price" | "propertyTypeId" | "forSale" | "featured" | "priceType" | "imageUrl" | "videoUrl" | "sellerId" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
+export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "city" | "neighborhood" | "area" | "rooms" | "bathrooms" | "price" | "propertyTypeId" | "forSale" | "featured" | "priceType" | "imageUrl" | "videoUrl" | "sellerId" | "isVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
 export type PropertyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ads?: boolean | Prisma.Property$adsArgs<ExtArgs>
   favorites?: boolean | Prisma.Property$favoritesArgs<ExtArgs>
@@ -1677,6 +1728,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     imageUrl: string | null
     videoUrl: string | null
     sellerId: string
+    isVerified: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["property"]>
@@ -2123,6 +2175,7 @@ export interface PropertyFieldRefs {
   readonly imageUrl: Prisma.FieldRef<"Property", 'String'>
   readonly videoUrl: Prisma.FieldRef<"Property", 'String'>
   readonly sellerId: Prisma.FieldRef<"Property", 'String'>
+  readonly isVerified: Prisma.FieldRef<"Property", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Property", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Property", 'DateTime'>
 }

@@ -123,6 +123,7 @@ type UserProfile = {
   role: "USER" | "SELLER" | "SMSSAR" | "ADMIN";
   status: "ACTIVE" | "PENDING" | "SUSPENDED" | "BANNED";
   createdAt: Date | string;
+  bio: string;
   hasPassword: boolean;
 };
 

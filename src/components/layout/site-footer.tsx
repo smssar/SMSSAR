@@ -2,14 +2,16 @@ import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Locale } from "@/lib/locales";
 import type { Messages } from "@/lib/messages";
+import { auth } from "@/auth";
 
-export function SiteFooter({
+export async function SiteFooter({
   locale,
   messages,
 }: {
   locale: Locale;
   messages: Messages;
 }) {
+  const session = await auth();
   return (
     <footer className="border-t border-border/60 bg-card/40">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 text-center sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr] lg:px-8 lg:text-left">
@@ -85,12 +87,14 @@ export function SiteFooter({
           <p className="mt-4 text-sm leading-7 text-muted-foreground lg:text-left">
             {messages.home.contactNote}
           </p>
-          <Link
-            href={`/${locale}/login`}
-            className="mt-6 inline-flex text-sm font-medium text-violet-600 hover:underline dark:text-violet-300"
-          >
-            {messages.nav.login}
-          </Link>
+          {!session?.user ? (
+            <Link
+              href={`/${locale}/login`}
+              className="mt-6 inline-flex text-sm font-medium text-violet-600 hover:underline dark:text-violet-300"
+            >
+              {messages.nav.login}
+            </Link>
+          ) : null}
         </div>
       </div>
       <div className="border-t border-border/60 px-4 py-6 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">

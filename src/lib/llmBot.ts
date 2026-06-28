@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { WhatsappUserWithTokenLock } from "./types";
 
 type Category = { name: string; slug: string };
 type City = { name: string; slug: string };
@@ -262,7 +263,10 @@ export async function searchProperties(
   return scored.slice(0, 10).map((s) => ({ ...s.property, _score: s.score }));
 }
 
-export async function llmAnalyze(text: string, whatsappUserId?: string) {
+export async function llmAnalyze(
+  text: string,
+  whatsappUser?: WhatsappUserWithTokenLock,
+) {
   if (!text || typeof text !== "string") {
     throw new Error("Invalid text");
   }
@@ -274,6 +278,7 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
 
   // Build system prompt; include raw last-5-message history when whatsappUserId provided.
   let recentHistory: string | null = null;
+  const whatsappUserId = whatsappUser?.id ?? null;
   if (whatsappUserId) {
     try {
       const recent = await prisma.whatsappMessage.findMany({
@@ -389,7 +394,13 @@ export async function llmAnalyze(text: string, whatsappUserId?: string) {
       {
         role: "user",
         content: JSON.stringify(
-          properties.length > 0 ? properties : "No properties found.",
+          properties.length > 0
+            ? properties
+            : whatsappUser?.language === "ar"
+              ? "لا توجد عقارات متوفرة."
+              : whatsappUser?.language === "fr"
+                ? "Aucune propriété disponible."
+                : "No properties found.",
         ),
       },
       {
