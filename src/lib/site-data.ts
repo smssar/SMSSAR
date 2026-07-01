@@ -20,6 +20,7 @@ export interface Property {
   propertyType: string;
   forSale?: boolean;
   featured: boolean;
+  isAvailable?: boolean;
   seller: string;
   palette: [string, string];
   amenities: LocalizedText[];

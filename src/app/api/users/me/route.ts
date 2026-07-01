@@ -30,7 +30,6 @@ export async function PATCH(request: Request) {
       return jsonError({ key: "errors.invalidPhone", locale }, 400);
     }
 
-    // Ensure phone is unique across users (exclude current user)
     const existing = await prisma.user.findFirst({
       where: { phone: phoneResult.e164, NOT: { id: userId } },
       select: { id: true },
@@ -50,7 +49,6 @@ export async function PATCH(request: Request) {
     updateData.city = body.city.trim();
   }
 
-  console.log(updateData);
   try {
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -68,7 +66,7 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json({ ok: true, data: updated });
-  } catch (err) {
+  } catch {
     // Fallback error
     return jsonError({ key: "errors.invalidJson", locale }, 500);
   }

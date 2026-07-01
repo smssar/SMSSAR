@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Get WhatsApp user and token package info
-    console.log("Fetching WhatsApp user for phone:", phone);
     const whatsappUser = await prisma.whatsappUser.findUnique({
       where: { phoneNumber: normalizedPhone },
       select: {
@@ -96,7 +95,6 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
-    console.log("Creating Dodo checkout session for WhatsApp tokens:");
 
     // Call Dodo API to create checkout session
     const dodoResponse = await fetch(

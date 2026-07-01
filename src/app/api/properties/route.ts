@@ -32,10 +32,12 @@ type CreatePropertyBody = {
   images?: Array<{ url: string; publicId: string; type: string }>;
   priceType?: string;
   forSale?: boolean;
+  isAvailable?: boolean;
 };
 
 export async function GET() {
   const properties = await prisma.property.findMany({
+    where: { isAvailable: true },
     orderBy: { createdAt: "desc" },
     include: {
       propertyType: {
@@ -431,6 +433,7 @@ const createPropertyHandler = async (
           videoUrl: null,
           priceType: body.priceType ?? "MONTHLY",
           forSale: typeof body.forSale === "boolean" ? body.forSale : false,
+          isAvailable: true,
         },
         include: {
           propertyType: {

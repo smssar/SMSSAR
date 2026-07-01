@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bath,
   BedDouble,
@@ -7,18 +9,24 @@ import {
   Ruler,
   Pencil,
   Trash2,
-  Star,
   Sparkles,
+  Check,
+  X,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
 import type { Locale } from "@/lib/locales";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { getMessages } from "@/lib/messages";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
   locale: Locale,
@@ -36,6 +44,7 @@ type Property = {
   price: number;
   priceType?: string;
   featured: boolean;
+  isAvailable?: boolean;
   adCount?: number;
   hasRunningAd?: boolean;
   imageUrl?: string | null;
@@ -49,13 +58,17 @@ export function SellerPropertyCard({
   locale,
   property,
   onDelete,
+  onAvailabilityChange,
   className,
 }: {
   locale: Locale;
   property: Property;
   onDelete: (id: string, title: string) => void;
+  onAvailabilityChange?: (id: string, isAvailable: boolean) => Promise<void>;
   className?: string;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const messages = getMessages(locale);
   const adLabel = messages.common.ad;
   const titleText =
@@ -80,6 +93,63 @@ export function SellerPropertyCard({
           ar: "الإيجار الشهري",
           fr: "Loyer mensuel",
         });
+
+  const handleToggleAvailability = async () => {
+    setShowConfirmModal(true);
+  };
+
+  const confirmToggleAvailability = async (confirmed: boolean) => {
+    setShowConfirmModal(false);
+    if (!confirmed) return;
+
+    const newStatus = !property.isAvailable;
+    setIsLoading(true);
+    try {
+      if (onAvailabilityChange) {
+        await onAvailabilityChange(property.id, newStatus);
+        toast.success(
+          newStatus
+            ? t(locale, {
+                en: "✓ Property marked as available!",
+                ar: "✓ تم تحديد العقار كمتاح!",
+                fr: "✓ Propriété marquée comme disponible!",
+              })
+            : t(locale, {
+                en: "✓ Property hidden from public view",
+                ar: "✓ تم إخفاء العقار من العرض العام",
+                fr: "✓ Propriété masquée de la vue publique",
+              }),
+          {
+            duration: 3000,
+            position: "top-center",
+          },
+        );
+      }
+    } catch (error) {
+      toast.error(
+        t(locale, {
+          en: "Failed to update property status",
+          ar: "فشل تحديث حالة العقار",
+          fr: "Impossible de mettre à jour le statut",
+        }),
+        {
+          description:
+            error instanceof Error
+              ? error.message
+              : t(locale, {
+                  en: "Please try again.",
+                  ar: "يرجى المحاولة مرة أخرى.",
+                  fr: "Veuillez réessayer.",
+                }),
+          duration: 4000,
+          position: "top-center",
+        },
+      );
+      console.error("Failed to toggle availability:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card
@@ -123,6 +193,18 @@ export function SellerPropertyCard({
               className="border-white/15 bg-linear-to-r from-violet-600 via-fuchsia-600 to-indigo-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-violet-500/25 backdrop-blur-xl"
             >
               {t(locale, { en: "Featured", ar: "مميز", fr: "En vedette" })}
+            </Badge>
+          ) : null}
+          {property.isAvailable === false ? (
+            <Badge
+              variant="secondary"
+              className="border-white/15 bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-xl"
+            >
+              {t(locale, {
+                en: "Not available",
+                ar: "غير متاح",
+                fr: "Indisponible",
+              })}
             </Badge>
           ) : null}
         </div>
@@ -217,7 +299,44 @@ export function SellerPropertyCard({
           {t(locale, { en: "Edit", ar: "تعديل", fr: "Modifier" })}
         </Link>
 
-        {!property.hasRunningAd ? (
+        <button
+          type="button"
+          onClick={handleToggleAvailability}
+          disabled={isLoading}
+          className={cn(
+            "cursor-pointer inline-flex w-full items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition sm:w-auto",
+            property.isAvailable === false
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 hover:text-emerald-700 disabled:opacity-50 dark:text-emerald-400 dark:hover:text-emerald-300"
+              : "border-amber-500/20 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 hover:text-amber-700 disabled:opacity-50 dark:text-amber-400 dark:hover:text-amber-300",
+          )}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : property.isAvailable === false ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <X className="h-4 w-4" />
+          )}
+          {isLoading
+            ? t(locale, {
+                en: "Updating...",
+                ar: "جاري التحديث...",
+                fr: "Mise à jour...",
+              })
+            : property.isAvailable === false
+              ? t(locale, {
+                  en: "Mark Available",
+                  ar: "جعله متاحًا",
+                  fr: "Marquer disponible",
+                })
+              : t(locale, {
+                  en: "Hide Listing",
+                  ar: "إخفاء العقار",
+                  fr: "Masquer l'annonce",
+                })}
+        </button>
+
+        {/* {!property.hasRunningAd ? (
           <Link
             href={`/${locale}/dashboard/seller/listings/${property.id}/ads/add`}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:w-auto"
@@ -229,7 +348,7 @@ export function SellerPropertyCard({
               fr: "Créer une annonce",
             })}
           </Link>
-        ) : null}
+        ) : null} */}
 
         <button
           type="button"
@@ -247,6 +366,94 @@ export function SellerPropertyCard({
           {t(locale, { en: "Delete", ar: "حذف", fr: "Supprimer" })}
         </button>
       </CardFooter>
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-border/50 bg-card p-6 shadow-2xl">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <AlertCircle className="h-7 w-7" />
+            </div>
+
+            <h2 className="text-2xl font-semibold tracking-tight">
+              {!property.isAvailable
+                ? t(locale, {
+                    en: "Make Available?",
+                    ar: "هل تريد جعل العقار متاحًا؟",
+                    fr: "Rendre disponible?",
+                  })
+                : t(locale, {
+                    en: "Hide Listing?",
+                    ar: "هل تريد إخفاء العقار؟",
+                    fr: "Masquer l'annonce?",
+                  })}
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {!property.isAvailable
+                ? t(locale, {
+                    en: "This property will be visible to public search and listings again.",
+                    ar: "سيصبح هذا العقار مرئيًا للبحث العام والقوائم.",
+                    fr: "Cette propriété sera à nouveau visible dans la recherche et les listes publiques.",
+                  })
+                : t(locale, {
+                    en: "This property will be hidden from public view but remain in your dashboard.",
+                    ar: "سيتم إخفاء هذا العقار عن العرض العام لكنه سيبقى في لوحة التحكم الخاصة بك.",
+                    fr: "Cette propriété sera masquée du public mais restera dans votre tableau de bord.",
+                  })}
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => confirmToggleAvailability(false)}
+                disabled={isLoading}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                {t(locale, { en: "Cancel", ar: "إلغاء", fr: "Annuler" })}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => confirmToggleAvailability(true)}
+                disabled={isLoading}
+                className={cn(
+                  "gap-2",
+                  !property.isAvailable
+                    ? "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                    : "bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-800",
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t(locale, {
+                      en: "Updating...",
+                      ar: "جاري التحديث...",
+                      fr: "Mise à jour...",
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    {!property.isAvailable
+                      ? t(locale, {
+                          en: "Make Available",
+                          ar: "جعله متاحًا",
+                          fr: "Rendre disponible",
+                        })
+                      : t(locale, {
+                          en: "Hide Listing",
+                          ar: "إخفاء العقار",
+                          fr: "Masquer",
+                        })}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

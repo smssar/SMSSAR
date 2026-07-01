@@ -159,6 +159,7 @@ export async function searchProperties(
 
   const properties = await prisma.property.findMany({
     where: {
+      isAvailable: true,
       ...(filters.neighborhood && {
         neighborhood: { equals: filters.neighborhood, mode: "insensitive" },
       }),

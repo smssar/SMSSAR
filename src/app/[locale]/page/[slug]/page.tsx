@@ -171,7 +171,7 @@ export default async function CmsPage({
     const where = await buildWhere(pageAny);
     console.log(where);
     properties = await prisma.property.findMany({
-      where,
+      where: { ...where, isAvailable: true },
       include: { propertyType: true, seller: true, media: true },
       orderBy: [{ featured: "desc" }, { price: "asc" }],
       take: 200,

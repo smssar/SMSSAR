@@ -150,6 +150,9 @@ export function ListingForm({
   const [featured, setFeatured] = useState<boolean>(
     Boolean(defaultListing?.featured),
   );
+  const [isAvailable, setIsAvailable] = useState<boolean>(
+    defaultListing?.isAvailable ?? true,
+  );
   const [propertyType, setPropertyType] = useState<string>(
     (defaultListing?.propertyType as string) ?? propertyTypes[0]?.id ?? "",
   );
@@ -717,6 +720,7 @@ export function ListingForm({
               featured,
               priceType,
               forSale: listingType === "BUY",
+              isAvailable,
               imageUrl: coverUrl ?? null,
               videoUrl: null,
               images: imagesForBody,
@@ -750,7 +754,6 @@ export function ListingForm({
                   payload?.code === "FEATURED_NOT_ALLOWED" ||
                   payload?.code === "FEATURED_LIMIT_REACHED"
                 ) {
-                  console.log("Plan limit error:", payload);
                   setUpgradeDialogMessage(
                     payload?.error ||
                       (locale === "ar"
@@ -1034,6 +1037,33 @@ export function ListingForm({
               </div>
             </label>
           </Field>
+
+          {propertyId ? (
+            <Field
+              label={locale === "ar" ? "حالة العقار" : "Availability status"}
+            >
+              <label className="flex cursor-pointer items-start gap-3 rounded-3xl border border-border/70 bg-card/50 p-4 transition hover:border-violet-500/60 hover:bg-muted/40">
+                <input
+                  type="checkbox"
+                  checked={isAvailable}
+                  onChange={(e) => setIsAvailable(e.target.checked)}
+                  className="mt-1 h-4 w-4 accent-violet-600"
+                />
+                <div className="space-y-1">
+                  <div className="text-sm font-semibold text-foreground">
+                    {locale === "ar" ? "العقار متاح" : "Property is available"}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {locale === "ar"
+                      ? "عند إلغاء التفعيل سيصبح العقار غير متاح ولن يظهر في القوائم العامة، مع بقائه في لوحة التحكم."
+                      : locale === "fr"
+                        ? "Désactivez cette option pour masquer l’annonce des listes publiques tout en la gardant dans le tableau de bord."
+                        : "Turn this off to hide the property from public listings while keeping it in the dashboard."}
+                  </p>
+                </div>
+              </label>
+            </Field>
+          ) : null}
 
           {/* Price — RENT */}
           {listingType === "RENT" && (

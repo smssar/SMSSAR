@@ -38,6 +38,8 @@ type UpdatePropertyBody = {
   deleteMediaIds?: string[];
   priceType?: string;
   forSale?: boolean;
+  isAvailable?: boolean;
+  updateSomeFields?: boolean;
 };
 
 function getCloudinaryPublicIdFromUrl(url: string): string | null {
@@ -215,6 +217,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     imageUrl?: string | null;
     videoUrl?: string | null;
     forSale?: boolean;
+    isAvailable?: boolean;
   } = {};
 
   if (typeof body.title === "string") data.title = body.title.trim();
@@ -239,27 +242,42 @@ export async function PATCH(request: Request, context: RouteContext) {
     data.videoUrl = body.vedioUrl;
   }
   if (typeof body.forSale === "boolean") data.forSale = body.forSale;
+  if (typeof body.isAvailable === "boolean")
+    data.isAvailable = body.isAvailable;
   if (typeof body.priceType === "string")
     data.priceType = body.priceType.trim();
 
   // -------------------------------------------------------------------------
   // Field validation
   // -------------------------------------------------------------------------
-  if (data.title !== undefined && data.title.length === 0)
+  if (
+    data.title !== undefined &&
+    data.title.length === 0 &&
+    body.updateSomeFields !== true
+  )
     return jsonFieldErrors(
       { title: messages.dashboard.seller.validation.title.required },
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
 
-  if (data.city !== undefined && data.city.length === 0)
+  if (
+    data.city !== undefined &&
+    data.city.length === 0 &&
+    body.updateSomeFields !== true
+  )
     return jsonFieldErrors(
       { city: messages.dashboard.seller.validation.city.required },
       messages.dashboard.seller.validation.fixErrors,
       400,
     );
 
-  if (!data.neighborhood || data.neighborhood.length === 0)
+  if (
+    data.neighborhood !== undefined &&
+    data.neighborhood !== null &&
+    data.neighborhood.length === 0 &&
+    body.updateSomeFields !== true
+  )
     return jsonFieldErrors(
       {
         neighborhood:
@@ -272,7 +290,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (
     data.propertyTypeId !== undefined &&
     data.propertyTypeId !== null &&
-    data.propertyTypeId.length === 0
+    data.propertyTypeId.length === 0 &&
+    body.updateSomeFields !== true
   )
     return jsonFieldErrors(
       { propertyTypeId: "Property type is required." },

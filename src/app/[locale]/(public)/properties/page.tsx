@@ -183,6 +183,7 @@ export default async function PropertiesPage({
   }
 
   const where: Prisma.PropertyWhereInput = {
+    isAvailable: true,
     ...(city !== "all" ? { city } : {}),
     ...(neighborhood !== "all" ? { neighborhood } : {}),
     ...(numericRooms ? { rooms: numericRooms } : {}),

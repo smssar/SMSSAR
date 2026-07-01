@@ -188,6 +188,7 @@ model Property {
   videoUrl       String?
   sellerId       String
   isVerified     Boolean       @default(false)
+  isAvailable    Boolean       @default(true)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   ads            Ad[]

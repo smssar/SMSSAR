@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     properties = await prisma.property.findMany({
+      where: { isAvailable: true },
       select: {
         id: true,
         updatedAt: true,

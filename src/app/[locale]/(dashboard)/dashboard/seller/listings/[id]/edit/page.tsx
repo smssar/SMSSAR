@@ -101,6 +101,7 @@ export default async function EditListingPage({
     bathrooms: property.bathrooms || 1,
     area: property.area || 0,
     featured: property.featured,
+    isAvailable: property.isAvailable,
     propertyType: property.propertyType?.id || "",
   };
 

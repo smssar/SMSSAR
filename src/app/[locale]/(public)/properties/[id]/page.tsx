@@ -33,6 +33,7 @@ type PropertyDisplay = Property & {
   sellerBio?: string | null;
   sellerCity?: string | null;
   role?: string | null;
+  isAvailable?: boolean;
   media?: Array<{
     id: string;
     url: string;
@@ -85,6 +86,14 @@ export default async function PropertyDetailPage({
     });
 
     if (!dbProperty) {
+      notFound();
+    }
+
+    if (
+      dbProperty.isAvailable === false &&
+      session?.user?.id !== dbProperty.seller?.id &&
+      session?.user?.role !== "ADMIN"
+    ) {
       notFound();
     }
 

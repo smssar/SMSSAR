@@ -261,6 +261,7 @@ export const PropertyScalarFieldEnum = {
   videoUrl: 'videoUrl',
   sellerId: 'sellerId',
   isVerified: 'isVerified',
+  isAvailable: 'isAvailable',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

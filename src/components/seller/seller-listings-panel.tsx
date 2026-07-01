@@ -18,6 +18,7 @@ type Property = {
   price: number;
   priceType?: string;
   featured: boolean;
+  isAvailable: boolean;
   adCount?: number;
   hasRunningAd?: boolean;
   imageUrl?: string | null;
@@ -58,6 +59,28 @@ export function SellerListingsPanel({
       id,
       title,
     });
+  };
+
+  const handleAvailabilityChange = async (id: string, isAvailable: boolean) => {
+    try {
+      const response = await fetch(`/api/properties/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isAvailable, updateSomeFields: true }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || `Status ${response.status}`);
+      }
+
+      setItems((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isAvailable } : p)),
+      );
+    } catch (error) {
+      console.error("Failed to update property availability:", error);
+      throw error;
+    }
   };
 
   const performDelete = async () => {
@@ -107,6 +130,7 @@ export function SellerListingsPanel({
               price: property.price,
               priceType: property.priceType,
               featured: property.featured,
+              isAvailable: property.isAvailable,
               adCount: property.adCount,
               hasRunningAd: property.hasRunningAd,
               imageUrl: property.imageUrl ?? null,
@@ -116,6 +140,7 @@ export function SellerListingsPanel({
               palette: property.palette ?? [],
             }}
             onDelete={handleDeleteClick}
+            onAvailabilityChange={handleAvailabilityChange}
           />
         ))}
       </div>
