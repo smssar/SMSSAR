@@ -2218,6 +2218,9 @@ export const WhatsappUserScalarFieldEnum = {
   tokenPackagePrice: 'tokenPackagePrice',
   tokensLimit: 'tokensLimit',
   tokenLimitReached: 'tokenLimitReached',
+  audioUsage: 'audioUsage',
+  audioLimit: 'audioLimit',
+  audioLimitReached: 'audioLimitReached',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

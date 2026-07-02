@@ -8,6 +8,8 @@ type WhatsappTokenCheckoutRequest = {
   phone: string;
   email: string;
   locale?: Locale;
+  packageType?: "tokens" | "audio";
+  quantity?: number;
   tokens?: number;
   amount?: number;
 };
@@ -23,9 +25,18 @@ export async function POST(req: NextRequest) {
       phone,
       email,
       locale = "en",
+      packageType = "tokens",
+      quantity: customQuantity,
       tokens: customTokens,
       amount: customAmount,
     } = body;
+
+    if (packageType !== "tokens" && packageType !== "audio") {
+      return NextResponse.json(
+        { error: "Invalid package type" },
+        { status: 400 },
+      );
+    }
 
     if (!phone?.trim()) {
       return NextResponse.json(
@@ -64,9 +75,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const audioPackageSize = Number(
+      process.env.WHATSAPP_AUDIO_PACKAGE_SIZE || 1000,
+    );
+    const audioPackagePrice = Number(
+      process.env.WHATSAPP_AUDIO_PACKAGE_PRICE || 500,
+    );
+
     if (customAmount && customAmount < 1000) {
       return NextResponse.json(
         { error: "Amount must be at least 1000 cents" },
+        { status: 400 },
+      );
+    }
+
+    const defaultQuantity =
+      packageType === "audio"
+        ? audioPackageSize
+        : whatsappUser.tokenPackageSize;
+    const defaultAmount =
+      packageType === "audio"
+        ? audioPackagePrice
+        : whatsappUser.tokenPackagePrice;
+
+    const finalTokens = customQuantity ?? customTokens ?? defaultQuantity;
+    const finalAmount = customAmount || defaultAmount;
+
+    if (!Number.isInteger(finalTokens) || finalTokens <= 0) {
+      return NextResponse.json(
+        { error: "Quantity must be a positive integer" },
         { status: 400 },
       );
     }
@@ -75,21 +112,20 @@ export async function POST(req: NextRequest) {
     const safeLocale: Locale =
       locale === "ar" || locale === "fr" ? locale : "en";
 
-    // Use custom tokens/amount if provided, otherwise use package defaults
-    const finalTokens = customTokens || whatsappUser.tokenPackageSize;
-    const finalAmount = customAmount || whatsappUser.tokenPackagePrice;
+    const isAudioPackage = packageType === "audio";
 
     // Generate unique order ID
-    const orderId = `WHATSAPP_TOKEN_${whatsappUser.id}_${Date.now()}`;
+    const orderId = `WHATSAPP_${packageType.toUpperCase()}_${whatsappUser.id}_${Date.now()}`;
 
     // Get Dodo credentials and product ID
     const dodoApiKey = process.env.DODO_API_KEY;
-    const dodoProductId = process.env.DODO_PRODUCT_ID_WHATSAPPBOOT;
+    const dodoProductId = isAudioPackage
+      ? (process.env.DODO_PRODUCT_ID_WHATSAPP_AUDIO ??
+        process.env.DODO_PRODUCT_ID_WHATSAPPBOOT)
+      : process.env.DODO_PRODUCT_ID_WHATSAPPBOOT;
 
     if (!dodoApiKey || !dodoProductId) {
-      console.error(
-        "Missing Dodo API credentials or DODO_WHATSAPP_TOKEN_PRODUCT_ID",
-      );
+      console.error("Missing Dodo API credentials or WhatsApp product IDs");
       return NextResponse.json(
         { error: "Payment service not configured" },
         { status: 500 },
@@ -118,12 +154,13 @@ export async function POST(req: NextRequest) {
             phone_number: normalizedPhone,
           },
           return_url: `${baseUrl}/${safeLocale}/whatsapp-token-payment/success?orderId=${encodeURIComponent(orderId)}`,
-          cancel_url: `${baseUrl}/${safeLocale}/whatsapp-token-payment?error=cancelled&phone=${encodeURIComponent(normalizedPhone)}`,
+          cancel_url: `${baseUrl}/${safeLocale}/whatsapp-token-payment?error=cancelled&phone=${encodeURIComponent(normalizedPhone)}&package=${packageType}`,
           metadata: {
-            type: "whatsapp_tokens",
+            type: "whatsapp_package",
             phone: normalizedPhone,
             userId: whatsappUser.id,
             order_id: orderId,
+            packageType,
             tokens: String(finalTokens),
           },
         }),
@@ -170,7 +207,7 @@ export async function POST(req: NextRequest) {
       orderId,
     });
   } catch (error) {
-    console.error("WhatsApp token checkout error:", error);
+    console.error("WhatsApp package checkout error:", error);
     return NextResponse.json(
       { error: "Failed to process checkout" },
       { status: 500 },

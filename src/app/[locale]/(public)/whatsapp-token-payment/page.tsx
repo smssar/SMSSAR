@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/locales";
-import { getMessages } from "@/lib/messages";
 import { WhatsappTokenPaymentClient } from "@/components/payment/whatsapp-token-payment-client";
 
 export async function generateMetadata({
@@ -9,21 +8,20 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const messages = getMessages(locale);
 
   return {
     title:
       locale === "ar"
-        ? "شراء رموز الواتس آب"
+        ? "شراء باقة واتس آب"
         : locale === "fr"
-          ? "Acheter des jetons WhatsApp"
-          : "Buy WhatsApp Tokens",
+          ? "Acheter une formule WhatsApp"
+          : "Buy a WhatsApp Package",
     description:
       locale === "ar"
-        ? "شراء رموز إضافية لمساعدك الذكي على واتس آب"
+        ? "شراء باقات إضافية لمساعدك الذكي على واتس آب"
         : locale === "fr"
-          ? "Acheter des jetons supplémentaires pour votre assistant WhatsApp"
-          : "Purchase additional tokens for your WhatsApp AI assistant",
+          ? "Acheter des formules supplémentaires pour votre assistant WhatsApp"
+          : "Purchase additional WhatsApp packages for your AI assistant",
   };
 }
 

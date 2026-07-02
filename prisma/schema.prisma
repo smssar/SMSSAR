@@ -388,6 +388,9 @@ model WhatsappUser {
   tokenPackagePrice   Int               @default(500)
   tokensLimit         Int?              @default(1000)
   tokenLimitReached   Boolean           @default(false)
+  audioUsage          Int?              @default(0)
+  audioLimit          Int?              @default(2)
+  audioLimitReached   Boolean           @default(false)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   messages            WhatsappMessage[]

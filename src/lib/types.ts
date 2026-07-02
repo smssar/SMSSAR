@@ -15,6 +15,9 @@ export type WhatsappUserWithTokenLock = Awaited<
   tokenLimitReached?: boolean | null;
   tokenUsage?: number | null;
   tokensLimit?: number | null;
+  audioLimitReached?: boolean | null;
+  audioUsage?: number | null;
+  audioLimit?: number | null;
   language?: string | null;
   id?: string;
   name?: string | null;

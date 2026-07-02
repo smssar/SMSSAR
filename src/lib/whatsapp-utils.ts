@@ -104,3 +104,11 @@ export function resolveWhatsappTokenLimitReached(
   if (tokensLimit === null || tokensLimit === undefined) return false;
   return (tokenUsage ?? 0) >= tokensLimit;
 }
+
+export function resolveWhatsappAudioLimitReached(
+  audioUsage?: number | null,
+  audioLimit?: number | null,
+) {
+  if (audioLimit === null || audioLimit === undefined) return false;
+  return (audioUsage ?? 0) >= audioLimit;
+}

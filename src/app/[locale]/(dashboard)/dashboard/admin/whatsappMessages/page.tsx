@@ -71,6 +71,8 @@ export default async function AdminWhatsappPage({
         totalMessages: true,
         tokenUsage: true,
         tokensLimit: true,
+        audioUsage: true,
+        audioLimit: true,
         lastInteractionAt: true,
         _count: { select: { messages: true } },
       },
@@ -90,6 +92,8 @@ export default async function AdminWhatsappPage({
     totalMessages: Math.max(u.totalMessages ?? 0, u._count?.messages ?? 0),
     tokenUsage: u.tokenUsage ?? 0,
     tokensLimit: u.tokensLimit ?? null,
+    audioUsage: u.audioUsage ?? 0,
+    audioLimit: u.audioLimit ?? null,
     lastInteractionAt: u.lastInteractionAt?.toISOString() ?? null,
   }));
 
@@ -145,6 +149,10 @@ export default async function AdminWhatsappPage({
         name: typeof ut.name === "string" ? ut.name : undefined,
         lang: typeof ut.lang === "string" ? ut.lang : undefined,
         messages: typeof ut.messages === "string" ? ut.messages : undefined,
+        audioUsage:
+          typeof ut.audioUsage === "string" ? ut.audioUsage : undefined,
+        audioLimit:
+          typeof ut.audioLimit === "string" ? ut.audioLimit : undefined,
         lastInteraction:
           typeof ut.lastInteraction === "string"
             ? ut.lastInteraction

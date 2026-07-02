@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { jsonError, readJson } from "@/lib/api-utils";
-import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
+import {
+  resolveWhatsappAudioLimitReached,
+  resolveWhatsappTokenLimitReached,
+} from "@/lib/whatsapp-utils";
 
 export const runtime = "nodejs";
 
 type UpdateWhatsappUserBody = {
   tokensLimit?: number | null;
+  audioLimit?: number | null;
 };
 
 export async function PATCH(
@@ -38,6 +42,15 @@ export async function PATCH(
     }
   }
 
+  if (body.audioLimit !== undefined && body.audioLimit !== null) {
+    if (typeof body.audioLimit !== "number" || Number.isNaN(body.audioLimit)) {
+      return jsonError("audioLimit must be a number or null.", 400);
+    }
+    if (!Number.isInteger(body.audioLimit) || body.audioLimit < 0) {
+      return jsonError("audioLimit must be a positive integer or null.", 400);
+    }
+  }
+
   try {
     const existing = await prisma.whatsappUser.findUnique({
       where: { id },
@@ -45,6 +58,8 @@ export async function PATCH(
         id: true,
         tokenUsage: true,
         tokensLimit: true,
+        audioUsage: true,
+        audioLimit: true,
       },
     });
 
@@ -52,6 +67,8 @@ export async function PATCH(
 
     const nextTokensLimit =
       body.tokensLimit === undefined ? existing.tokensLimit : body.tokensLimit;
+    const nextAudioLimit =
+      body.audioLimit === undefined ? existing.audioLimit : body.audioLimit;
 
     const updated = await prisma.whatsappUser.update({
       where: { id },
@@ -61,6 +78,11 @@ export async function PATCH(
         tokenLimitReached: resolveWhatsappTokenLimitReached(
           existing.tokenUsage,
           nextTokensLimit,
+        ),
+        audioLimit: body.audioLimit === undefined ? undefined : body.audioLimit,
+        audioLimitReached: resolveWhatsappAudioLimitReached(
+          existing.audioUsage,
+          nextAudioLimit,
         ),
       },
       select: {
@@ -72,6 +94,9 @@ export async function PATCH(
         tokenUsage: true,
         tokensLimit: true,
         tokenLimitReached: true,
+        audioUsage: true,
+        audioLimit: true,
+        audioLimitReached: true,
         lastInteractionAt: true,
       },
     });

@@ -7,27 +7,28 @@ import Link from "next/link";
 const translations = {
   ar: {
     success: "تم بنجاح!",
-    title: "تم شراء رموز الواتس آب بنجاح",
-    description: "تم إضافة الرموز إلى حسابك. يمكنك الآن الاستمرار في استخدام مساعدك الذكي.",
-    tokens: "الرموز المضافة",
-    continue: "العودة إلى الواتس آب",
+    title: "تم شراء الباقة بنجاح",
+    description:
+      "تمت إضافة الباقة إلى حسابك. يمكنك الآن الاستمرار في استخدام مساعدك الذكي.",
+    units: "الوحدات المضافة",
+    continue: "العودة إلى واتس آب",
     support: "الدعم",
   },
   fr: {
     success: "Succès!",
-    title: "Achat de jetons WhatsApp réussi",
+    title: "Achat de formule WhatsApp réussi",
     description:
-      "Les jetons ont été ajoutés à votre compte. Vous pouvez maintenant continuer à utiliser votre assistant.",
-    tokens: "Jetons ajoutés",
+      "La formule a été ajoutée à votre compte. Vous pouvez maintenant continuer à utiliser votre assistant.",
+    units: "Unités ajoutées",
     continue: "Revenir à WhatsApp",
     support: "Support",
   },
   en: {
     success: "Success!",
-    title: "WhatsApp Token Purchase Successful",
+    title: "WhatsApp Package Purchase Successful",
     description:
-      "Tokens have been added to your account. You can now continue using your AI assistant.",
-    tokens: "Tokens Added",
+      "The package has been added to your account. You can now continue using your AI assistant.",
+    units: "Units Added",
     continue: "Return to WhatsApp",
     support: "Support",
   },
@@ -46,13 +47,14 @@ export default async function WhatsappTokenPaymentSuccessPage({
     typeof resolvedSearchParams.orderId === "string"
       ? resolvedSearchParams.orderId
       : null;
+  const packageType =
+    resolvedSearchParams.package === "audio" ? "audio" : "tokens";
 
   const t = translations[locale] || translations.en;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-background to-green-500/5 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
-        {/* Success Animation */}
         <div className="mb-8 flex justify-center">
           <div className="relative">
             <div className="absolute inset-0 animate-pulse rounded-full bg-green-500/20 blur-xl" />
@@ -60,7 +62,6 @@ export default async function WhatsappTokenPaymentSuccessPage({
           </div>
         </div>
 
-        {/* Main Card */}
         <Card className="border-green-500/20 bg-card/50 backdrop-blur">
           <CardHeader className="text-center">
             <CardTitle className="text-3xl">{t.success}</CardTitle>
@@ -81,18 +82,22 @@ export default async function WhatsappTokenPaymentSuccessPage({
               )}
             </div>
 
-            {/* Info Box */}
             <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
               <p className="text-center text-sm font-medium">
-                {locale === "ar"
-                  ? "✓ تم إضافة الرموز مباشرة إلى حسابك"
-                  : locale === "fr"
-                    ? "✓ Les jetons ont été ajoutés à votre compte"
-                    : "✓ Tokens have been added to your account"}
+                {packageType === "audio"
+                  ? locale === "ar"
+                    ? "✓ تم إضافة باقة الصوت إلى حسابك"
+                    : locale === "fr"
+                      ? "✓ Le forfait audio a été ajouté à votre compte"
+                      : "✓ The audio package has been added to your account"
+                  : locale === "ar"
+                    ? "✓ تم إضافة الرموز مباشرة إلى حسابك"
+                    : locale === "fr"
+                      ? "✓ Les jetons ont été ajoutés à votre compte"
+                      : "✓ Tokens have been added to your account"}
               </p>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href={`/${locale}/whatsapp`} className="flex-1">
                 <Button size="lg" className="w-full">
@@ -107,7 +112,6 @@ export default async function WhatsappTokenPaymentSuccessPage({
               </Link>
             </div>
 
-            {/* Benefits */}
             <div className="space-y-2 rounded-lg bg-muted/50 p-4">
               <p className="text-sm font-medium">
                 {locale === "ar"
@@ -118,11 +122,17 @@ export default async function WhatsappTokenPaymentSuccessPage({
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  {locale === "ar"
-                    ? "✓ استخدام مساعدك الذكي بدون قيود"
-                    : locale === "fr"
-                      ? "✓ Utiliser votre assistant sans limite"
-                      : "✓ Use your AI assistant without limits"}
+                  {packageType === "audio"
+                    ? locale === "ar"
+                      ? "✓ استخدام الملاحظات الصوتية بسهولة"
+                      : locale === "fr"
+                        ? "✓ Utiliser les notes vocales facilement"
+                        : "✓ Use voice notes more easily"
+                    : locale === "ar"
+                      ? "✓ استخدام مساعدك الذكي بدون قيود"
+                      : locale === "fr"
+                        ? "✓ Utiliser votre assistant sans limite"
+                        : "✓ Use your AI assistant without limits"}
                 </li>
                 <li>
                   {locale === "ar"

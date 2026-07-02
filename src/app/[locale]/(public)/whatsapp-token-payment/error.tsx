@@ -34,6 +34,7 @@ export default function WhatsappPaymentErrorPage() {
   const locale = (params.locale as Locale) || "en";
   const t = translations[locale];
   const phone = searchParams.get("phone") || "";
+  const packageType = searchParams.get("package");
   const error = searchParams.get("error") || "unknown";
 
   return (
@@ -50,7 +51,9 @@ export default function WhatsappPaymentErrorPage() {
         {/* Error Card */}
         <Card className="border-destructive/20 bg-card/50 backdrop-blur">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl text-destructive">{t.error}</CardTitle>
+            <CardTitle className="text-3xl text-destructive">
+              {t.error}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-3 text-center">
@@ -73,7 +76,7 @@ export default function WhatsappPaymentErrorPage() {
             {/* Actions */}
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
-                href={`/${locale}/whatsapp-token-payment${phone ? `?phone=${encodeURIComponent(phone)}` : ""}`}
+                href={`/${locale}/whatsapp-token-payment${phone ? `?phone=${encodeURIComponent(phone)}` : ""}${packageType ? `${phone ? "&" : "?"}package=${encodeURIComponent(packageType)}` : ""}`}
                 className="flex-1"
               >
                 <Button size="lg" className="w-full">

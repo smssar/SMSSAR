@@ -8,7 +8,10 @@ import { Webhooks } from "@dodopayments/nextjs";
 import { cancelSubscriptionInDodo } from "@/app/api/subscriptions/cancel/route";
 import { ensurePlan } from "@/lib/ensure-plan";
 import { sendBillingEmail } from "@/lib/billing-email";
-import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
+import {
+  resolveWhatsappTokenLimitReached,
+  resolveWhatsappAudioLimitReached,
+} from "@/lib/whatsapp-utils";
 import type { Locale } from "@/lib/locales";
 import { resolvePurchaseProductPrice } from "@/lib/role-pricing";
 
@@ -213,6 +216,8 @@ export const POST = Webhooks({
             subscriptionId?: string | null;
             localSessionId?: string | null;
             local_session_id?: string | null;
+            order_id?: string | null;
+            packageType?: string | null;
             purchases?: string | null;
             userRole?: string | null;
             type?: string | null;
@@ -237,29 +242,39 @@ export const POST = Webhooks({
       const localSessionId =
         metadata?.localSessionId ?? metadata?.local_session_id ?? null;
 
-      // Handle WhatsApp token payments
-      if (metadata?.type === "whatsapp_tokens") {
+      // Handle WhatsApp token/audio package payments
+      if (
+        metadata?.type === "whatsapp_tokens" ||
+        metadata?.type === "whatsapp_package"
+      ) {
         const whatsappUserId = metadata?.userId;
+        const packageType =
+          metadata?.packageType === "audio" ? "audio" : "tokens";
+        const orderId = metadata?.order_id ?? null;
 
         if (!whatsappUserId) {
-          console.error("Missing whatsappUserId in WhatsApp token payment");
+          console.error("Missing whatsappUserId in WhatsApp package payment");
           return;
         }
 
         try {
-          // Find the payment by whatsappUserId and PENDING status (most recent)
-          const payment = await prisma.whatsappTokenPayment.findFirst({
-            where: {
-              whatsappUserId,
-              status: "PENDING",
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          });
+          // Find the payment by order ID when available, otherwise fall back to the most recent pending one.
+          const payment = orderId
+            ? await prisma.whatsappTokenPayment.findUnique({
+                where: { orderId },
+              })
+            : await prisma.whatsappTokenPayment.findFirst({
+                where: {
+                  whatsappUserId,
+                  status: "PENDING",
+                },
+                orderBy: {
+                  createdAt: "desc",
+                },
+              });
 
           console.log(
-            `Processing WhatsApp token payment for user ${whatsappUserId}:`,
+            `Processing WhatsApp ${packageType} payment for user ${whatsappUserId}:`,
             {
               payment,
             },
@@ -277,28 +292,52 @@ export const POST = Webhooks({
               select: {
                 tokenUsage: true,
                 tokensLimit: true,
+                audioUsage: true,
+                audioLimit: true,
               },
             });
 
-            const nextTokensLimit =
-              (whatsappUser?.tokensLimit ?? 0) + payment.tokens;
+            if (packageType === "audio") {
+              const nextAudioLimit =
+                (whatsappUser?.audioLimit ?? 0) + payment.tokens;
 
-            // Increment the user's tokensLimit
-            await prisma.whatsappUser.update({
-              where: { id: whatsappUserId },
-              data: {
-                tokensLimit: {
-                  increment: payment.tokens,
+              await prisma.whatsappUser.update({
+                where: { id: whatsappUserId },
+                data: {
+                  audioLimit: {
+                    increment: payment.tokens,
+                  },
+                  audioLimitReached: resolveWhatsappAudioLimitReached(
+                    whatsappUser?.audioUsage,
+                    nextAudioLimit,
+                  ),
                 },
-                tokenLimitReached: resolveWhatsappTokenLimitReached(
-                  whatsappUser?.tokenUsage,
-                  nextTokensLimit,
-                ),
-              },
-            });
-            console.log(
-              `WhatsApp tokens added successfully: ${payment.tokens} tokens to user ${whatsappUserId}`,
-            );
+              });
+
+              console.log(
+                `WhatsApp audio package added successfully: ${payment.tokens} audio units to user ${whatsappUserId}`,
+              );
+            } else {
+              const nextTokensLimit =
+                (whatsappUser?.tokensLimit ?? 0) + payment.tokens;
+
+              // Increment the user's tokensLimit
+              await prisma.whatsappUser.update({
+                where: { id: whatsappUserId },
+                data: {
+                  tokensLimit: {
+                    increment: payment.tokens,
+                  },
+                  tokenLimitReached: resolveWhatsappTokenLimitReached(
+                    whatsappUser?.tokenUsage,
+                    nextTokensLimit,
+                  ),
+                },
+              });
+              console.log(
+                `WhatsApp tokens added successfully: ${payment.tokens} tokens to user ${whatsappUserId}`,
+              );
+            }
 
             // Send confirmation email
             if (payment.email) {
@@ -308,7 +347,10 @@ export const POST = Webhooks({
                   locale: resolveEmailLocale(metadata?.locale),
                   kind: "payment_succeeded",
                   userName: metadata?.userName ?? "User",
-                  planTitle: `WhatsApp Token Package - ${payment.tokens} tokens`,
+                  planTitle:
+                    packageType === "audio"
+                      ? `WhatsApp Audio Package - ${payment.tokens} voice notes`
+                      : `WhatsApp Token Package - ${payment.tokens} tokens`,
                   planPrice: payment.amount,
                   currency: "MAD",
                   paymentId: payment.orderId,
@@ -317,18 +359,18 @@ export const POST = Webhooks({
                 });
               } catch (emailError) {
                 console.error(
-                  "Failed to send WhatsApp token payment email:",
+                  "Failed to send WhatsApp package payment email:",
                   emailError,
                 );
               }
             }
           } else {
             console.warn(
-              `No pending WhatsApp token payment found for user ${whatsappUserId}`,
+              `No pending WhatsApp package payment found for user ${whatsappUserId}`,
             );
           }
         } catch (error) {
-          console.error("Failed to process WhatsApp token payment:", error);
+          console.error("Failed to process WhatsApp package payment:", error);
         }
         return;
       }

@@ -29,6 +29,8 @@ type WhatsappUserRow = {
   totalMessages: number;
   tokenUsage?: number | null;
   tokensLimit?: number | null;
+  audioUsage?: number | null;
+  audioLimit?: number | null;
   lastInteractionAt?: string | null;
 };
 
@@ -43,6 +45,8 @@ type WhatsappTexts = {
     messages?: string;
     tokenUsage?: string;
     tokensLimit?: string;
+    audioUsage?: string;
+    audioLimit?: string;
     lastInteraction?: string;
     actions?: string;
     view?: string;
@@ -133,7 +137,9 @@ export function AdminWhatsappPanel({
   const [msgPageSize] = useState(25);
   const [msgSearch, setMsgSearch] = useState("");
   const [tokensLimitDraft, setTokensLimitDraft] = useState("");
+  const [audioLimitDraft, setAudioLimitDraft] = useState("");
   const [savingLimit, setSavingLimit] = useState(false);
+  const [savingAudioLimit, setSavingAudioLimit] = useState(false);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(
     null,
   );
@@ -182,6 +188,22 @@ export function AdminWhatsappPanel({
       },
       {
         label:
+          texts?.usersTable?.audioUsage ??
+          (locale === "ar"
+            ? "استخدام الصوت"
+            : locale === "fr"
+              ? "Utilisation audio"
+              : "Audio usage"),
+        value: formatNumber(selectedUser.audioUsage ?? 0),
+        hint:
+          locale === "ar"
+            ? "عدد الملاحظات الصوتية المعالجة"
+            : locale === "fr"
+              ? "Nombre de notes vocales traitées"
+              : "Processed voice notes",
+      },
+      {
+        label:
           texts?.usersTable?.tokensLimit ??
           (locale === "ar"
             ? "حد الرموز"
@@ -196,6 +218,22 @@ export function AdminWhatsappPanel({
               ? "Vide = illimité"
               : "Blank = unlimited",
       },
+      {
+        label:
+          texts?.usersTable?.audioLimit ??
+          (locale === "ar"
+            ? "حد الصوت"
+            : locale === "fr"
+              ? "Limite audio"
+              : "Audio limit"),
+        value: formatLimit(selectedUser.audioLimit),
+        hint:
+          locale === "ar"
+            ? "اتركه فارغًا ليصبح غير محدود"
+            : locale === "fr"
+              ? "Vide = illimité"
+              : "Blank = unlimited",
+      },
     ];
   }, [
     locale,
@@ -203,6 +241,8 @@ export function AdminWhatsappPanel({
     texts?.usersTable?.messages,
     texts?.usersTable?.tokenUsage,
     texts?.usersTable?.tokensLimit,
+    texts?.usersTable?.audioUsage,
+    texts?.usersTable?.audioLimit,
   ]);
 
   function setPage(page: number) {
@@ -235,6 +275,11 @@ export function AdminWhatsappPanel({
       user.tokensLimit === null || user.tokensLimit === undefined
         ? ""
         : String(user.tokensLimit),
+    );
+    setAudioLimitDraft(
+      user.audioLimit === null || user.audioLimit === undefined
+        ? ""
+        : String(user.audioLimit),
     );
     setMsgsLoading(true);
     setMsgPage(1);
@@ -332,6 +377,69 @@ export function AdminWhatsappPanel({
       );
     } finally {
       setSavingLimit(false);
+    }
+  }
+
+  async function saveAudioLimit() {
+    if (!selectedUser) return;
+
+    const draft = audioLimitDraft.trim();
+    const audioLimit = draft === "" ? null : Number.parseInt(draft, 10);
+    if (
+      audioLimit !== null &&
+      (!Number.isInteger(audioLimit) || audioLimit < 0)
+    ) {
+      toast.error(
+        locale === "ar"
+          ? "أدخل رقمًا صحيحًا صالحًا أو اتركه فارغًا."
+          : locale === "fr"
+            ? "Entrez un nombre entier valide ou laissez vide."
+            : "Enter a valid whole number or leave it blank.",
+      );
+      return;
+    }
+
+    setSavingAudioLimit(true);
+    try {
+      const response = await fetch(`/api/admin/whatsapp/${selectedUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audioLimit }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || `Status ${response.status}`);
+      }
+
+      const updated = payload?.data as WhatsappUserRow | undefined;
+      if (updated) {
+        updateUser(updated);
+        setAudioLimitDraft(
+          updated.audioLimit === null || updated.audioLimit === undefined
+            ? ""
+            : String(updated.audioLimit),
+        );
+      }
+
+      toast.success(
+        locale === "ar"
+          ? "تم تحديث حد الصوت."
+          : locale === "fr"
+            ? "Limite audio mise à jour."
+            : "Audio limit updated.",
+      );
+    } catch (error) {
+      console.error("Failed to update audio limit:", error);
+      toast.error(
+        locale === "ar"
+          ? "فشل تحديث حد الصوت."
+          : locale === "fr"
+            ? "Échec de la mise à jour de la limite audio."
+            : "Failed to update audio limit.",
+      );
+    } finally {
+      setSavingAudioLimit(false);
     }
   }
 
@@ -655,6 +763,57 @@ export function AdminWhatsappPanel({
                             className="rounded-2xl"
                           >
                             {savingLimit ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <MessageSquare className="h-4 w-4" />
+                            )}
+                            {locale === "ar"
+                              ? "حفظ"
+                              : locale === "fr"
+                                ? "Enregistrer"
+                                : "Save"}
+                          </Button>
+                        </div>
+                        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                          {locale === "ar"
+                            ? "اترك الحقل فارغًا إذا أردت إلغاء الحد."
+                            : locale === "fr"
+                              ? "Laissez vide pour supprimer la limite."
+                              : "Leave it blank to remove the limit."}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 rounded-3xl border border-border/60 bg-muted/20 p-4">
+                        <Label className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                          {locale === "ar"
+                            ? "تعديل حد الصوت"
+                            : locale === "fr"
+                              ? "Modifier la limite audio"
+                              : "Edit audio limit"}
+                        </Label>
+                        <div className="mt-3 flex gap-2">
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder={
+                              locale === "ar"
+                                ? "غير محدود"
+                                : locale === "fr"
+                                  ? "Illimité"
+                                  : "Unlimited"
+                            }
+                            value={audioLimitDraft}
+                            onChange={(event) =>
+                              setAudioLimitDraft(event.target.value)
+                            }
+                            className="rounded-2xl border-border/70"
+                          />
+                          <Button
+                            onClick={saveAudioLimit}
+                            disabled={savingAudioLimit}
+                            className="rounded-2xl"
+                          >
+                            {savingAudioLimit ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <MessageSquare className="h-4 w-4" />

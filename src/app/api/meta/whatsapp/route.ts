@@ -3,7 +3,10 @@ export const runtime = "nodejs";
 import { llmAnalyze } from "@/lib/llmBot";
 import { getWhatsappUser, addWhatsappMessage } from "@/lib/whatsapp-utils";
 import { prisma } from "@/lib/prisma";
-import { resolveWhatsappTokenLimitReached } from "@/lib/whatsapp-utils";
+import {
+  resolveWhatsappAudioLimitReached,
+  resolveWhatsappTokenLimitReached,
+} from "@/lib/whatsapp-utils";
 import { detectLang } from "@/lib/utils";
 import { normalizePhoneNumber } from "@/lib/phone";
 import { speechToText } from "@/lib/speech_to_text";
@@ -138,6 +141,69 @@ export async function POST(req: Request) {
           // message?.image?.id;
 
           if (mediaId) {
+            const currentAudioUsage = whatsappUser?.audioUsage ?? 0;
+            const audioLimit = whatsappUser?.audioLimit ?? null;
+            const audioLimitMessage =
+              whatsappUser?.language === "ar"
+                ? `لقد وصلت إلى الحد لاستخدام الرسائل الصوتية لهذا الحساب. 😊 للاستمرار، يرجى شراء باقة صوتية جديدة.
+                ${process.env.NEXT_PUBLIC_BASE_URL}/${whatsappUser?.language === "ar" ? "ar" : "en"}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`
+                : whatsappUser?.language === "fr"
+                  ? `Vous avez atteint la limite des notes vocales pour ce compte. 😊 Pour continuer, veuillez acheter un nouveau forfait audio.
+                  ${process.env.NEXT_PUBLIC_BASE_URL}/fr/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`
+                  : `You've reached voice note limit for this account. 😊 To continue, please purchase a new audio package.
+                  ${process.env.NEXT_PUBLIC_BASE_URL}/en/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`;
+            const audioLimitAlreadyReached = resolveWhatsappAudioLimitReached(
+              currentAudioUsage,
+              audioLimit,
+            );
+
+            if (
+              whatsappUser?.id &&
+              audioLimitAlreadyReached !== whatsappUser.audioLimitReached
+            ) {
+              try {
+                await prisma.whatsappUser.update({
+                  where: { id: whatsappUser.id },
+                  data: { audioLimitReached: audioLimitAlreadyReached },
+                });
+                whatsappUser.audioLimitReached = audioLimitAlreadyReached;
+              } catch (err) {
+                console.error(
+                  "Failed to normalize audioLimitReached state:",
+                  err,
+                );
+              }
+            }
+
+            if (
+              whatsappUser?.id &&
+              (audioLimitAlreadyReached || whatsappUser.audioLimitReached)
+            ) {
+              try {
+                await prisma.whatsappUser.update({
+                  where: { id: whatsappUser.id },
+                  data: { audioLimitReached: true },
+                });
+                whatsappUser.audioLimitReached = true;
+              } catch (err) {
+                console.error(
+                  "Failed to persist audioLimitReached state:",
+                  err,
+                );
+              }
+
+              try {
+                await sendWhatsAppMessage(from, audioLimitMessage);
+                console.log(
+                  `${process.env.NEXT_PUBLIC_BASE_URL}/en/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`,
+                );
+              } catch (err) {
+                console.error("Failed to send audio-limit warning:", err);
+              }
+
+              return NextResponse.json({ ok: true });
+            }
+
             try {
               const mediaMetaRes = await fetchWithRetries(
                 `https://graph.facebook.com/v20.0/${mediaId}`,
@@ -176,7 +242,7 @@ export async function POST(req: Request) {
                 const buffer = Buffer.from(arrayBuffer);
 
                 // Check size before attempting transcription to avoid large multipart uploads
-                const maxBytes = Number(50);
+                const maxBytes = Number(500000);
                 if (buffer.length > maxBytes) {
                   console.warn(
                     `Incoming media too large for transcription: ${buffer.length} bytes (max ${maxBytes})`,
@@ -202,7 +268,48 @@ export async function POST(req: Request) {
 
                 try {
                   const transcript = await speechToText(buffer);
-                  if (transcript) text = transcript;
+
+                  if (transcript) {
+                    text = transcript;
+
+                    if (whatsappUser?.id) {
+                      const nextAudioUsage = currentAudioUsage + 1;
+                      try {
+                        await prisma.whatsappUser.update({
+                          where: { id: whatsappUser.id },
+                          data: {
+                            audioUsage: nextAudioUsage,
+                          },
+                        });
+                        whatsappUser.audioUsage = nextAudioUsage;
+                      } catch (err) {
+                        console.error(
+                          "Failed to persist WhatsappUser.audioUsage:",
+                          err,
+                        );
+                      }
+
+                      if (
+                        resolveWhatsappAudioLimitReached(
+                          nextAudioUsage,
+                          audioLimit,
+                        )
+                      ) {
+                        try {
+                          await sendWhatsAppMessage(from, audioLimitMessage);
+                        } catch (err) {
+                          console.error(
+                            "Failed to send audio-limit warning:",
+                            err,
+                          );
+                        }
+                      }
+                      await prisma.whatsappUser.update({
+                        where: { id: whatsappUser.id },
+                        data: { audioUsage: nextAudioUsage },
+                      });
+                    }
+                  }
                 } catch (err) {
                   console.error("Failed to transcribe WhatsApp audio:", err);
                 }
@@ -281,24 +388,25 @@ export async function POST(req: Request) {
           }
         }
 
-        // Build payment link for token packages
+        // Build payment links for token and audio packages
         const locale =
           whatsappUser?.language === "ar"
             ? "ar"
             : whatsappUser?.language === "fr"
               ? "fr"
               : "en";
-        const paymentPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}`;
+        const paymentPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=tokens`;
 
         const limitReachedMessage =
           whatsappUser?.language === "ar"
-            ? `لقد وصلت إلى الحد الشهري لاستخدام الرسائل لهذا الحساب. 😊 للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
+            ? `لقد وصلت إلى الحد لاستخدام الرسائل لهذا الحساب. 😊 للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
             ${paymentPageUrl}`
             : whatsappUser?.language === "fr"
-              ? `Vous avez atteint la limite mensuelle de messages pour ce compte. 😊 pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
+              ? `Vous avez atteint la limite de messages pour ce compte. 😊 pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
                 ${paymentPageUrl}`
-              : `You've reached your monthly message limit for this account. 😊 to continue chatting with the assistant, please purchase a new message package.
+              : `You've reached message limit for this account. 😊 to continue chatting with the assistant, please purchase a new message package.
               ${paymentPageUrl}`;
+
         if (
           whatsappUser?.id &&
           (limitAlreadyReached || whatsappUser.tokenLimitReached)

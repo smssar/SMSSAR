@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/whatsapp/token-package-info
- * Returns the current token package price and size
+ * Returns the current WhatsApp token and audio package pricing
  */
 export async function GET() {
   try {
-    // Get a WhatsappUser to read default tokenPackagePrice and tokenPackageSize
+    // Get a WhatsappUser to read default token package values.
     const defaultUser = await prisma.whatsappUser.findFirst({
       select: {
         tokenPackageSize: true,
@@ -15,12 +15,26 @@ export async function GET() {
       },
     });
 
-    const tokenPackageSize = defaultUser?.tokenPackageSize || 10000;
+    const tokenPackageSize = defaultUser?.tokenPackageSize || 30000;
     const tokenPackagePrice = defaultUser?.tokenPackagePrice || 500;
+    const audioPackageSize = Number(
+      process.env.WHATSAPP_AUDIO_PACKAGE_SIZE || 40,
+    );
+    const audioPackagePrice = Number(
+      process.env.WHATSAPP_AUDIO_PACKAGE_PRICE || 80,
+    );
 
     return NextResponse.json({
-      size: tokenPackageSize,
-      price: tokenPackagePrice,
+      tokens: {
+        size: tokenPackageSize,
+        price: tokenPackagePrice,
+        type: "tokens",
+      },
+      audio: {
+        size: audioPackageSize,
+        price: audioPackagePrice,
+        type: "audio",
+      },
     });
   } catch (error) {
     console.error("Error fetching token package info:", error);
