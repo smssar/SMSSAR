@@ -76,7 +76,7 @@ export default async function SellerOverviewPage({
       : false;
 
   const sellerProperties = await prisma.property.findMany({
-    where: { sellerId: session.user.id },
+    where: { sellerId: session.user.id, isAvailable: true },
     select: { price: true, featured: true, city: true },
   });
 
@@ -144,7 +144,7 @@ export default async function SellerOverviewPage({
   ];
 
   const recentListings = await prisma.property.findMany({
-    where: { sellerId: session.user.id },
+    where: { sellerId: session.user.id, isAvailable: true },
     orderBy: { createdAt: "desc" },
     take: 3,
     select: { id: true, title: true, city: true, price: true },

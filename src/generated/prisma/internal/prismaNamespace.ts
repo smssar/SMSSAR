@@ -2125,6 +2125,7 @@ export const PurchaseScalarFieldEnum = {
   unitPrice: 'unitPrice',
   totalPrice: 'totalPrice',
   totalPriceSmmsar: 'totalPriceSmmsar',
+  from: 'from',
   status: 'status',
   paymentId: 'paymentId',
   createdAt: 'createdAt',
@@ -2390,6 +2391,20 @@ export type EnumPurchaseTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'PurchaseType[]'
  */
 export type ListEnumPurchaseTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PurchaseFrom'
+ */
+export type EnumPurchaseFromFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseFrom'>
+    
+
+
+/**
+ * Reference to a field of type 'PurchaseFrom[]'
+ */
+export type ListEnumPurchaseFromFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseFrom[]'>
     
 
 

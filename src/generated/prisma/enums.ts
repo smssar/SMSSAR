@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const PurchaseFrom = {
+  USER: 'USER',
+  BONUS: 'BONUS'
+} as const
+
+export type PurchaseFrom = (typeof PurchaseFrom)[keyof typeof PurchaseFrom]
+
+
 export const UserRole = {
   USER: 'USER',
   SELLER: 'SELLER',

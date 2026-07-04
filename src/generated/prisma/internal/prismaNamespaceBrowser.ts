@@ -346,6 +346,7 @@ export const PurchaseScalarFieldEnum = {
   unitPrice: 'unitPrice',
   totalPrice: 'totalPrice',
   totalPriceSmmsar: 'totalPriceSmmsar',
+  from: 'from',
   status: 'status',
   paymentId: 'paymentId',
   createdAt: 'createdAt',

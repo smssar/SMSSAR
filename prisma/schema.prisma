@@ -286,6 +286,11 @@ model PurchaseProduct {
   purchases      Purchase[]
 }
 
+enum PurchaseFrom {
+  USER
+  BONUS
+}
+
 model Purchase {
   id                String          @id @default(cuid())
   userId            String
@@ -294,6 +299,7 @@ model Purchase {
   unitPrice         Int
   totalPrice        Int
   totalPriceSmmsar  Int
+  from              PurchaseFrom    @default(USER)
   status            PurchaseStatus  @default(PENDING)
   paymentId         String?         @unique
   createdAt         DateTime        @default(now())

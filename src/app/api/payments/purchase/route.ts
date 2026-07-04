@@ -100,9 +100,6 @@ export async function POST(req: NextRequest) {
 
     const body: PurchaseCheckoutRequest = await req.json();
 
-    if (process.env.NODE_ENV === "development") {
-    }
-
     const { purchases: rawPurchases, amount, locale, email } = body;
     const safeLocale: Locale =
       locale === "ar" || locale === "fr" ? locale : "en";

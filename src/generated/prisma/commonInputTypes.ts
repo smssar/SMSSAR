@@ -287,11 +287,28 @@ export type EnumPurchaseTypeNullableWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumPurchaseTypeNullableFilter<$PrismaModel>
 }
 
+export type EnumPurchaseFromFilter<$PrismaModel = never> = {
+  equals?: $Enums.PurchaseFrom | Prisma.EnumPurchaseFromFieldRefInput<$PrismaModel>
+  in?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel> | $Enums.PurchaseFrom
+}
+
 export type EnumPurchaseStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.PurchaseStatus | Prisma.EnumPurchaseStatusFieldRefInput<$PrismaModel>
   in?: $Enums.PurchaseStatus[] | Prisma.ListEnumPurchaseStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.PurchaseStatus[] | Prisma.ListEnumPurchaseStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumPurchaseStatusFilter<$PrismaModel> | $Enums.PurchaseStatus
+}
+
+export type EnumPurchaseFromWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PurchaseFrom | Prisma.EnumPurchaseFromFieldRefInput<$PrismaModel>
+  in?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPurchaseFromWithAggregatesFilter<$PrismaModel> | $Enums.PurchaseFrom
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel>
 }
 
 export type EnumPurchaseStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -603,11 +620,28 @@ export type NestedEnumPurchaseTypeNullableWithAggregatesFilter<$PrismaModel = ne
   _max?: Prisma.NestedEnumPurchaseTypeNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumPurchaseFromFilter<$PrismaModel = never> = {
+  equals?: $Enums.PurchaseFrom | Prisma.EnumPurchaseFromFieldRefInput<$PrismaModel>
+  in?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel> | $Enums.PurchaseFrom
+}
+
 export type NestedEnumPurchaseStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.PurchaseStatus | Prisma.EnumPurchaseStatusFieldRefInput<$PrismaModel>
   in?: $Enums.PurchaseStatus[] | Prisma.ListEnumPurchaseStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.PurchaseStatus[] | Prisma.ListEnumPurchaseStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumPurchaseStatusFilter<$PrismaModel> | $Enums.PurchaseStatus
+}
+
+export type NestedEnumPurchaseFromWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PurchaseFrom | Prisma.EnumPurchaseFromFieldRefInput<$PrismaModel>
+  in?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PurchaseFrom[] | Prisma.ListEnumPurchaseFromFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPurchaseFromWithAggregatesFilter<$PrismaModel> | $Enums.PurchaseFrom
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPurchaseFromFilter<$PrismaModel>
 }
 
 export type NestedEnumPurchaseStatusWithAggregatesFilter<$PrismaModel = never> = {

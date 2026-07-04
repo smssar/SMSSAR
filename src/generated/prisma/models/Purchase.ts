@@ -48,6 +48,7 @@ export type PurchaseMinAggregateOutputType = {
   unitPrice: number | null
   totalPrice: number | null
   totalPriceSmmsar: number | null
+  from: $Enums.PurchaseFrom | null
   status: $Enums.PurchaseStatus | null
   paymentId: string | null
   createdAt: Date | null
@@ -62,6 +63,7 @@ export type PurchaseMaxAggregateOutputType = {
   unitPrice: number | null
   totalPrice: number | null
   totalPriceSmmsar: number | null
+  from: $Enums.PurchaseFrom | null
   status: $Enums.PurchaseStatus | null
   paymentId: string | null
   createdAt: Date | null
@@ -76,6 +78,7 @@ export type PurchaseCountAggregateOutputType = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from: number
   status: number
   paymentId: number
   createdAt: number
@@ -106,6 +109,7 @@ export type PurchaseMinAggregateInputType = {
   unitPrice?: true
   totalPrice?: true
   totalPriceSmmsar?: true
+  from?: true
   status?: true
   paymentId?: true
   createdAt?: true
@@ -120,6 +124,7 @@ export type PurchaseMaxAggregateInputType = {
   unitPrice?: true
   totalPrice?: true
   totalPriceSmmsar?: true
+  from?: true
   status?: true
   paymentId?: true
   createdAt?: true
@@ -134,6 +139,7 @@ export type PurchaseCountAggregateInputType = {
   unitPrice?: true
   totalPrice?: true
   totalPriceSmmsar?: true
+  from?: true
   status?: true
   paymentId?: true
   createdAt?: true
@@ -235,6 +241,7 @@ export type PurchaseGroupByOutputType = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from: $Enums.PurchaseFrom
   status: $Enums.PurchaseStatus
   paymentId: string | null
   createdAt: Date
@@ -272,6 +279,7 @@ export type PurchaseWhereInput = {
   unitPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPriceSmmsar?: Prisma.IntFilter<"Purchase"> | number
+  from?: Prisma.EnumPurchaseFromFilter<"Purchase"> | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
   paymentId?: Prisma.StringNullableFilter<"Purchase"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
@@ -288,6 +296,7 @@ export type PurchaseOrderByWithRelationInput = {
   unitPrice?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
   totalPriceSmmsar?: Prisma.SortOrder
+  from?: Prisma.SortOrder
   status?: Prisma.SortOrder
   paymentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -308,6 +317,7 @@ export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
   unitPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPriceSmmsar?: Prisma.IntFilter<"Purchase"> | number
+  from?: Prisma.EnumPurchaseFromFilter<"Purchase"> | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
   createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
@@ -323,6 +333,7 @@ export type PurchaseOrderByWithAggregationInput = {
   unitPrice?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
   totalPriceSmmsar?: Prisma.SortOrder
+  from?: Prisma.SortOrder
   status?: Prisma.SortOrder
   paymentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -345,6 +356,7 @@ export type PurchaseScalarWhereWithAggregatesInput = {
   unitPrice?: Prisma.IntWithAggregatesFilter<"Purchase"> | number
   totalPrice?: Prisma.IntWithAggregatesFilter<"Purchase"> | number
   totalPriceSmmsar?: Prisma.IntWithAggregatesFilter<"Purchase"> | number
+  from?: Prisma.EnumPurchaseFromWithAggregatesFilter<"Purchase"> | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusWithAggregatesFilter<"Purchase"> | $Enums.PurchaseStatus
   paymentId?: Prisma.StringNullableWithAggregatesFilter<"Purchase"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string
@@ -357,6 +369,7 @@ export type PurchaseCreateInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -373,6 +386,7 @@ export type PurchaseUncheckedCreateInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -385,6 +399,7 @@ export type PurchaseUpdateInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -401,6 +416,7 @@ export type PurchaseUncheckedUpdateInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,6 +431,7 @@ export type PurchaseCreateManyInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -427,6 +444,7 @@ export type PurchaseUpdateManyMutationInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -441,6 +459,7 @@ export type PurchaseUncheckedUpdateManyInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,6 +484,7 @@ export type PurchaseCountOrderByAggregateInput = {
   unitPrice?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
   totalPriceSmmsar?: Prisma.SortOrder
+  from?: Prisma.SortOrder
   status?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -486,6 +506,7 @@ export type PurchaseMaxOrderByAggregateInput = {
   unitPrice?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
   totalPriceSmmsar?: Prisma.SortOrder
+  from?: Prisma.SortOrder
   status?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -500,6 +521,7 @@ export type PurchaseMinOrderByAggregateInput = {
   unitPrice?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
   totalPriceSmmsar?: Prisma.SortOrder
+  from?: Prisma.SortOrder
   status?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -597,6 +619,10 @@ export type PurchaseUncheckedUpdateManyWithoutPurchaseProductNestedInput = {
   deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
 }
 
+export type EnumPurchaseFromFieldUpdateOperationsInput = {
+  set?: $Enums.PurchaseFrom
+}
+
 export type EnumPurchaseStatusFieldUpdateOperationsInput = {
   set?: $Enums.PurchaseStatus
 }
@@ -607,6 +633,7 @@ export type PurchaseCreateWithoutUserInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -621,6 +648,7 @@ export type PurchaseUncheckedCreateWithoutUserInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -664,6 +692,7 @@ export type PurchaseScalarWhereInput = {
   unitPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPrice?: Prisma.IntFilter<"Purchase"> | number
   totalPriceSmmsar?: Prisma.IntFilter<"Purchase"> | number
+  from?: Prisma.EnumPurchaseFromFilter<"Purchase"> | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus
   paymentId?: Prisma.StringNullableFilter<"Purchase"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
@@ -676,6 +705,7 @@ export type PurchaseCreateWithoutPurchaseProductInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -690,6 +720,7 @@ export type PurchaseUncheckedCreateWithoutPurchaseProductInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -729,6 +760,7 @@ export type PurchaseCreateManyUserInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -741,6 +773,7 @@ export type PurchaseUpdateWithoutUserInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -755,6 +788,7 @@ export type PurchaseUncheckedUpdateWithoutUserInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -768,6 +802,7 @@ export type PurchaseUncheckedUpdateManyWithoutUserInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -781,6 +816,7 @@ export type PurchaseCreateManyPurchaseProductInput = {
   unitPrice: number
   totalPrice: number
   totalPriceSmmsar: number
+  from?: $Enums.PurchaseFrom
   status?: $Enums.PurchaseStatus
   paymentId?: string | null
   createdAt?: Date | string
@@ -793,6 +829,7 @@ export type PurchaseUpdateWithoutPurchaseProductInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -807,6 +844,7 @@ export type PurchaseUncheckedUpdateWithoutPurchaseProductInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -820,6 +858,7 @@ export type PurchaseUncheckedUpdateManyWithoutPurchaseProductInput = {
   unitPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPrice?: Prisma.IntFieldUpdateOperationsInput | number
   totalPriceSmmsar?: Prisma.IntFieldUpdateOperationsInput | number
+  from?: Prisma.EnumPurchaseFromFieldUpdateOperationsInput | $Enums.PurchaseFrom
   status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -836,6 +875,7 @@ export type PurchaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   unitPrice?: boolean
   totalPrice?: boolean
   totalPriceSmmsar?: boolean
+  from?: boolean
   status?: boolean
   paymentId?: boolean
   createdAt?: boolean
@@ -852,6 +892,7 @@ export type PurchaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   unitPrice?: boolean
   totalPrice?: boolean
   totalPriceSmmsar?: boolean
+  from?: boolean
   status?: boolean
   paymentId?: boolean
   createdAt?: boolean
@@ -868,6 +909,7 @@ export type PurchaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   unitPrice?: boolean
   totalPrice?: boolean
   totalPriceSmmsar?: boolean
+  from?: boolean
   status?: boolean
   paymentId?: boolean
   createdAt?: boolean
@@ -884,13 +926,14 @@ export type PurchaseSelectScalar = {
   unitPrice?: boolean
   totalPrice?: boolean
   totalPriceSmmsar?: boolean
+  from?: boolean
   status?: boolean
   paymentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "purchaseProductId" | "quantity" | "unitPrice" | "totalPrice" | "totalPriceSmmsar" | "status" | "paymentId" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
+export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "purchaseProductId" | "quantity" | "unitPrice" | "totalPrice" | "totalPriceSmmsar" | "from" | "status" | "paymentId" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
 export type PurchaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   purchaseProduct?: boolean | Prisma.PurchaseProductDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -918,6 +961,7 @@ export type $PurchasePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     unitPrice: number
     totalPrice: number
     totalPriceSmmsar: number
+    from: $Enums.PurchaseFrom
     status: $Enums.PurchaseStatus
     paymentId: string | null
     createdAt: Date
@@ -1354,6 +1398,7 @@ export interface PurchaseFieldRefs {
   readonly unitPrice: Prisma.FieldRef<"Purchase", 'Int'>
   readonly totalPrice: Prisma.FieldRef<"Purchase", 'Int'>
   readonly totalPriceSmmsar: Prisma.FieldRef<"Purchase", 'Int'>
+  readonly from: Prisma.FieldRef<"Purchase", 'PurchaseFrom'>
   readonly status: Prisma.FieldRef<"Purchase", 'PurchaseStatus'>
   readonly paymentId: Prisma.FieldRef<"Purchase", 'String'>
   readonly createdAt: Prisma.FieldRef<"Purchase", 'DateTime'>

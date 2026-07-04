@@ -145,12 +145,15 @@ export async function POST(req: Request) {
             const audioLimit = whatsappUser?.audioLimit ?? null;
             const audioLimitMessage =
               whatsappUser?.language === "ar"
-                ? `لقد وصلت إلى الحد لاستخدام الرسائل الصوتية لهذا الحساب. 😊 للاستمرار، يرجى شراء باقة صوتية جديدة.
-                ${process.env.NEXT_PUBLIC_BASE_URL}/${whatsappUser?.language === "ar" ? "ar" : "en"}/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`
+                ? `لقد وصلت إلى الحد المسموح به من الرسائل الصوتية لهذا الحساب. 🎤😊
+                  للاستمرار في إرسال الرسائل الصوتية واستخدام المساعد، يرجى شراء باقة صوتية جديدة من خلال الرابط التالي:
+                  ${process.env.NEXT_PUBLIC_BASE_URL}/ar/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`
                 : whatsappUser?.language === "fr"
-                  ? `Vous avez atteint la limite des notes vocales pour ce compte. 😊 Pour continuer, veuillez acheter un nouveau forfait audio.
+                  ? `Vous avez atteint la limite des messages vocaux pour ce compte. 🎤😊
+                  Pour continuer à envoyer des messages vocaux et utiliser l'assistant, veuillez acheter un nouveau forfait audio en utilisant le lien ci-dessous :
                   ${process.env.NEXT_PUBLIC_BASE_URL}/fr/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`
-                  : `You've reached voice note limit for this account. 😊 To continue, please purchase a new audio package.
+                  : `You've reached the voice message limit for this account. 🎤😊
+                  To continue sending voice messages and chatting with the assistant, please purchase a new audio package using the link below:
                   ${process.env.NEXT_PUBLIC_BASE_URL}/en/whatsapp-token-payment?phone=${encodeURIComponent(normalizedFrom)}&package=audio`;
             const audioLimitAlreadyReached = resolveWhatsappAudioLimitReached(
               currentAudioUsage,
@@ -399,14 +402,13 @@ export async function POST(req: Request) {
 
         const limitReachedMessage =
           whatsappUser?.language === "ar"
-            ? `لقد وصلت إلى الحد لاستخدام الرسائل لهذا الحساب. 😊 للاستمرار في التحدث مع المساعد، يرجى شراء باقة رسائل جديدة.
-            ${paymentPageUrl}`
+            ? `لقد وصلت إلى الحد المسموح به من الرسائل لهذا الحساب. 😊
+              للاستمرار في التحدث مع المساعد والاستفادة من جميع الميزات، يرجى شراء باقة رسائل جديدة من خلال الرابط التالي: ${paymentPageUrl}`
             : whatsappUser?.language === "fr"
-              ? `Vous avez atteint la limite de messages pour ce compte. 😊 pour continuer à discuter avec l'assistant, veuillez acheter un nouveau forfait de messages.
-                ${paymentPageUrl}`
-              : `You've reached message limit for this account. 😊 to continue chatting with the assistant, please purchase a new message package.
-              ${paymentPageUrl}`;
-
+              ? `Vous avez atteint la limite de messages pour ce compte. 😊
+              Pour continuer à discuter avec l'assistant et profiter de toutes les fonctionnalités, veuillez acheter un nouveau forfait de messages en utilisant le lien ci-dessous : ${paymentPageUrl}`
+              : `You've reached the message limit for this account. 😊  
+                To continue chatting with the assistant and enjoy uninterrupted access, please purchase a new message package using the link below: ${paymentPageUrl}`;
         if (
           whatsappUser?.id &&
           (limitAlreadyReached || whatsappUser.tokenLimitReached)

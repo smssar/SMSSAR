@@ -273,13 +273,6 @@ export const POST = Webhooks({
                 },
               });
 
-          console.log(
-            `Processing WhatsApp ${packageType} payment for user ${whatsappUserId}:`,
-            {
-              payment,
-            },
-          );
-
           if (payment) {
             // Update the payment status to COMPLETED
             await prisma.whatsappTokenPayment.update({
@@ -510,6 +503,7 @@ export const POST = Webhooks({
                   totalPrice: { increment: effectiveTotal },
                   totalPriceSmmsar: { increment: smssarTotal },
                   status: "ACTIVE",
+                  from: "USER",
                   ...(existingPurchase.paymentId ? {} : { paymentId }),
                   updatedAt: new Date(),
                 } as unknown as Prisma.PurchaseUncheckedUpdateInput,
@@ -525,6 +519,7 @@ export const POST = Webhooks({
                   totalPriceSmmsar: smssarTotal,
                   paymentId,
                   status: "ACTIVE",
+                  from: "USER",
                 } as unknown as Prisma.PurchaseUncheckedCreateInput,
               });
             }
