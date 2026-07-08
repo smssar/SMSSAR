@@ -3,7 +3,12 @@ import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import { auth } from "@/auth";
 import { ThemeToggle } from "@/components/navigation/theme-toggle";
-import { getDirection, isLocale, type Locale } from "@/lib/locales";
+import {
+  getDirection,
+  getLocaleFromAcceptLanguage,
+  isLocale,
+  type Locale,
+} from "@/lib/locales";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { Providers } from "../components/providers";
@@ -34,7 +39,9 @@ export default async function RootLayout({
   const requestHeaders = await headers();
   const headerLocale = requestHeaders.get("x-locale");
   const locale: Locale =
-    headerLocale && isLocale(headerLocale) ? headerLocale : "en";
+    headerLocale && isLocale(headerLocale)
+      ? headerLocale
+      : getLocaleFromAcceptLanguage(requestHeaders.get("accept-language"));
   const dir = getDirection(locale);
 
   return (

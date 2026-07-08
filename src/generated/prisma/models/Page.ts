@@ -57,7 +57,6 @@ export type PageMinAggregateOutputType = {
   article: string | null
   seoTitle: string | null
   seoDescription: string | null
-  seoKeywords: string | null
   ogImage: string | null
   published: boolean | null
   noIndex: boolean | null
@@ -97,7 +96,6 @@ export type PageMaxAggregateOutputType = {
   article: string | null
   seoTitle: string | null
   seoDescription: string | null
-  seoKeywords: string | null
   ogImage: string | null
   published: boolean | null
   noIndex: boolean | null
@@ -204,7 +202,6 @@ export type PageMinAggregateInputType = {
   article?: true
   seoTitle?: true
   seoDescription?: true
-  seoKeywords?: true
   ogImage?: true
   published?: true
   noIndex?: true
@@ -244,7 +241,6 @@ export type PageMaxAggregateInputType = {
   article?: true
   seoTitle?: true
   seoDescription?: true
-  seoKeywords?: true
   ogImage?: true
   published?: true
   noIndex?: true
@@ -414,7 +410,7 @@ export type PageGroupByOutputType = {
   article: string | null
   seoTitle: string | null
   seoDescription: string | null
-  seoKeywords: string | null
+  seoKeywords: string[]
   ogImage: string | null
   published: boolean
   noIndex: boolean
@@ -480,7 +476,7 @@ export type PageWhereInput = {
   article?: Prisma.StringNullableFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoKeywords?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoKeywords?: Prisma.StringNullableListFilter<"Page">
   ogImage?: Prisma.StringNullableFilter<"Page"> | string | null
   published?: Prisma.BoolFilter<"Page"> | boolean
   noIndex?: Prisma.BoolFilter<"Page"> | boolean
@@ -523,7 +519,7 @@ export type PageOrderByWithRelationInput = {
   article?: Prisma.SortOrderInput | Prisma.SortOrder
   seoTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   seoDescription?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoKeywords?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
   noIndex?: Prisma.SortOrder
@@ -569,7 +565,7 @@ export type PageWhereUniqueInput = Prisma.AtLeast<{
   article?: Prisma.StringNullableFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableFilter<"Page"> | string | null
-  seoKeywords?: Prisma.StringNullableFilter<"Page"> | string | null
+  seoKeywords?: Prisma.StringNullableListFilter<"Page">
   ogImage?: Prisma.StringNullableFilter<"Page"> | string | null
   published?: Prisma.BoolFilter<"Page"> | boolean
   noIndex?: Prisma.BoolFilter<"Page"> | boolean
@@ -612,7 +608,7 @@ export type PageOrderByWithAggregationInput = {
   article?: Prisma.SortOrderInput | Prisma.SortOrder
   seoTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   seoDescription?: Prisma.SortOrderInput | Prisma.SortOrder
-  seoKeywords?: Prisma.SortOrderInput | Prisma.SortOrder
+  seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
   noIndex?: Prisma.SortOrder
@@ -663,7 +659,7 @@ export type PageScalarWhereWithAggregatesInput = {
   article?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   seoTitle?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   seoDescription?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
-  seoKeywords?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
+  seoKeywords?: Prisma.StringNullableListFilter<"Page">
   ogImage?: Prisma.StringNullableWithAggregatesFilter<"Page"> | string | null
   published?: Prisma.BoolWithAggregatesFilter<"Page"> | boolean
   noIndex?: Prisma.BoolWithAggregatesFilter<"Page"> | boolean
@@ -706,7 +702,7 @@ export type PageCreateInput = {
   article?: string | null
   seoTitle?: string | null
   seoDescription?: string | null
-  seoKeywords?: string | null
+  seoKeywords?: Prisma.PageCreateseoKeywordsInput | string[]
   ogImage?: string | null
   published?: boolean
   noIndex?: boolean
@@ -749,7 +745,7 @@ export type PageUncheckedCreateInput = {
   article?: string | null
   seoTitle?: string | null
   seoDescription?: string | null
-  seoKeywords?: string | null
+  seoKeywords?: Prisma.PageCreateseoKeywordsInput | string[]
   ogImage?: string | null
   published?: boolean
   noIndex?: boolean
@@ -792,7 +788,7 @@ export type PageUpdateInput = {
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoKeywords?: Prisma.PageUpdateseoKeywordsInput | string[]
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
   noIndex?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -835,7 +831,7 @@ export type PageUncheckedUpdateInput = {
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoKeywords?: Prisma.PageUpdateseoKeywordsInput | string[]
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
   noIndex?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -878,7 +874,7 @@ export type PageCreateManyInput = {
   article?: string | null
   seoTitle?: string | null
   seoDescription?: string | null
-  seoKeywords?: string | null
+  seoKeywords?: Prisma.PageCreateseoKeywordsInput | string[]
   ogImage?: string | null
   published?: boolean
   noIndex?: boolean
@@ -921,7 +917,7 @@ export type PageUpdateManyMutationInput = {
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoKeywords?: Prisma.PageUpdateseoKeywordsInput | string[]
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
   noIndex?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -964,7 +960,7 @@ export type PageUncheckedUpdateManyInput = {
   article?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seoDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seoKeywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seoKeywords?: Prisma.PageUpdateseoKeywordsInput | string[]
   ogImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
   noIndex?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1069,7 +1065,6 @@ export type PageMaxOrderByAggregateInput = {
   article?: Prisma.SortOrder
   seoTitle?: Prisma.SortOrder
   seoDescription?: Prisma.SortOrder
-  seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrder
   published?: Prisma.SortOrder
   noIndex?: Prisma.SortOrder
@@ -1109,7 +1104,6 @@ export type PageMinOrderByAggregateInput = {
   article?: Prisma.SortOrder
   seoTitle?: Prisma.SortOrder
   seoDescription?: Prisma.SortOrder
-  seoKeywords?: Prisma.SortOrder
   ogImage?: Prisma.SortOrder
   published?: Prisma.SortOrder
   noIndex?: Prisma.SortOrder
@@ -1151,6 +1145,10 @@ export type PageSumOrderByAggregateInput = {
   prioritiesMaxBathrooms?: Prisma.SortOrder
 }
 
+export type PageCreateseoKeywordsInput = {
+  set: string[]
+}
+
 export type PageCreateprioritiesCityIdsInput = {
   set: string[]
 }
@@ -1161,6 +1159,11 @@ export type PageCreatepropertiesNeighborhoodsInput = {
 
 export type PageCreateprioritiesPropertyTypeIdsInput = {
   set: string[]
+}
+
+export type PageUpdateseoKeywordsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type PageUpdateprioritiesCityIdsInput = {
@@ -1370,7 +1373,7 @@ export type $PagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     article: string | null
     seoTitle: string | null
     seoDescription: string | null
-    seoKeywords: string | null
+    seoKeywords: string[]
     ogImage: string | null
     published: boolean
     noIndex: boolean
@@ -1833,7 +1836,7 @@ export interface PageFieldRefs {
   readonly article: Prisma.FieldRef<"Page", 'String'>
   readonly seoTitle: Prisma.FieldRef<"Page", 'String'>
   readonly seoDescription: Prisma.FieldRef<"Page", 'String'>
-  readonly seoKeywords: Prisma.FieldRef<"Page", 'String'>
+  readonly seoKeywords: Prisma.FieldRef<"Page", 'String[]'>
   readonly ogImage: Prisma.FieldRef<"Page", 'String'>
   readonly published: Prisma.FieldRef<"Page", 'Boolean'>
   readonly noIndex: Prisma.FieldRef<"Page", 'Boolean'>

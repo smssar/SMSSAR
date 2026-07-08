@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { defaultLocale, isLocale, locales, type Locale } from "@/lib/locales";
+import {
+  defaultLocale,
+  getLocaleFromAcceptLanguage,
+  isLocale,
+  locales,
+  type Locale,
+} from "@/lib/locales";
 import {
   getUserRestriction,
   isExpiredSuspension,
@@ -10,18 +16,11 @@ import { getActiveSubscription } from "@/lib/getActiveSubscription";
 
 function detectLocale(request: NextRequest): Locale {
   const cookieLocale = request.cookies.get("locale")?.value;
-
   if (isLocale(cookieLocale ?? "")) {
     return cookieLocale as Locale;
   }
 
-  const preferred = request.headers
-    .get("accept-language")
-    ?.split(",")
-    .map((segment) => segment.trim().slice(0, 2))
-    .find((segment) => isLocale(segment));
-
-  return preferred ?? defaultLocale;
+  return getLocaleFromAcceptLanguage(request.headers.get("accept-language"));
 }
 
 function isProtectedRoute(pathname: string, locale: Locale): boolean {

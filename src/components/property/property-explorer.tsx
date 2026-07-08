@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { PropertyCard } from "@/components/property/property-card";
 import type { Locale } from "@/lib/locales";
+import PropertyCard from "./property-card";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
   locale: Locale,

@@ -68,14 +68,14 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative " ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-11 min-w-45 items-center justify-between rounded-full border bg-white px-4 shadow-sm transition hover:bg-gray-50"
+        className="cursor-pointer flex h-11 min-w-45 items-center justify-between rounded-full border bg-gray-50 dark:bg-gray-800 px-4 shadow-sm transition hover:bg-gray-50 hover:dark:bg-gray-600"
       >
-        <div className="flex items-center gap-2 cursor-pointer">
-          <Globe className="h-4 w-4 text-gray-500" />
+        <div className="flex items-center gap-2 r-pointer">
+          <Globe className="h-4 w-4" />
 
           <span className="text-lg">{languageOptions[currentLocale].flag}</span>
 
@@ -90,14 +90,16 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border bg-white shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border bg-gray-50 dark:bg-gray-800 shadow-xl">
           {locales.map((locale) => (
             <button
               key={locale}
               type="button"
               onClick={() => switchLocale(locale)}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-gray-100 cursor-pointer ${
-                locale === currentLocale ? "bg-gray-50 font-semibold" : ""
+              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-gray-100 hover:dark:bg-gray-600 cursor-pointer ${
+                locale === currentLocale
+                  ? "dark:bg-gray-600 bg-gray-50 hover:dark:bg-gray-600 font-semibold"
+                  : ""
               }`}
             >
               <span className="text-lg">{languageOptions[locale].flag}</span>

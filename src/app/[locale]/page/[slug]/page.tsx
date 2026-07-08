@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { SiteFooter, SiteNavbar } from "@/components/layout";
@@ -12,6 +10,7 @@ import {
   getLocalizedFromSuffixed,
   getLocalizedField,
 } from "@/lib/page-localization";
+import PropertyCard from "../../../../components/property/property-card";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -37,6 +36,25 @@ export async function generateMetadata({
   const cookieStore = await cookies();
   const locale = (cookieStore.get("locale")?.value || "en") as Locale;
 
+  const localizedKeywords = Array.isArray(page.seoKeywords)
+    ? page.seoKeywords.map((keyword) => String(keyword).trim()).filter(Boolean)
+    : [];
+
+  const fallbackKeywords = [
+    page.title,
+    getLocalizedFromSuffixed(page as any, "title", locale),
+    page.description,
+    getLocalizedField(page as any, "description", locale),
+    getLocalizedFromSuffixed(page as any, "seoTitle", locale),
+    getLocalizedFromSuffixed(page as any, "seoDescription", locale),
+  ]
+    .filter(Boolean)
+    .map((keyword) => String(keyword));
+
+  const keywords = Array.from(
+    new Set([...localizedKeywords, ...fallbackKeywords]),
+  ).slice(0, 12);
+
   const localizedTitle =
     getLocalizedFromSuffixed(page as any, "seoTitle", locale) ||
     getLocalizedFromSuffixed(page as any, "title", locale) ||
@@ -50,6 +68,7 @@ export async function generateMetadata({
   return {
     title: localizedTitle,
     description: localizedDesc,
+    keywords,
 
     openGraph: {
       title: localizedTitle,
@@ -88,7 +107,6 @@ export default async function CmsPage({
     const and: any[] = [];
 
     if (p.prioritiesCityIds?.length) {
-      // Properties store city as a name string, so map city IDs -> names
       const cities = await prisma.city.findMany({
         where: { id: { in: p.prioritiesCityIds } },
         select: { name: true },
@@ -169,7 +187,6 @@ export default async function CmsPage({
   let properties: any[] = [];
   try {
     const where = await buildWhere(pageAny);
-    console.log(where);
     properties = await prisma.property.findMany({
       where: { ...where, isAvailable: true },
       include: { propertyType: true, seller: true, media: true },
@@ -247,7 +264,7 @@ export default async function CmsPage({
         {properties.length > 0 && (
           <section>
             <h2 className="text-3xl font-bold mb-10 text-center">
-              {properties.length}
+              {properties.length}{" "}
               {properties.length === 1
                 ? locale === "ar"
                   ? "خاصية"
@@ -262,107 +279,13 @@ export default async function CmsPage({
             </h2>
 
             <div className="grid md:grid-cols-3 gap-6">
-              {properties.map((property, index) => {
-                const images =
-                  property.media?.filter((m: any) => m.type === "image") || [];
-                const videos =
-                  property.media?.filter((m: any) => m.type === "video") || [];
-
-                const mainImage = images[0]?.url;
-                const mainVideo = videos[0]?.url;
-
-                return (
-                  <div
-                    key={property.id}
-                    className="rounded-xl overflow-hidden border shadow hover:shadow-lg transition bg-white"
-                  >
-                    {mainImage && (
-                      <Image
-                        src={mainImage}
-                        alt={property.title}
-                        width={500}
-                        height={300}
-                        priority={index === 0}
-                        className="w-full h-48 object-cover"
-                      />
-                    )}
-
-                    {/* MAIN VIDEO (fallback if no image) */}
-                    {!mainImage && mainVideo && (
-                      <video
-                        src={mainVideo}
-                        controls
-                        className="w-full h-48 object-cover"
-                      />
-                    )}
-
-                    {/* OPTIONAL: MULTIPLE IMAGES INDICATOR */}
-                    {images.length > 1 && (
-                      <div className="text-xs text-gray-500 px-2 py-1">
-                        +{images.length - 1} more photos
-                      </div>
-                    )}
-
-                    {/* ---------------- CONTENT ---------------- */}
-                    <div className="p-4 space-y-2">
-                      <h3 className="font-bold text-lg">{property.title}</h3>
-
-                      <p className="text-sm text-gray-500">
-                        {property.city}
-                        {property.neighborhood && ` • ${property.neighborhood}`}
-                      </p>
-
-                      <p className="text-blue-600 font-semibold">
-                        {property.price.toLocaleString()}{" "}
-                        {locale === "ar"
-                          ? "د.م."
-                          : locale === "fr"
-                            ? "MAD"
-                            : "MAD"}
-                      </p>
-
-                      <p className="text-sm text-gray-500">
-                        {property.rooms}{" "}
-                        {locale == "ar"
-                          ? "غرف"
-                          : locale == "fr"
-                            ? "chambres"
-                            : "rooms"}{" "}
-                        • {property.bathrooms ?? 0}{" "}
-                        {locale === "ar"
-                          ? "حمام"
-                          : locale === "fr"
-                            ? "salles de bain"
-                            : "baths"}
-                      </p>
-
-                      {property.propertyType && (
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {locale === "ar"
-                            ? property.propertyType.name_ar ||
-                              property.propertyType.name
-                            : locale === "fr"
-                              ? property.propertyType.name_fr ||
-                                property.propertyType.name
-                              : property.propertyType.name}
-                        </span>
-                      )}
-
-                      {/* BUTTON (localized) */}
-                      <Link
-                        href={`/${locale}/properties/${property.id}`}
-                        className="mt-3 inline-block w-full text-center bg-black text-white py-2 rounded-lg hover:bg-gray-800"
-                      >
-                        {locale === "ar"
-                          ? "عرض التفاصيل"
-                          : locale === "fr"
-                            ? "Voir les détails"
-                            : "View Details"}
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
+              {properties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  locale={locale}
+                />
+              ))}
             </div>
           </section>
         )}

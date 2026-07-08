@@ -18,8 +18,8 @@ import {
 import { getMessages } from "@/lib/messages";
 import type { Locale } from "@/lib/locales";
 import { formatCurrency } from "@/lib/format";
-import { PropertyCard } from "@/components/property";
 import { BecomeSellerButton } from "@/components/auth/become-seller-button";
+import PropertyCard from "@/components/property/property-card";
 
 const t = <T extends { en: string; ar?: string; fr?: string }>(
   locale: Locale,

@@ -61,7 +61,7 @@ export default function ContactPage() {
       link: "https://facebook.com",
     },
     {
-      label: locale === "fr" ? "YouTube" : "YouTube",
+      label: locale === "ar" ? "YouTube" : "YouTube",
       icon: FaYoutube,
       accent: "from-red-500 to-orange-500",
       hoverRing: "hover:ring-red-200",
@@ -138,7 +138,7 @@ export default function ContactPage() {
     return (
       <div
         dir={dir}
-        className="min-h-screen bg-linear-to-b from-white to-slate-50"
+        className="min-h-screen bg-linear-to-b from-slate-50 to-slate-100 text-slate-900 dark:from-slate-950 dark:to-slate-900 dark:text-slate-100"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
@@ -169,13 +169,13 @@ export default function ContactPage() {
   return (
     <div
       dir={dir}
-      className="min-h-screen bg-linear-to-b from-white via-slate-50 to-slate-100"
+      className="min-h-screen bg-linear-to-b from-slate-50 via-slate-100 to-slate-200 text-slate-900 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-slate-100"
     >
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
+      <div className="relative overflow-hidden bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-white/10 blur-3xl dark:bg-indigo-500/10"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-white/10 blur-3xl dark:bg-fuchsia-500/10"></div>
         </div>
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-16">
           <div className="flex items-center gap-2 mb-6">
@@ -197,21 +197,25 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div>
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              <h2 className="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100">
                 {t.formTitle}
               </h2>
-              <p className="text-lg text-slate-600">{t.formDescription}</p>
+              <p className="text-lg text-slate-600 dark:text-slate-300">
+                {t.formDescription}
+              </p>
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-sm font-medium text-red-800">{error}</p>
+              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/40">
+                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                  {error}
+                </p>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {t.nameLabel}
                 </label>
                 <Input
@@ -221,12 +225,12 @@ export default function ContactPage() {
                   value={formData.name || session?.user?.name || ""}
                   onChange={handleChange}
                   required
-                  className="h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="h-12 rounded-lg border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {t.emailLabel}
                 </label>
                 <Input
@@ -236,12 +240,12 @@ export default function ContactPage() {
                   value={formData.email || session?.user?.email || ""}
                   onChange={handleChange}
                   required
-                  className="h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="h-12 rounded-lg border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {t.phoneLabel}
                 </label>
                 <Input
@@ -250,12 +254,12 @@ export default function ContactPage() {
                   placeholder={t.phonePlaceholder}
                   value={formData.phone || session?.user?.phone || ""}
                   onChange={handleChange}
-                  className="h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="h-12 rounded-lg border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {t.subjectLabel}
                 </label>
                 <Input
@@ -265,12 +269,12 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="h-12 rounded-lg border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                   {t.messageLabel}
                 </label>
                 <Textarea
@@ -280,7 +284,7 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="rounded-lg border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  className="resize-none rounded-lg border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -309,9 +313,9 @@ export default function ContactPage() {
           <div className="flex flex-col justify-between">
             {/* Image Section */}
             <div className="mb-12 relative">
-              <div className="absolute inset-0 bg-linear-to-r from-blue-600/20 to-purple-600/20 blur-3xl rounded-3xl"></div>
-              <div className="relative bg-linear-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border border-blue-100">
-                <div className="aspect-square bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-blue-600/20 to-purple-600/20 blur-3xl dark:from-blue-500/10 dark:to-fuchsia-500/10"></div>
+              <div className="relative rounded-3xl border border-blue-100 bg-linear-to-br from-blue-50 to-purple-50 p-8 dark:border-slate-800 dark:from-slate-900 dark:to-slate-950">
+                <div className="aspect-square rounded-2xl bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 shadow-xl  flex items-center justify-center">
                   <div className="text-white text-center">
                     <Mail className="w-20 h-20 mx-auto mb-4 opacity-80" />
                     <p className="text-2xl font-bold">{t.heroIllustration}</p>
@@ -322,23 +326,23 @@ export default function ContactPage() {
 
             {/* Contact Information Cards */}
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-slate-900 mb-6">
+              <h3 className="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {t.contactInfoTitle}
               </h3>
 
               {/* Email Card */}
-              <div className="p-6 bg-white rounded-xl border border-slate-200 hover:border-blue-300 transition-colors hover:shadow-lg">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 transition-colors hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-blue-500/40">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-500/15">
                     <Mail className="w-6 h-6 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-slate-900 mb-1">
+                    <h4 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">
                       {t.emailLabelCard}
                     </h4>
                     <a
                       href="mailto:support@smssar.ma"
-                      className="text-blue-600 hover:text-blue-700 font-medium"
+                      className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
                     >
                       {t.supportEmail}
                     </a>
@@ -347,18 +351,18 @@ export default function ContactPage() {
               </div>
 
               {/* Response Time Card */}
-              <div className="p-6 bg-white rounded-xl border border-slate-200 hover:border-green-300 transition-colors hover:shadow-lg">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 transition-colors hover:border-green-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-green-500/40">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="w-6 h-6 text-green-600 font-bold text-lg">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-500/15">
+                    <span className="text-lg font-bold text-green-600 dark:text-green-300">
                       ⏱
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-slate-900 mb-1">
+                    <h4 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">
                       {t.responseTimeLabel}
                     </h4>
-                    <p className="text-slate-600 font-medium">
+                    <p className="font-medium text-slate-600 dark:text-slate-300">
                       {t.responseTime}
                     </p>
                   </div>
@@ -366,18 +370,18 @@ export default function ContactPage() {
               </div>
 
               {/* Availability Card */}
-              <div className="p-6 bg-white rounded-xl border border-slate-200 hover:border-purple-300 transition-colors hover:shadow-lg">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 transition-colors hover:border-purple-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-purple-500/40">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="w-6 h-6 flex items-center justify-center">
-                      <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-500/15">
+                    <span className="flex h-6 w-6 items-center justify-center">
+                      <span className="h-3 w-3 animate-pulse rounded-full bg-green-500"></span>
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-slate-900 mb-1">
+                    <h4 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">
                       {t.availabilityLabel}
                     </h4>
-                    <p className="text-slate-600 font-medium">
+                    <p className="font-medium text-slate-600 dark:text-slate-300">
                       {t.availableHours}
                     </p>
                   </div>
@@ -389,13 +393,15 @@ export default function ContactPage() {
       </div>
 
       {/* Social Section */}
-      <div className="bg-slate-50 border-t border-slate-200">
+      <div className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+            <h3 className="mb-3 text-2xl font-bold text-slate-900 dark:text-slate-100">
               {t.followUsTitle}
             </h3>
-            <p className="text-slate-600">{t.followUsSubtitle}</p>
+            <p className="text-slate-600 dark:text-slate-300">
+              {t.followUsSubtitle}
+            </p>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             {socialLinks.map(
@@ -406,7 +412,7 @@ export default function ContactPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className={`group inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:ring-4 ${hoverRing} cursor-pointer`}
+                  className={`group inline-flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:ring-4 dark:border-slate-800 dark:bg-slate-900/80 ${hoverRing}`}
                 >
                   <span
                     className={`flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${accent} text-white shadow-md transition-transform duration-300 group-hover:scale-110`}
@@ -414,7 +420,7 @@ export default function ContactPage() {
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span
-                    className={`text-sm font-semibold text-slate-700 transition-colors ${hoverText}`}
+                    className={`text-sm font-semibold text-slate-700 transition-colors dark:text-slate-200 ${hoverText}`}
                   >
                     {label}
                   </span>

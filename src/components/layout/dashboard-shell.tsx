@@ -5,10 +5,10 @@ import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, House, Menu, PanelLeftClose, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LanguageSwitcher } from "@/components/navigation/language-switcher";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/locales";
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "../language-switcher";
 
 const t = <T extends { en: string; ar: string; fr: string }>(
   locale: Locale,

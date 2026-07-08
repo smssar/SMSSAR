@@ -49,13 +49,13 @@ const reactSelectStyles = {
       : state.isSelected
         ? "rgba(124, 58, 237, 0.12)"
         : "transparent",
-    color: "var(--foreground)",
+    color: "#1f2937",
     cursor: "pointer",
     fontSize: 14,
   }),
   placeholder: (base: any) => ({
     ...base,
-    color: "rgba(100, 116, 139, 0.7)",
+    color: "#1f2937",
     fontSize: 14,
   }),
   multiValue: (base: any) => ({
@@ -65,8 +65,8 @@ const reactSelectStyles = {
   }),
   multiValueLabel: (base: any) => ({
     ...base,
-    color: "var(--foreground)",
-    fontSize: 12,
+    color: "dark:#FFFF",
+    fontSize: 14,
   }),
   multiValueRemove: (base: any) => ({
     ...base,
@@ -79,7 +79,7 @@ const reactSelectStyles = {
   }),
   input: (base: any) => ({
     ...base,
-    color: "var(--foreground)",
+    color: "#1f2937",
   }),
   noOptionsMessage: (base: any) => ({
     ...base,
@@ -169,7 +169,7 @@ type EditingPage = {
   seoDescription?: string | null;
   seoDescription_ar?: string | null;
   seoDescription_fr?: string | null;
-  seoKeywords?: string | null;
+  seoKeywords?: string[] | null;
   ogImage?: string | null;
   published?: boolean | null;
   noIndex?: boolean | null;
@@ -269,6 +269,130 @@ function LocalizedInput({
   );
 }
 
+function parseSeoKeywords(value: string) {
+  return value
+    .split(/[,\n]/)
+    .map((keyword) => keyword.trim())
+    .filter(Boolean);
+}
+
+function SeoKeywordsInput({
+  label,
+  value,
+  onChange,
+  locale,
+}: {
+  label: string;
+  value: string[];
+  onChange: (next: string[]) => void;
+  locale: Locale;
+}) {
+  const [input, setInput] = useState("");
+
+  const commitInput = (raw: string) => {
+    const nextKeywords = parseSeoKeywords(raw);
+    if (!nextKeywords.length) return;
+
+    const merged = Array.from(
+      new Set([...value, ...nextKeywords.map((keyword) => keyword.trim())]),
+    ).filter(Boolean);
+    onChange(merged);
+    setInput("");
+  };
+
+  const removeKeyword = (keyword: string) => {
+    onChange(value.filter((item) => item !== keyword));
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+        {label}
+      </label>
+
+      <div className="rounded-2xl border border-border/70 bg-background/90 p-3 shadow-sm transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/10 dark:bg-slate-950/40">
+        <div className="flex flex-wrap gap-2">
+          {value.map((keyword) => (
+            <span
+              key={keyword}
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-700 dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-200"
+            >
+              <span>{keyword}</span>
+              <button
+                type="button"
+                onClick={() => removeKeyword(keyword)}
+                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-violet-500 transition hover:bg-violet-500/15 hover:text-violet-700 dark:text-violet-200 dark:hover:bg-violet-400/15"
+                aria-label={`Remove ${keyword}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                commitInput(input);
+              }
+              if (e.key === "Backspace" && !input && value.length) {
+                onChange(value.slice(0, -1));
+              }
+            }}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData("text");
+              if (/[\n,]/.test(pasted)) {
+                e.preventDefault();
+                commitInput(`${input}${pasted}`);
+              }
+            }}
+            onBlur={() => {
+              if (input.trim()) commitInput(input);
+            }}
+            placeholder={
+              value.length
+                ? locale === "ar"
+                  ? "اكتب ثم اضغط Enter"
+                  : locale === "fr"
+                    ? "Tapez puis appuyez sur Entrée"
+                    : "Type and press Enter"
+                : locale === "ar"
+                  ? "أضف كلمة مفتاحية"
+                  : locale === "fr"
+                    ? "Ajouter un mot-clé"
+                    : "Add a keyword"
+            }
+            className="min-w-45 flex-1 border-0 bg-transparent px-1 py-2 text-sm outline-none placeholder:text-muted-foreground/60"
+            dir={locale === "ar" ? "rtl" : "ltr"}
+          />
+        </div>
+
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {locale === "ar"
+            ? "اضغط Enter لإضافة الكلمة المفتاحية."
+            : locale === "fr"
+              ? "Appuyez sur Entrée pour ajouter un mot-clé."
+              : "Press Enter to add a keyword."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function normalizeSeoKeywords(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.map((keyword) => String(keyword).trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return parseSeoKeywords(value);
+  }
+
+  return [];
+}
+
 function LangSwitcher({
   langTab,
   onChange,
@@ -335,6 +459,7 @@ export function PagesAdminClient({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [langTab, setLangTab] = useState<LangTab>("en");
+  const currentLocale: Locale = locale ?? "en";
 
   const showToast = (type: "success" | "error", message: string) => {
     setToast({ type, message });
@@ -441,7 +566,7 @@ export function PagesAdminClient({
       seoDescription: "",
       seoDescription_ar: "",
       seoDescription_fr: "",
-      seoKeywords: "",
+      seoKeywords: [],
       ogImage: "",
       published: true,
       noIndex: false,
@@ -472,6 +597,7 @@ export function PagesAdminClient({
       : `/api/admin/pages`;
     const payload: any = { ...editing };
     payload.article = editing.article ?? null;
+    payload.seoKeywords = normalizeSeoKeywords(editing.seoKeywords);
 
     const res = await fetch(url, {
       method,
@@ -783,6 +909,7 @@ export function PagesAdminClient({
                               article: p.article || "",
                               article_ar: p.article_ar || "",
                               article_fr: p.article_fr || "",
+                              seoKeywords: normalizeSeoKeywords(p.seoKeywords),
                             });
                             setTab("editor");
                           }}
@@ -1025,9 +1152,9 @@ export function PagesAdminClient({
                 <div className="flex items-center justify-between gap-3">
                   <LangSwitcher langTab={langTab} onChange={setLangTab} />
                 </div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="mb-3">
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+                  <div className="space-y-3">
+                    <div>
                       <LocalizedInput
                         label={t(
                           "adminPages.editor.seoTitleLabel",
@@ -1057,7 +1184,7 @@ export function PagesAdminClient({
                       )}
                       langTab={langTab}
                       type="textarea"
-                      rows={2}
+                      rows={3}
                       enValue={editing?.seoDescription || ""}
                       arValue={editing?.seoDescription_ar || ""}
                       frValue={editing?.seoDescription_fr || ""}
@@ -1072,25 +1199,21 @@ export function PagesAdminClient({
                       }
                     />
                   </div>
-                  <div className="w-28 shrink-0">
-                    <div className="mt-4">
-                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                        {t(
-                          "adminPages.editor.seoKeywordsLabel",
-                          "SEO Keywords (comma)",
-                        )}
-                      </label>
-                      <input
-                        className="w-full rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm outline-none transition focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20"
-                        value={editing?.seoKeywords || ""}
-                        onChange={(e) =>
-                          setEditing({
-                            ...editing,
-                            seoKeywords: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
+                  <div className="min-w-0">
+                    <SeoKeywordsInput
+                      label={t(
+                        "adminPages.editor.seoKeywordsLabel",
+                        "SEO Keywords",
+                      )}
+                      value={editing?.seoKeywords ?? []}
+                      locale={currentLocale}
+                      onChange={(next) =>
+                        setEditing({
+                          ...editing,
+                          seoKeywords: next,
+                        })
+                      }
+                    />
                   </div>
                 </div>
                 <div>
