@@ -39,16 +39,49 @@ function scoreTextMatch(text: string, query: string, tokenList: string[]) {
   return score;
 }
 
-function getSeoCopy(locale: Locale) {
+function getSeoCopy(
+  locale: Locale,
+  city?: string | null,
+  neighborhood?: string | null,
+) {
+  const hasCity = !!city && city !== "all";
+  const hasNeighborhood = !!neighborhood && neighborhood !== "all";
+
   if (locale === "ar") {
+    if (hasCity && hasNeighborhood) {
+      return {
+        title: `عقارات للإيجار في ${neighborhood}, ${city} `,
+        description: `ابحث عن عقارات مميزة للإيجار في ${neighborhood}، ${city} — فلتر حسب السعر، عدد الغرف، والتواصل مع بائعين موثوقين.`,
+      };
+    }
+    if (hasCity) {
+      return {
+        title: `عقارات للإيجار في ${city}`,
+        description: `اكتشف عقارات للإيجار في ${city} مع فلاتر متقدمة حسب السعر وعدد الغرف.`,
+      };
+    }
+
     return {
-      title: "تصفح جميع العقارات | منصة تأجير المنازل",
+      title: "تصفح جميع العقارات",
       description:
-        "اكتشف عقارات مميزة للإيجار مع فلاتر متقدمة حسب المدينة والسعر وعدد الغرف، وتواصل مباشرة مع بائعين موثقين.",
+        "اكتشف عقارات مميزة للإيجار مع فلاتر متقدمة حسب المدينة والسعر وعدد الغرف، وتواصل مباشرة مع بائعين موثوقين.",
     };
   }
 
   if (locale === "fr") {
+    if (hasCity && hasNeighborhood) {
+      return {
+        title: `Locations à ${neighborhood}, ${city} | Smssar`,
+        description: `Trouvez des logements à louer à ${neighborhood}, ${city} — filtres par prix, nombre de chambres et contact direct avec les vendeurs.`,
+      };
+    }
+    if (hasCity) {
+      return {
+        title: `Locations à ${city} | Smssar`,
+        description: `Découvrez des propriétés à louer à ${city} avec des filtres avancés par prix et nombre de chambres.`,
+      };
+    }
+
     return {
       title: "Parcourir toutes les proprietes | Smssar",
       description:
@@ -56,21 +89,59 @@ function getSeoCopy(locale: Locale) {
     };
   }
 
+  // English
+  if (hasCity && hasNeighborhood) {
+    return {
+      title: `Properties in ${neighborhood}, ${city} | Smssar`,
+      description: `Find properties in ${neighborhood}, ${city} — filter by price, rooms, and contact verified sellers directly.`,
+    };
+  }
+
+  if (hasCity) {
+    return {
+      title: `Properties in ${city} | Smssar`,
+      description: `Discover properties in ${city} with advanced filters by price and number of rooms.`,
+    };
+  }
+
   return {
     title: "Browse all properties | Smssar",
     description:
-      "Discover premium rental properties with advanced filters by city, price, and rooms, and contact verified sellers directly.",
+      "Discover premium properties with advanced filters by city, price, and rooms, and contact verified sellers directly.",
   };
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const seo = getSeoCopy(locale);
-  const canonicalPath = `${APP_URL.replace(/\/$/, "")}/${locale}/properties`;
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const city = Array.isArray(resolvedSearchParams.city)
+    ? resolvedSearchParams.city[0] || "all"
+    : resolvedSearchParams.city || "all";
+  const neighborhood = Array.isArray(resolvedSearchParams.neighborhood)
+    ? resolvedSearchParams.neighborhood[0] || "all"
+    : resolvedSearchParams.neighborhood || "all";
+
+  const seo = getSeoCopy(
+    locale,
+    city === "all" ? undefined : city,
+    neighborhood === "all" ? undefined : neighborhood,
+  );
+
+  const queryParts: string[] = [];
+  if (city && city !== "all")
+    queryParts.push(`city=${encodeURIComponent(city)}`);
+  if (neighborhood && neighborhood !== "all")
+    queryParts.push(`neighborhood=${encodeURIComponent(neighborhood)}`);
+
+  const canonicalPath = `${APP_URL.replace(/\/$/, "")}/${locale}/properties${
+    queryParts.length ? "?" + queryParts.join("&") : ""
+  }`;
 
   return {
     title: seo.title,
@@ -402,7 +473,11 @@ export default async function PropertiesPage({
   // Properties are already fetched with DB pagination (take/skip)
   const pagedProperties = transformedProperties;
 
-  const seo = getSeoCopy(locale);
+  const seo = getSeoCopy(
+    locale,
+    city === "all" ? undefined : city,
+    neighborhood === "all" ? undefined : neighborhood,
+  );
   const baseUrl = APP_URL.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
   const currency =
     process.env.NEXT_PUBLIC_DEFAULT_CURRENCY ||
