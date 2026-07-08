@@ -143,6 +143,9 @@ export default async function PropertiesPage({
   const maxPrice = Array.isArray(resolvedSearchParams.maxPrice)
     ? resolvedSearchParams.maxPrice[0] || ""
     : resolvedSearchParams.maxPrice || "";
+  const minPrice = Array.isArray(resolvedSearchParams.minPrice)
+    ? resolvedSearchParams.minPrice[0] || ""
+    : resolvedSearchParams.minPrice || "";
 
   const searchable = query.trim();
   const normalizedQuery = normalizeSearchText(searchable);
@@ -150,6 +153,7 @@ export default async function PropertiesPage({
     ? normalizedQuery.split(/\s+/).filter(Boolean)
     : [];
   const numericRooms = rooms === "all" ? null : Number.parseInt(rooms, 10);
+  const numericMinPrice = minPrice ? Number(minPrice) : null;
   const numericMaxPrice = maxPrice ? Number(maxPrice) : null;
 
   // Use relational filter for seller name instead of fetching seller IDs first
@@ -188,7 +192,14 @@ export default async function PropertiesPage({
     ...(neighborhood !== "all" ? { neighborhood } : {}),
     ...(numericRooms ? { rooms: numericRooms } : {}),
     ...(propertyType !== "all" ? { propertyTypeId: propertyType } : {}),
-    ...(numericMaxPrice !== null ? { price: { lte: numericMaxPrice } } : {}),
+    ...(numericMinPrice !== null || numericMaxPrice !== null
+      ? {
+          price: {
+            ...(numericMinPrice !== null ? { gte: numericMinPrice } : {}),
+            ...(numericMaxPrice !== null ? { lte: numericMaxPrice } : {}),
+          },
+        }
+      : {}),
     ...(searchable ? { OR: searchFilters } : {}),
   };
 

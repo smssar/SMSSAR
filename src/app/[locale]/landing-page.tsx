@@ -107,8 +107,8 @@ export default async function LandingPage({ locale }: { locale: Locale }) {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_24%)]" />
           <SectionReveal>
             <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:py-24">
-              <div className="space-y-8 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start">
+              <div className="space-y-8 text-center ltr:lg:text-left rtl:lg:text-right">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm justify-center lg:justify-start text-right">
                   <BadgeCheck className="h-4 w-4 text-green-500" />
                   {t(locale, {
                     en: "Verified, multilingual rental marketplace",

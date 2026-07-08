@@ -86,11 +86,13 @@ export function PropertyExplorer({
     neighborhood: "all",
     rooms: "all",
     propertyType: "all",
+    minPrice: "",
     maxPrice: "",
   };
 
   const [pendingFilters, setPendingFilters] = useState(initialFilters);
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const urlQuery = searchParams.get("query") || "";
@@ -98,6 +100,7 @@ export function PropertyExplorer({
     const urlNeighborhood = searchParams.get("neighborhood") || "all";
     const urlRooms = searchParams.get("rooms") || "all";
     const urlPropertyType = searchParams.get("propertyType") || "all";
+    const urlMinPrice = searchParams.get("minPrice") || "";
     const urlMaxPrice = searchParams.get("maxPrice") || "";
 
     // Reset neighborhood if city changed and selected neighborhood is not available
@@ -117,6 +120,7 @@ export function PropertyExplorer({
       neighborhood: finalNeighborhood,
       rooms: urlRooms,
       propertyType: urlPropertyType,
+      minPrice: urlMinPrice,
       maxPrice: urlMaxPrice,
     };
 
@@ -155,11 +159,15 @@ export function PropertyExplorer({
         params.set("rooms", pendingFilters.rooms);
       if (pendingFilters.propertyType !== "all")
         params.set("propertyType", pendingFilters.propertyType);
+      if (pendingFilters.minPrice)
+        params.set("minPrice", pendingFilters.minPrice);
       if (pendingFilters.maxPrice)
         params.set("maxPrice", pendingFilters.maxPrice);
       params.set("page", "1");
 
       router.push(`?${params.toString()}`);
+    } catch {
+      setIsError(true);
     } finally {
       setIsLoading(false);
     }
@@ -172,6 +180,7 @@ export function PropertyExplorer({
       neighborhood: "all",
       rooms: "all",
       propertyType: "all",
+      minPrice: "",
       maxPrice: "",
     };
     setPendingFilters(emptyFilters);
@@ -270,8 +279,8 @@ export function PropertyExplorer({
                       fr: "Choisissez d'abord une ville",
                     })}
               </option>
-              {availableNeighborhoods.map((item) => (
-                <option key={item.name} value={item.name}>
+              {availableNeighborhoods.map((item, index) => (
+                <option key={index} value={item.name}>
                   {getLocalizedLabel(locale, item)}
                 </option>
               ))}
@@ -294,8 +303,8 @@ export function PropertyExplorer({
               <option value="all">
                 {t(locale, { en: "All", ar: "الكل", fr: "Tous" })}
               </option>
-              {[1, 2, 3, 4, 5].map((room) => (
-                <option key={room} value={room}>
+              {[1, 2, 3, 4, 5].map((room, index) => (
+                <option key={index} value={room}>
                   {room}+
                 </option>
               ))}
@@ -328,6 +337,26 @@ export function PropertyExplorer({
                 </option>
               ))}
             </Select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              {t(locale, {
+                en: "Min price",
+                ar: "أقل سعر",
+                fr: "Prix minimum",
+              })}
+            </label>
+            <Input
+              value={pendingFilters.minPrice}
+              onChange={(event) =>
+                setPendingFilters((prev) => ({
+                  ...prev,
+                  minPrice: event.target.value,
+                }))
+              }
+              inputMode="numeric"
+            />
           </div>
 
           <div>
@@ -390,7 +419,13 @@ export function PropertyExplorer({
       </Card>
 
       <div className="space-y-6">
-        {properties.length > 0 ? (
+        {isLoading && (
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
+
+        {properties.length > 0 && !isError && !isLoading && (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {properties.map((property) => (
               <PropertyCard
@@ -400,15 +435,15 @@ export function PropertyExplorer({
               />
             ))}
           </div>
-        ) : (
-          <Card className="border-dashed">
-            <CardContent className="flex min-h-64 items-center justify-center text-center text-muted-foreground">
-              {noResults}
-            </CardContent>
-          </Card>
         )}
 
-        {properties.length > 0 && totalPages > 1 ? (
+        {properties.length === 0 && !isError && !isLoading && (
+          <div className="flex items-center justify-center rounded-2xl border border-border/70 bg-card/70 p-6 text-center text-sm text-muted-foreground">
+            {noResults}
+          </div>
+        )}
+
+        {properties.length > 0 && totalPages > 1 && !isError && !isLoading && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/70 px-4 py-3">
             <div className="text-sm text-muted-foreground">
               {t(locale, { en: "Page", ar: "الصفحة", fr: "Page" })}{" "}
@@ -437,7 +472,7 @@ export function PropertyExplorer({
               </Button>
             </div>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

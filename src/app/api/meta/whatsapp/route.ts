@@ -12,33 +12,10 @@ import { normalizePhoneNumber } from "@/lib/phone";
 import { speechToText } from "@/lib/speech_to_text";
 import { NextResponse } from "next/server";
 import { WhatsappUserWithTokenLock } from "@/lib/types";
+import { sendWhatsAppMessage } from "@/lib/sendWhatsappMessage";
+import { fetchWithRetries } from "@/lib/fetchWithRetries";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "";
-
-// Shared fetch helper with retries and timeout
-async function fetchWithRetries(
-  url: string,
-  opts: RequestInit = {},
-  retries = 2,
-  timeoutMs = 10000,
-): Promise<Response> {
-  let lastErr: unknown = null;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const res = await fetch(url, { ...opts, signal: controller.signal });
-      clearTimeout(id);
-      return res;
-    } catch (err) {
-      lastErr = err;
-      clearTimeout(id);
-      if (attempt < retries)
-        await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
-    }
-  }
-  throw lastErr;
-}
 
 // Dedupe persisted in DB via WhatsappMessage.externalId
 
@@ -110,8 +87,6 @@ export async function POST(req: Request) {
       try {
         whatsappUser = await getWhatsappUser(from);
       } catch (err) {
-        // Prisma may time out; log and continue with no DB-backed user.
-        // We still proceed so the webhook remains responsive.
         console.error(
           "whatsapp webhook: getWhatsappUser failed, continuing without DB user",
           err,
@@ -133,7 +108,38 @@ export async function POST(req: Request) {
         console.error("whatsapp webhook: dedupe DB check failed", err);
       }
       try {
-        // If no text, try to transcribe incoming audio/voice/document message
+        const temporaryMessage =
+          whatsappUser?.language === "ar"
+            ? "🏡 مرحبًا بك في بوت منصة SMSSAR! هذا البوت هو مساعدك الذكي للبحث عن العقارات، حيث يمكنك وصف العقار الذي تبحث عنه، وسيتولى الذكاء الاصطناعي تحليل طلبك والبحث عن أفضل الخيارات المناسبة لك. 🚧 الخدمة متوقفة مؤقتًا، إذ نعمل حاليًا على توسيع قاعدة بيانات العقارات وإضافة المزيد من العروض، لنقدم لك نتائج أكثر دقة وشمولًا عند إعادة إطلاق الخدمة. نشكر لك صبرك وتفهمك، وسنعلن عن عودة الخدمة قريبًا. منصة SMSSAR – ابحث بذكاء، واعثر بسهولة. 🏠✨"
+            : whatsappUser?.language === "fr"
+              ? `🏡 Bienvenue sur le bot de la plateforme SMSSAR !
+
+        Ce bot est votre assistant intelligent pour la recherche de biens immobiliers. Décrivez simplement le bien que vous recherchez, et l'intelligence artificielle analysera votre demande afin de vous proposer les options les plus adaptées.
+
+        🚧 Le service est temporairement indisponible. Nous travaillons actuellement à l'enrichissement de notre base de données immobilière en ajoutant davantage d'annonces, afin de vous offrir des résultats plus précis et plus complets lors du prochain lancement du service.
+
+        Nous vous remercions pour votre patience et votre compréhension. Nous annoncerons très prochainement le retour du service.
+
+        Plateforme SMSSAR – Recherchez intelligemment, trouvez facilement. 🏠✨`
+              : `🏡 Welcome to the SMSSAR platform bot!
+
+        This bot is your intelligent assistant for finding real estate. Simply describe the property you're looking for, and our AI will analyze your request to help you find the most suitable options.
+
+        🚧 The service is temporarily unavailable while we expand our property database and add more listings to provide you with more accurate and comprehensive results when the service returns.
+
+        Thank you for your patience and understanding. We'll announce the service's return very soon.
+
+        SMSSAR Platform – Search smarter, find easier. 🏠✨`;
+
+        await sendWhatsAppMessage(from, temporaryMessage);
+        return NextResponse.json({ ok: true });
+      } catch (err) {
+        console.error(
+          "whatsapp webhook: failed to create temporary message",
+          err,
+        );
+      }
+      try {
         if (!text) {
           const mediaId = message?.audio?.id || message?.voice?.id;
           // ||
@@ -352,7 +358,6 @@ export async function POST(req: Request) {
           console.warn(
             "No text obtained from incoming message; skipping LLM analysis",
           );
-          // Optionally notify the user that transcription failed
           try {
             await sendWhatsAppMessage(
               from,
@@ -653,78 +658,4 @@ export async function POST(req: Request) {
     console.error("❌ Webhook error:", err);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
-}
-
-export async function sendWhatsAppMessage(
-  to: string,
-  text: string,
-  opts?: { imageUrl?: string; link?: string },
-) {
-  const url = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-
-  if (opts?.imageUrl) {
-    // Send image message with caption that may include link
-    const caption = text || "";
-    const body = JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "image",
-      image: {
-        link: opts.imageUrl,
-        caption: opts.link ? `${caption}\n${opts.link}` : caption,
-      },
-    });
-
-    const res = await fetchWithRetries(
-      url,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body,
-      },
-      2,
-      8000,
-    );
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      throw new Error(`Failed to send WhatsApp image message: ${res.status}`);
-    }
-
-    return data;
-  }
-
-  // Default: send text message (optionally append link)
-  const finalText = opts?.link ? `${text}\n${opts.link}` : text;
-
-  const res = await fetchWithRetries(
-    url,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "text",
-        text: { body: finalText },
-      }),
-    },
-    2,
-    8000,
-  );
-
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(`Failed to send WhatsApp message: ${res.status}`);
-  }
-
-  return data;
 }
