@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,10 +42,58 @@ type LocalizedLabel = {
   name_fr?: string | null;
 };
 
+type FilterState = {
+  query: string;
+  city: string;
+  neighborhood: string;
+  rooms: string;
+  propertyType: string;
+  minPrice: string;
+  maxPrice: string;
+};
+
 function getLocalizedLabel(locale: Locale, item: LocalizedLabel) {
   if (locale === "ar") return item.name_ar || item.name;
   if (locale === "fr") return item.name_fr || item.name;
   return item.name;
+}
+
+function getFiltersFromSearchParams(
+  searchParams: URLSearchParams,
+  allNeighborhoods: Array<{
+    name: string;
+    name_ar?: string | null;
+    name_fr?: string | null;
+    city: LocalizedLabel;
+  }>,
+): FilterState {
+  const urlQuery = searchParams.get("query") || "";
+  const urlCity = searchParams.get("city") || "all";
+  const urlNeighborhood = searchParams.get("neighborhood") || "all";
+  const urlRooms = searchParams.get("rooms") || "all";
+  const urlPropertyType = searchParams.get("propertyType") || "all";
+  const urlMinPrice = searchParams.get("minPrice") || "";
+  const urlMaxPrice = searchParams.get("maxPrice") || "";
+
+  let finalNeighborhood = urlNeighborhood;
+  if (urlNeighborhood !== "all") {
+    const isNeighborhoodValid = allNeighborhoods.some(
+      (n) => n.name === urlNeighborhood && n.city.name === urlCity,
+    );
+    if (!isNeighborhoodValid) {
+      finalNeighborhood = "all";
+    }
+  }
+
+  return {
+    query: urlQuery,
+    city: urlCity,
+    neighborhood: finalNeighborhood,
+    rooms: urlRooms,
+    propertyType: urlPropertyType,
+    minPrice: urlMinPrice,
+    maxPrice: urlMaxPrice,
+  };
 }
 
 export function PropertyExplorer({
@@ -59,6 +107,7 @@ export function PropertyExplorer({
   noResults,
   currentPage,
   totalPages,
+  isLoading = false,
 }: {
   locale: Locale;
   properties: SimpleProperty[];
@@ -75,63 +124,33 @@ export function PropertyExplorer({
   noResults: string;
   currentPage: number;
   totalPages: number;
+  isLoading?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initializedRef = useRef(false);
+  const [pendingQueryString, setPendingQueryString] = useState<string | null>(null);
+  const [isDraftDirty, setIsDraftDirty] = useState(false);
 
-  const initialFilters = {
-    query: "",
-    city: "all",
-    neighborhood: "all",
-    rooms: "all",
-    propertyType: "all",
-    minPrice: "",
-    maxPrice: "",
-  };
+  const initialFilters: FilterState = getFiltersFromSearchParams(
+    searchParams,
+    allNeighborhoods,
+  );
 
   const [pendingFilters, setPendingFilters] = useState(initialFilters);
-  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  useEffect(() => {
-    const urlQuery = searchParams.get("query") || "";
-    const urlCity = searchParams.get("city") || "all";
-    const urlNeighborhood = searchParams.get("neighborhood") || "all";
-    const urlRooms = searchParams.get("rooms") || "all";
-    const urlPropertyType = searchParams.get("propertyType") || "all";
-    const urlMinPrice = searchParams.get("minPrice") || "";
-    const urlMaxPrice = searchParams.get("maxPrice") || "";
+  const currentQueryString = searchParams.toString();
+  const isApplyingFilters =
+    pendingQueryString !== null && pendingQueryString !== currentQueryString;
+  const showLoading = isApplyingFilters || isLoading;
 
-    // Reset neighborhood if city changed and selected neighborhood is not available
-    let finalNeighborhood = urlNeighborhood;
-    if (urlNeighborhood !== "all") {
-      const isNeighborhoodValid = allNeighborhoods.some(
-        (n) => n.name === urlNeighborhood && n.city.name === urlCity,
-      );
-      if (!isNeighborhoodValid) {
-        finalNeighborhood = "all";
-      }
-    }
-
-    const filters = {
-      query: urlQuery,
-      city: urlCity,
-      neighborhood: finalNeighborhood,
-      rooms: urlRooms,
-      propertyType: urlPropertyType,
-      minPrice: urlMinPrice,
-      maxPrice: urlMaxPrice,
-    };
-
-    if (!initializedRef.current) {
-      setPendingFilters(filters);
-      initializedRef.current = true;
-      return;
-    }
-
-    setPendingFilters(filters);
+  const currentFilters = useMemo(() => {
+    return getFiltersFromSearchParams(searchParams, allNeighborhoods);
   }, [searchParams, allNeighborhoods]);
+
+  const activeFilters = isApplyingFilters || isDraftDirty
+    ? pendingFilters
+    : currentFilters;
 
   const setPageParam = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -140,14 +159,14 @@ export function PropertyExplorer({
     } else {
       params.set("page", String(page));
     }
-    router.push(params.toString() ? `?${params.toString()}` : "?");
+    const nextQueryString = params.toString();
+    setIsDraftDirty(false);
+    setPendingQueryString(nextQueryString);
+    router.push(nextQueryString ? `?${nextQueryString}` : "?");
   };
 
   const applyFilters = async () => {
-    setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
       const params = new URLSearchParams();
       if (pendingFilters.query) params.set("query", pendingFilters.query);
       if (pendingFilters.city !== "all")
@@ -165,11 +184,13 @@ export function PropertyExplorer({
         params.set("maxPrice", pendingFilters.maxPrice);
       params.set("page", "1");
 
-      router.push(`?${params.toString()}`);
+      const nextQueryString = params.toString();
+      setIsDraftDirty(false);
+      setPendingQueryString(nextQueryString);
+      router.push(`?${nextQueryString}`);
     } catch {
       setIsError(true);
-    } finally {
-      setIsLoading(false);
+      setPendingQueryString(null);
     }
   };
 
@@ -184,12 +205,14 @@ export function PropertyExplorer({
       maxPrice: "",
     };
     setPendingFilters(emptyFilters);
+    setIsDraftDirty(false);
+    setPendingQueryString("");
     router.push("?");
   };
 
   const getAvailableNeighborhoods = () => {
     const selectedCity =
-      pendingFilters.city !== "all" ? pendingFilters.city : null;
+      activeFilters.city !== "all" ? activeFilters.city : null;
     if (!selectedCity) {
       return allNeighborhoods;
     }
@@ -197,7 +220,7 @@ export function PropertyExplorer({
   };
 
   const availableNeighborhoods = getAvailableNeighborhoods();
-  const isCitySelected = pendingFilters.city !== "all";
+  const isCitySelected = activeFilters.city !== "all";
 
   return (
     <div className="space-y-8">
@@ -214,12 +237,13 @@ export function PropertyExplorer({
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-4" />
               <Input
-                value={pendingFilters.query}
+                value={activeFilters.query}
                 onChange={(event) =>
+                  (setIsDraftDirty(true),
                   setPendingFilters((prev) => ({
                     ...prev,
                     query: event.target.value,
-                  }))
+                  })))
                 }
                 placeholder={t(locale, {
                   en: "City, home, or seller",
@@ -236,13 +260,14 @@ export function PropertyExplorer({
               {t(locale, { en: "City", ar: "المدينة", fr: "Ville" })}
             </label>
             <Select
-              value={pendingFilters.city}
+              value={activeFilters.city}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   city: event.target.value,
                   neighborhood: "all",
-                }))
+                })))
               }
             >
               <option value="all">
@@ -261,13 +286,14 @@ export function PropertyExplorer({
               {t(locale, { en: "Neighborhood", ar: "الحي", fr: "Quartier" })}
             </label>
             <Select
-              value={pendingFilters.neighborhood}
+              value={activeFilters.neighborhood}
               disabled={!isCitySelected}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   neighborhood: event.target.value,
-                }))
+                })))
               }
             >
               <option value="all">
@@ -292,12 +318,13 @@ export function PropertyExplorer({
               {t(locale, { en: "Rooms", ar: "عدد الغرف", fr: "Chambres" })}
             </label>
             <Select
-              value={pendingFilters.rooms}
+              value={activeFilters.rooms}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   rooms: event.target.value,
-                }))
+                })))
               }
             >
               <option value="all">
@@ -320,12 +347,13 @@ export function PropertyExplorer({
               })}
             </label>
             <Select
-              value={pendingFilters.propertyType}
+              value={activeFilters.propertyType}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   propertyType: event.target.value,
-                }))
+                })))
               }
             >
               <option value="all">
@@ -348,12 +376,13 @@ export function PropertyExplorer({
               })}
             </label>
             <Input
-              value={pendingFilters.minPrice}
+              value={activeFilters.minPrice}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   minPrice: event.target.value,
-                }))
+                })))
               }
               inputMode="numeric"
             />
@@ -368,12 +397,13 @@ export function PropertyExplorer({
               })}
             </label>
             <Input
-              value={pendingFilters.maxPrice}
+              value={activeFilters.maxPrice}
               onChange={(event) =>
+                (setIsDraftDirty(true),
                 setPendingFilters((prev) => ({
                   ...prev,
                   maxPrice: event.target.value,
-                }))
+                })))
               }
               inputMode="numeric"
             />
@@ -384,10 +414,10 @@ export function PropertyExplorer({
             type="button"
             variant="accent"
             onClick={applyFilters}
-            disabled={isLoading}
+            disabled={showLoading}
             className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600"
           >
-            {isLoading ? (
+            {showLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 {t(locale, {
@@ -419,31 +449,27 @@ export function PropertyExplorer({
       </Card>
 
       <div className="space-y-6">
-        {isLoading && (
-          <div className="flex items-center justify-center">
+        {showLoading && (
+          <div className="flex items-center justify-center rounded-2xl border border-border/70 bg-card/70 p-10">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         )}
 
-        {properties.length > 0 && !isError && !isLoading && (
+        {!showLoading && properties.length > 0 && !isError && (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                locale={locale}
-                property={property}
-              />
+              <PropertyCard key={property.id} locale={locale} property={property} />
             ))}
           </div>
         )}
 
-        {properties.length === 0 && !isError && !isLoading && (
+        {!showLoading && properties.length === 0 && !isError && (
           <div className="flex items-center justify-center rounded-2xl border border-border/70 bg-card/70 p-6 text-center text-sm text-muted-foreground">
             {noResults}
           </div>
         )}
 
-        {properties.length > 0 && totalPages > 1 && !isError && !isLoading && (
+        {!showLoading && properties.length > 0 && totalPages > 1 && !isError && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/70 px-4 py-3">
             <div className="text-sm text-muted-foreground">
               {t(locale, { en: "Page", ar: "الصفحة", fr: "Page" })}{" "}
@@ -455,7 +481,7 @@ export function PropertyExplorer({
                 variant="outline"
                 size="sm"
                 onClick={() => setPageParam(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || showLoading}
               >
                 {t(locale, { en: "Previous", ar: "السابق", fr: "Precedent" })}
               </Button>
@@ -463,10 +489,8 @@ export function PropertyExplorer({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setPageParam(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
+                onClick={() => setPageParam(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages || showLoading}
               >
                 {t(locale, { en: "Next", ar: "التالي", fr: "Suivant" })}
               </Button>
