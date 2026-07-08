@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
-import { PropertyCard } from "@/components/property";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMessages } from "@/lib/messages";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/lib/locales";
 import { redirect } from "next/navigation";
+import PropertyCard from "../property/property-card";
 
 type FavoriteProperty = {
   id: string;
