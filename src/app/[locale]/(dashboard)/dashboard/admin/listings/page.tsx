@@ -48,7 +48,6 @@ export default async function AdminListingsPage({
   }> = [];
   let totalCount = 0;
 
-  // Update ad statuses before fetching
   await updateAdStatuses();
 
   try {
