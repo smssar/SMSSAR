@@ -70,6 +70,13 @@ export function ListingForm({
   propertyTypes,
   cities = [],
   neighborhoods = [],
+  featuredInfo = {
+    current: 0,
+    max: 0,
+    extraFeatured: 0,
+    upgradeUrl: `/${locale}/pricing`,
+  },
+  userRole,
 }: {
   locale: Locale;
   title: string;
@@ -100,6 +107,13 @@ export function ListingForm({
     name_fr?: string | null;
     city: { name: string };
   }>;
+  featuredInfo?: {
+    current: number;
+    max: number;
+    extraFeatured: number;
+    upgradeUrl: string;
+  };
+  userRole?: string;
 }) {
   const router = useRouter();
   const [imageAssets, setImageAssets] = useState<UploadedAsset[]>([]);
@@ -156,6 +170,15 @@ export function ListingForm({
   const [propertyType, setPropertyType] = useState<string>(
     (defaultListing?.propertyType as string) ?? propertyTypes[0]?.id ?? "",
   );
+
+  let role = null;
+  console.log(userRole);
+
+  if (userRole === "SMSSAR") {
+    role = "smssar";
+  } else if (userRole === "SELLER") {
+    role = "seller";
+  }
 
   const initialValues = useMemo(
     () => ({
@@ -762,9 +785,7 @@ export function ListingForm({
                           ? "Vous avez atteint la limite de votre forfait."
                           : "You reached your plan limit."),
                   );
-                  setUpgradeDialogUrl(
-                    payload?.upgradeUrl || `/${locale}/pricing`,
-                  );
+                  setUpgradeDialogUrl(payload?.upgradeUrl || `/${locale}/plan`);
                   setUpgradeDialogOpen(true);
                   setSaved(false);
                   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -799,18 +820,26 @@ export function ListingForm({
                   (res.status === 401
                     ? locale === "ar"
                       ? "يجب تسجيل الدخول أولاً."
-                      : "You must be logged in."
+                      : locale === "fr"
+                        ? "Vous devez vous connecter d'abord."
+                        : "You must log in first."
                     : res.status === 403
                       ? locale === "ar"
                         ? "ليس لديك صلاحية لإجراء هذا الإجراء."
-                        : "You don't have permission to perform this action."
+                        : locale === "fr"
+                          ? "Vous n'avez pas la permission de réaliser cette action."
+                          : "You don't have permission to perform this action."
                       : res.status === 429
                         ? locale === "ar"
                           ? "يرجى المحاولة لاحقاً. تم تجاوز حد الطلبات."
-                          : "Please try again later. Rate limit exceeded."
+                          : locale === "fr"
+                            ? "Veuillez réessayer plus tard. Limite de fréquence dépassée."
+                            : "Please try again later. Rate limit exceeded."
                         : locale === "ar"
                           ? "حدث خطأ عند حفظ العقار. يرجى المحاولة مرة أخرى."
-                          : "An error occurred while saving. Please try again.");
+                          : locale === "fr"
+                            ? "Une erreur s'est produite lors de la sauvegarde. Veuillez réessayer."
+                            : "An error occurred while saving. Please try again.");
                 setSaved(false);
                 setError(errorMsg);
                 toast.error(errorMsg);
@@ -823,7 +852,7 @@ export function ListingForm({
               toast.success(
                 locale === "ar" ? "تم حفظ العقار." : "Property saved.",
               );
-              router.replace(`/${locale}/dashboard/seller/listings`);
+              router.replace(`/${locale}/dashboard/${role}/listings`);
               router.refresh();
             } catch (err) {
               console.error("Failed to save property:", err);
@@ -863,7 +892,7 @@ export function ListingForm({
                       : "Upgrade plan"}
                 </Link>
                 <Link
-                  href={`/${locale}/dashboard/seller/purchases`}
+                  href={`/${locale}/dashboard/${role}/purchases`}
                   className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
                 >
                   {locale === "ar"
@@ -899,7 +928,13 @@ export function ListingForm({
 
           {/* Title */}
           <Field
-            label={locale === "ar" ? "عنوان العقار" : "Listing title"}
+            label={
+              locale === "ar"
+                ? "عنوان العقار"
+                : locale === "fr"
+                  ? "Titre de l'annonce"
+                  : "Listing title"
+            }
             required
           >
             <Input
@@ -959,7 +994,13 @@ export function ListingForm({
 
           {/* Listing type */}
           <Field
-            label={locale === "ar" ? "نوع الإعلان" : "Listing type"}
+            label={
+              locale === "ar"
+                ? "نوع الإعلان"
+                : locale === "fr"
+                  ? "Type d'annonce"
+                  : "Listing type"
+            }
             required
           >
             <div className="grid gap-3 sm:grid-cols-2">
@@ -987,19 +1028,27 @@ export function ListingForm({
                           {type === "BUY"
                             ? locale === "ar"
                               ? "للبيع"
-                              : "Buy"
+                              : locale === "fr"
+                                ? "A vendre"
+                                : "Buy"
                             : locale === "ar"
                               ? "للإيجار"
-                              : "Rent"}
+                              : locale === "fr"
+                                ? "A louer"
+                                : "Rent"}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {type === "BUY"
                             ? locale === "ar"
                               ? "اعرض العقار كسعر شراء نهائي."
-                              : "Show as a purchase listing."
+                              : locale === "fr"
+                                ? "Afficher comme une annonce d'achat."
+                                : "Show as a purchase listing."
                             : locale === "ar"
                               ? "اعرض العقار كخيار إيجار."
-                              : "Show as a rental listing."}
+                              : locale === "fr"
+                                ? "Afficher comme une annonce de location."
+                                : "Show as a rental listing."}
                         </p>
                       </div>
                       <div className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
@@ -1017,25 +1066,84 @@ export function ListingForm({
           </Field>
 
           {/* Featured */}
-          <Field label={locale === "ar" ? "العقار المميز" : "Featured listing"}>
-            <label className="flex cursor-pointer items-start gap-3 rounded-3xl border border-border/70 bg-card/50 p-4 transition hover:border-violet-500/60 hover:bg-muted/40">
-              <input
-                type="checkbox"
-                checked={featured}
-                onChange={(e) => setFeatured(e.target.checked)}
-                className="mt-1 h-4 w-4 accent-violet-600"
-              />
-              <div className="space-y-1">
-                <div className="text-sm font-semibold text-foreground">
-                  {locale === "ar" ? "عرض العقار كـ مميز" : "Mark as featured"}
+          <Field
+            label={
+              locale === "ar"
+                ? `العقار المميز (${featuredInfo?.current ?? 0}/${featuredInfo?.max ?? 0})`
+                : `Featured listing (${featuredInfo?.current ?? 0}/${featuredInfo?.max ?? 0})`
+            }
+          >
+            <div className="space-y-3">
+              <label className="flex cursor-pointer items-start gap-3 rounded-3xl border border-border/70 bg-card/50 p-4 transition hover:border-violet-500/60 hover:bg-muted/40">
+                <input
+                  type="checkbox"
+                  checked={featured}
+                  onChange={(e) => setFeatured(e.target.checked)}
+                  disabled={
+                    (featuredInfo?.current ?? 0) >= (featuredInfo?.max ?? 0) &&
+                    !featured
+                  }
+                  className="mt-1 h-4 w-4 accent-violet-600 disabled:opacity-50"
+                />
+                <div className="space-y-1">
+                  <div className="text-sm font-semibold text-foreground">
+                    {locale === "ar"
+                      ? "عرض العقار كـ مميز"
+                      : "Mark as featured"}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {locale === "ar"
+                      ? "سيظهر هذا العقار كبطاقة مميزة في القوائم والعرض العام."
+                      : locale === "fr"
+                        ? "Afficher ce bien comme une annonce mise en avant dans les cartes et les listes."
+                        : "Show this property as a featured listing in cards and listings."}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {locale === "ar"
-                    ? "سيظهر هذا العقار كبطاقة مميزة في القوائم والعرض العام."
-                    : "Show this property as a featured listing in cards and listings."}
-                </p>
-              </div>
-            </label>
+              </label>
+
+              {/* Show warning if limit reached */}
+              {(featuredInfo?.current ?? 0) >= (featuredInfo?.max ?? 0) &&
+                !featured && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100">
+                    <div className="font-semibold mb-2">
+                      {locale === "ar"
+                        ? "تم الوصول إلى حد العقارات المميزة"
+                        : locale === "fr"
+                          ? "Limite d'annonces mises en avant atteinte"
+                          : "Featured listing limit reached"}
+                    </div>
+                    <p className="mb-3">
+                      {locale === "ar"
+                        ? `لقد استخدمت جميع عقاراتك المميزة (${featuredInfo?.current}/${featuredInfo?.max}). قم بترقية خطتك أو شراء عقارات مميزة إضافية.`
+                        : locale === "fr"
+                          ? `Vous avez utilisé toutes vos annonces mises en avant (${featuredInfo?.current}/${featuredInfo?.max}). Passez à un plan supérieur ou achetez des annonces mises en avant supplémentaires.`
+                          : `You've used all your featured listings (${featuredInfo?.current}/${featuredInfo?.max}). Upgrade your plan or purchase additional featured listings.`}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/${locale}/dashboard/${role}/plan`}
+                        className="inline-flex items-center rounded-md bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
+                      >
+                        {locale === "ar"
+                          ? "ترقية الخطة"
+                          : locale === "fr"
+                            ? "Trier le plan"
+                            : "Upgrade plan"}
+                      </Link>
+                      <Link
+                        href={`/${locale}/dashboard/${role}/purchases`}
+                        className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                      >
+                        {locale === "ar"
+                          ? "شراء إضافات"
+                          : locale === "fr"
+                            ? "Acheter des modules complémentaires"
+                            : "Buy add-ons"}
+                      </Link>
+                    </div>
+                  </div>
+                )}
+            </div>
           </Field>
 
           {propertyId ? (
@@ -1091,10 +1199,14 @@ export function ListingForm({
                         {type === "MONTHLY"
                           ? locale === "ar"
                             ? "شهري"
-                            : "Monthly"
+                            : locale === "fr"
+                              ? "Mensuel"
+                              : "Monthly"
                           : locale === "ar"
                             ? "يومي"
-                            : "Daily"}
+                            : locale === "fr"
+                              ? "Journalier"
+                              : "Daily"}
                       </span>
                     </label>
                   ))}
@@ -1493,7 +1605,7 @@ export function ListingForm({
                         : "Upgrade plan"}
                   </Link>
                   <Link
-                    href={`/${locale}/dashboard/seller/purchases`}
+                    href={`/${locale}/dashboard/${role}/purchases`}
                     className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
                   >
                     {locale === "ar"
@@ -1610,7 +1722,7 @@ export function ListingForm({
             <div className="flex items-center gap-2 text-sm text-muted-foreground" />
             {mediaCounts.imageCount > (imageLimit ?? Infinity) ||
             mediaCounts.videoCount > (videoLimit ?? Infinity) ? (
-              <MediaLimitAlert locale={locale} />
+              <MediaLimitAlert locale={locale} role={role ? role : "seller"} />
             ) : (
               <Button type="submit" variant="accent" disabled={saving}>
                 {saving ? (
@@ -1621,17 +1733,25 @@ export function ListingForm({
                 {saving
                   ? locale === "ar"
                     ? "جاري الحفظ..."
-                    : "Saving..."
+                    : locale === "fr"
+                      ? "Enregistrement..."
+                      : "Saving..."
                   : locale === "ar"
                     ? "حفظ العقار"
-                    : "Save listing"}
+                    : locale === "fr"
+                      ? "Enregistrer la propriété"
+                      : "Save listing"}
               </Button>
             )}
           </div>
 
           {saved && (
             <div className="md:col-span-2 rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-200">
-              {locale === "ar" ? "تم حفظ المسودة." : "Draft saved."}
+              {locale === "ar"
+                ? "تم حفظ المسودة."
+                : locale === "fr"
+                  ? "Brouillon enregistré."
+                  : "Draft saved."}
             </div>
           )}
         </form>
@@ -1664,9 +1784,13 @@ function Field({
 
 interface MediaLimitAlertProps {
   locale: "ar" | "fr" | "en";
+  role?: string;
 }
 
-export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
+export default function MediaLimitAlert({
+  locale,
+  role = "seller",
+}: MediaLimitAlertProps) {
   const content = {
     ar: {
       title: "تم تجاوز حد الوسائط",
@@ -1707,7 +1831,7 @@ export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
-              href={`/${locale}/dashboard/seller/plans`}
+              href={`/${locale}/dashboard/${role}/plans`}
               className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
             >
               {t.upgrade}
@@ -1715,7 +1839,7 @@ export default function MediaLimitAlert({ locale }: MediaLimitAlertProps) {
             </Link>
 
             <Link
-              href={`/${locale}/dashboard/seller/purchases`}
+              href={`/${locale}/dashboard/${role}/purchases`}
               className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
             >
               <HardDrive className="h-4 w-4" />

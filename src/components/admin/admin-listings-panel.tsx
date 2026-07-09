@@ -15,6 +15,8 @@ import {
   Trash2,
   Video,
   X,
+  Check,
+  Circle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +56,8 @@ type PropertyRow = {
       };
   forSale?: boolean;
   imageUrl: string | null;
+  isVerified: boolean;
+  isAvailable: boolean;
   createdAt: Date | string;
   seller: {
     id: string;
@@ -75,6 +79,7 @@ export function AdminListingsPanel({
   propertyTypes = [],
   currentPage,
   totalPages,
+  sellers = [],
 }: {
   locale: Locale;
   initialListings: PropertyRow[];
@@ -100,6 +105,7 @@ export function AdminListingsPanel({
   }>;
   currentPage: number;
   totalPages: number;
+  sellers?: Array<{ id: string; name: string | null; email: string | null }>;
 }) {
   const isVideoUrl = (url: string) => url.includes("/video/upload/");
 
@@ -131,6 +137,9 @@ export function AdminListingsPanel({
     Array<{ url: string; publicId: string; resourceType: string }>
   >([]);
   const [coverUrl, setCoverUrl] = useState<string | undefined>(undefined);
+  const [sellerId, setSellerId] = useState<string | undefined>(undefined);
+  const [isVerifiedFlag, setIsVerifiedFlag] = useState<boolean>(false);
+  const [isAvailableFlag, setIsAvailableFlag] = useState<boolean>(true);
   const [existingMediaToDelete, setExistingMediaToDelete] = useState<
     Set<string>
   >(new Set());
@@ -209,6 +218,9 @@ export function AdminListingsPanel({
     setCoverUrl(
       item.imageUrl ?? item.media?.find((media) => media.type !== "video")?.url,
     );
+    setSellerId(item.seller?.id ?? undefined);
+    setIsVerifiedFlag(item.isVerified ?? false);
+    setIsAvailableFlag(item.isAvailable ?? true);
     setTitle(item.title);
     setDescription(item.description ?? "");
     setCity(item.city);
@@ -458,6 +470,9 @@ export function AdminListingsPanel({
         priceType?: string;
         propertyTypeId?: string | null;
         forSale?: boolean;
+        sellerId?: string;
+        isVerified?: boolean;
+        isAvailable?: boolean;
       } = {
         title: title.trim(),
         description: description.trim(),
@@ -501,6 +516,25 @@ export function AdminListingsPanel({
       // Add media to delete
       if (existingMediaToDelete.size > 0) {
         body.deleteMediaIds = Array.from(existingMediaToDelete);
+      }
+
+      // seller, verification and availability
+      if (sellerId) body.sellerId = sellerId;
+      body.isVerified = Boolean(isVerifiedFlag);
+      body.isAvailable = Boolean(isAvailableFlag);
+
+      // handle cover url for image/video
+      if (coverUrl) {
+        if (isVideoUrl(coverUrl)) {
+          body.videoUrl = coverUrl;
+          body.imageUrl = null;
+        } else {
+          body.imageUrl = coverUrl;
+          body.videoUrl = null;
+        }
+      } else {
+        body.imageUrl = null;
+        body.videoUrl = null;
       }
 
       const response = await fetch(`/api/properties/${editingId}`, {
@@ -644,6 +678,9 @@ export function AdminListingsPanel({
             <thead className="text-muted-foreground">
               <tr className="border-b border-border/70">
                 <th className="pb-3 font-medium">
+                  {locale === "ar" ? "صورة" : "Image"}
+                </th>
+                <th className="pb-3 font-medium">
                   {locale === "ar" ? "العنوان" : "Title"}
                 </th>
                 <th className="pb-3 font-medium">
@@ -659,6 +696,12 @@ export function AdminListingsPanel({
                   {locale === "ar" ? "البائع" : "Seller"}
                 </th>
                 <th className="pb-3 font-medium">
+                  {locale === "ar" ? "موثوق" : "Verified"}
+                </th>
+                <th className="pb-3 font-medium">
+                  {locale === "ar" ? "متاح" : "Available"}
+                </th>
+                <th className="pb-3 font-medium">
                   {locale === "ar" ? "الحالة" : "Status"}
                 </th>
                 <th className="pb-3 font-medium">
@@ -670,7 +713,7 @@ export function AdminListingsPanel({
               {listings.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={10}
                     className="py-4 text-center text-sm text-muted-foreground"
                   >
                     {locale === "ar"
@@ -684,11 +727,74 @@ export function AdminListingsPanel({
                     key={item.id}
                     className="border-b border-border/50 last:border-0"
                   >
+                    <td className="py-4">
+                      <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-muted">
+                        {item.imageUrl ? (
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 48px, 48px"
+                          />
+                        ) : item.media && item.media.length > 0 ? (
+                          <Image
+                            src={item.media[0].type === "video" ? getVideoThumbnailUrl(item.media[0].url) : item.media[0].url}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 48px, 48px"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-muted-foreground/10 text-xs text-muted-foreground">
+                            {locale === "ar" ? "بدون" : "None"}
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-4 font-medium">{item.title}</td>
                     <td className="py-4">{item.city}</td>
                     <td className="py-4">{item.neighborhood || "-"}</td>
                     <td className="py-4">{item.price}</td>
                     <td className="py-4">{item.seller.name || "-"}</td>
+                    <td className="py-4">
+                      <div className="flex items-center justify-center">
+                        {item.isVerified ? (
+                          <div className="flex items-center gap-1 rounded-full bg-green-500/15 px-2 py-1">
+                            <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                              {locale === "ar" ? "نعم" : "Yes"}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-1">
+                            <Circle className="h-3 w-3 text-red-600 dark:text-red-400" />
+                            <span className="text-xs font-medium text-red-600 dark:text-red-400">
+                              {locale === "ar" ? "لا" : "No"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <div className="flex items-center justify-center">
+                        {item.isAvailable ? (
+                          <div className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-1">
+                            <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                              {locale === "ar" ? "متاح" : "Available"}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-1">
+                            <Circle className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                              {locale === "ar" ? "غير متاح" : "Unavailable"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-4">
                       <div className="flex flex-wrap items-center gap-2">
                         {item.adCount && item.adCount > 0 ? (
@@ -802,7 +908,8 @@ export function AdminListingsPanel({
                 <>
                   <Image
                     src={
-                      "type" in heroMedia && heroMedia.type === "video"
+                      ("type" in heroMedia && heroMedia.type === "video") ||
+                      ("resourceType" in heroMedia && heroMedia.resourceType === "video")
                         ? getVideoThumbnailUrl(heroMedia.url)
                         : heroMedia.url
                     }
@@ -810,8 +917,10 @@ export function AdminListingsPanel({
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
+                    priority
                   />
-                  {"type" in heroMedia && heroMedia.type === "video" ? (
+                  {(("type" in heroMedia && heroMedia.type === "video") ||
+                    ("resourceType" in heroMedia && heroMedia.resourceType === "video")) ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                       <Video className="h-10 w-10 text-white" />
                     </div>
@@ -1188,6 +1297,69 @@ export function AdminListingsPanel({
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-seller">{locale === "ar" ? "البائع" : "Seller"}</Label>
+                    <Select
+                      id="edit-seller"
+                      value={sellerId || ""}
+                      onChange={(e) => setSellerId(e.target.value)}
+                    >
+                      <option value="">{locale === "ar" ? "اختيار البائع" : "Select seller"}</option>
+                      {sellers?.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name || s.email || s.id}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-lg border border-border/70 bg-card/50 p-4">
+                  <p className="text-sm font-medium">{locale === "ar" ? "الحالة والتحقق" : "Status & Verification"}</p>
+                  <div className="flex flex-col gap-3">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-3 transition hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        checked={isVerifiedFlag}
+                        onChange={(e) => setIsVerifiedFlag(e.target.checked)}
+                        className="h-5 w-5 cursor-pointer rounded accent-green-600 dark:accent-green-400"
+                      />
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-sm font-medium">
+                          {locale === "ar" ? "موثوق" : "Verified"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {locale === "ar" ? "تحديد إذا كان البائع موثوقاً" : "Mark seller as verified"}
+                        </span>
+                      </div>
+                      {isVerifiedFlag && (
+                        <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      )}
+                    </label>
+
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-3 transition hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        checked={isAvailableFlag}
+                        onChange={(e) => setIsAvailableFlag(e.target.checked)}
+                        className="h-5 w-5 cursor-pointer rounded accent-emerald-600 dark:accent-emerald-400"
+                      />
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-sm font-medium">
+                          {locale === "ar" ? "متاح" : "Available"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {locale === "ar" ? "تحديد إذا كان العقار متاحاً" : "Mark property as available"}
+                        </span>
+                      </div>
+                      {isAvailableFlag && (
+                        <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      )}
+                    </label>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

@@ -41,6 +41,7 @@ export default async function AdminListingsPage({
   let propertyTypes = [];
   let cities = [];
   let neighborhoods = [];
+  let sellers: Array<{ id: string; name?: string | null; email?: string | null }> = [];
   let totalCount = 0;
 
   // Update ad statuses before fetching
@@ -60,6 +61,7 @@ export default async function AdminListingsPage({
       propertyTypesResult,
       citiesResult,
       neighborhoodsResult,
+      sellersResult,
     ] = await Promise.all([
       prisma.property.count({ where }),
       prisma.property.findMany({
@@ -74,6 +76,9 @@ export default async function AdminListingsPage({
           rooms: true,
           bathrooms: true,
           price: true,
+            sellerId: true,
+            isVerified: true,
+            isAvailable: true,
           propertyTypeId: true,
           featured: true,
           imageUrl: true,
@@ -114,6 +119,10 @@ export default async function AdminListingsPage({
         },
         orderBy: [{ city: { name: "asc" } }, { name: "asc" }],
       }),
+      prisma.user.findMany({
+        select: { id: true, name: true, email: true },
+        orderBy: { name: "asc" },
+      }),
     ]);
 
     totalCount = countResult;
@@ -143,6 +152,7 @@ export default async function AdminListingsPage({
     propertyTypes = propertyTypesResult;
     cities = citiesResult;
     neighborhoods = neighborhoodsResult;
+    sellers = sellersResult || [];
   } catch (err) {
     console.error("Prisma query failed in AdminListingsPage:", err);
     throw err;
@@ -166,6 +176,7 @@ export default async function AdminListingsPage({
         neighborhoods={neighborhoods}
         currentPage={currentPage}
         totalPages={totalPages}
+        sellers={sellers}
       />
     </div>
   );

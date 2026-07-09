@@ -166,12 +166,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
     const DODO_API_KEY = process.env.DODO_API_KEY;
     const DODO_PRODUCT_ID = (() => {
-      if (planId === "plan_pro") return process.env.DODO_PRODUCT_ID_PRO_PLAN;
-      if (planId === "plan_premium")
-        return process.env.DODO_PRODUCT_ID_PREMIUM_PLAN;
-      return process.env.DODO_PRODUCT_ID;
+      if (planId === "plan_pro" && user && user.role === "SMSSAR")
+        return process.env.DODO_PRODUCT_ID_PRO_PLAN_SMSSAR;
+      else if (planId === "plan_premium" && user && user.role === "SMSSAR")
+        return process.env.DODO_PRODUCT_ID_PREMIUM_PLAN_SMSSAR;
+      else if (planId === "plan_pro" && user && user.role === "SELLER")
+        return process.env.DODO_PRODUCT_ID_PRO_PLAN_SELLER;
+      else if (planId === "plan_premium" && user && user.role === "SELLER")
+        return process.env.DODO_PRODUCT_ID_PREMIUM_PLAN_SELLER;
+      return process.env.DODO_PRODUCT_ID_PREMIUM_PLAN;
     })();
 
     const resolvedDodoBase =

@@ -44,7 +44,9 @@ export default async function SmssarProfilePage({
         <p className="mt-2 text-muted-foreground">
           {locale === "ar"
             ? "حدِّث بيانات البائع والمعلومات العامة."
-            : "Update seller profile and public contact details."}
+            : locale === "fr"
+              ? "Mettez à jour les informations du vendeur et les informations générales."
+              : "Update seller information and general info."}
         </p>
       </div>
       <SellerProfilePanel

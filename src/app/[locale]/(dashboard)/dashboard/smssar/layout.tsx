@@ -71,7 +71,8 @@ export default async function SmssarDashboardLayout({
       icon: <Settings2 className="h-4 w-4" />,
     },
     {
-      label: locale === "ar" ? "الشراء" : "Purchases",
+      label:
+        locale === "ar" ? "الشراء" : locale === "fr" ? "Achats" : "Purchases",
       href: `/${locale}/dashboard/smssar/purchases`,
       icon: <ShoppingBag className="h-4 w-4" />,
     },
@@ -90,8 +91,20 @@ export default async function SmssarDashboardLayout({
   return (
     <DashboardShell
       locale={locale}
-      title={messages.dashboard.seller.title}
-      roleLabel={locale === "ar" ? "حساب Smssar" : "Smssar account"}
+      title={
+        locale === "ar"
+          ? "لوحة تحكم سمسار"
+          : locale === "fr"
+            ? "Tableau de bord de Smssar"
+            : "Smssar Dashboard"
+      }
+      roleLabel={
+        locale === "ar"
+          ? "حساب سمسار"
+          : locale === "fr"
+            ? "Compte Smssar"
+            : "Smssar Account"
+      }
       items={items}
     >
       {children}

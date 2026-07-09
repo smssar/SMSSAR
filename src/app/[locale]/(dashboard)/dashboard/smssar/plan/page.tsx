@@ -67,7 +67,9 @@ export default async function SmssarPlanPage({
         <p className="mt-2 text-muted-foreground">
           {locale === "ar"
             ? "اختر الباقة المناسبة لعدد العقارات الذي تديره."
-            : "Choose the right plan for your listing volume."}
+            : locale === "fr"
+              ? "Choisissez le forfait adapté au nombre de propriétés que vous gérez."
+              : "Choose the plan that fits the number of properties you manage."}
         </p>
       </div>
 
@@ -76,7 +78,11 @@ export default async function SmssarPlanPage({
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
             <div>
               <div className="text-sm text-muted-foreground">
-                {locale === "ar" ? "الباقة الحالية" : "Current plan"}
+                {locale === "ar"
+                  ? "الباقة الحالية"
+                  : locale === "fr"
+                    ? "Forfait actuel"
+                    : "Current plan"}
               </div>
               <div className="text-xl font-semibold">
                 {locale === "ar"
@@ -87,7 +93,7 @@ export default async function SmssarPlanPage({
               </div>
             </div>
             <Badge variant="secondary" className="border-emerald-600/30">
-              {locale === "ar" ? "نشطة" : "Active"}
+              {locale === "ar" ? "نشطة" : locale === "fr" ? "Active" : "Active"}
             </Badge>
           </CardContent>
         </Card>
@@ -125,7 +131,11 @@ export default async function SmssarPlanPage({
                     variant="secondary"
                     className="w-fit border-emerald-600/30"
                   >
-                    {locale === "ar" ? "الباقة الحالية" : "Current plan"}
+                    {locale === "ar"
+                      ? "الباقة الحالية"
+                      : locale === "fr"
+                        ? "Forfait actuel"
+                        : "Current plan"}
                   </Badge>
                 ) : null}
               </CardHeader>
@@ -134,7 +144,9 @@ export default async function SmssarPlanPage({
                   {plan.price === 0
                     ? locale === "ar"
                       ? "مجاني"
-                      : "Free"
+                      : locale === "fr"
+                        ? "Gratuit"
+                        : "Free"
                     : formatCurrency(plan.price, locale)}
                 </div>
                 <div className="space-y-3">
@@ -154,7 +166,11 @@ export default async function SmssarPlanPage({
                     variant="default"
                     className="w-full"
                   >
-                    {locale === "ar" ? "باقتك الحالية" : "Your current plan"}
+                    {locale === "ar"
+                      ? "باقتك الحالية"
+                      : locale === "fr"
+                        ? "Votre forfait actuel"
+                        : "Your current plan"}
                   </ButtonLink>
                 ) : (
                   <PricingCheckoutButton
@@ -184,12 +200,18 @@ export default async function SmssarPlanPage({
             <ShoppingBag className="h-6 w-6 text-emerald-600" />
             <div>
               <CardTitle>
-                {locale === "ar" ? "شراء الإضافات" : "Purchase Add-ons"}
+                {locale === "ar"
+                  ? "شراء الإضافات"
+                  : locale === "fr"
+                    ? "Acheter des compléments"
+                    : "Purchase Add-ons"}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {locale === "ar"
                   ? "عزز قائمتك بميزات وأدوات إضافية"
-                  : "Boost your listings with premium features"}
+                  : locale === "fr"
+                    ? "Améliorez vos annonces avec des fonctionnalités premium"
+                    : "Boost your listings with premium features"}
               </p>
             </div>
           </div>
@@ -198,7 +220,9 @@ export default async function SmssarPlanPage({
           <p className="text-sm text-muted-foreground mb-4">
             {locale === "ar"
               ? "اشتر صور إضافية وفيديوهات وإعلانات وقوائم مميزة حسب احتياجاتك"
-              : "Add extra images, videos, ads, and featured listings on demand"}
+              : locale === "fr"
+                ? "Achetez des photos supplémentaires, des vidéos, des annonces et des listes en vedette selon vos besoins"
+                : "Purchase additional photos, videos, ads, and featured listings as needed"}
           </p>
           <ButtonLink
             href={`/${locale}/dashboard/smssar/purchases`}
@@ -206,7 +230,11 @@ export default async function SmssarPlanPage({
             className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
           >
             <ShoppingBag className="h-4 w-4" />
-            {locale === "ar" ? "اذهب للشراء" : "Shop Now"}
+            {locale === "ar"
+              ? "اذهب للشراء"
+              : locale === "fr"
+                ? "Acheter maintenant"
+                : "Shop Now"}
           </ButtonLink>
         </CardContent>
       </Card>

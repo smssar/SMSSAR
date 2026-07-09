@@ -71,7 +71,8 @@ export default async function SellerDashboardLayout({
       icon: <Settings2 className="h-4 w-4" />,
     },
     {
-      label: locale === "ar" ? "الشراء" : "Purchases",
+      label:
+        locale === "ar" ? "الشراء" : locale === "fr" ? "Achats" : "Purchases",
       href: `/${locale}/dashboard/seller/purchases`,
       icon: <ShoppingBag className="h-4 w-4" />,
     },
@@ -91,7 +92,13 @@ export default async function SellerDashboardLayout({
     <DashboardShell
       locale={locale}
       title={messages.dashboard.seller.title}
-      roleLabel={locale === "ar" ? "حساب البائع" : "Seller account"}
+      roleLabel={
+        locale === "ar"
+          ? "لوحة تحكم البائع"
+          : locale === "fr"
+            ? "Tableau de bord du vendeur"
+            : "Seller Dashboard"
+      }
       items={items}
     >
       {children}

@@ -126,19 +126,39 @@ export default async function SellerOverviewPage({
 
   const statItems = [
     {
-      label: locale === "ar" ? "العقارات المنشورة" : "Live listings",
+      label:
+        locale === "ar"
+          ? "العقارات المنشورة"
+          : locale === "fr"
+            ? "Annonces publiées"
+            : "Published listings",
       value: listingCount,
     },
     {
-      label: locale === "ar" ? "العقارات المميزة" : "Featured listings",
+      label:
+        locale === "ar"
+          ? "العقارات المميزة"
+          : locale === "fr"
+            ? "Annonces en vedette"
+            : "Featured listings",
       value: featuredCount,
     },
     {
-      label: locale === "ar" ? "متوسط السعر" : "Average price",
+      label:
+        locale === "ar"
+          ? "متوسط السعر"
+          : locale === "fr"
+            ? "Prix moyen"
+            : "Average price",
       value: averagePrice,
     },
     {
-      label: locale === "ar" ? "المدن المغطاة" : "Cities covered",
+      label:
+        locale === "ar"
+          ? "المدن المغطاة"
+          : locale === "fr"
+            ? "Villes couvertes"
+            : "Cities covered",
       value: uniqueCities,
     },
   ];
@@ -154,14 +174,18 @@ export default async function SellerOverviewPage({
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <Badge variant="accent">{locale === "ar" ? "نشط" : "Active"}</Badge>
+          <Badge variant="accent">
+            {locale === "ar" ? "نشط" : locale === "fr" ? "Actif" : "Active"}
+          </Badge>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight">
             {messages.dashboard.seller.overview}
           </h1>
           <p className="mt-2 text-muted-foreground">
             {locale === "ar"
               ? "راقب الأداء والإشعارات والعروض الجديدة."
-              : "Track performance, leads, and new opportunities."}
+              : locale === "fr"
+                ? "Suivez les performances, les prospects et les nouvelles opportunités."
+                : "Track performance, leads, and new opportunities."}
           </p>
         </div>
         {/**

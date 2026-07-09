@@ -32,12 +32,37 @@ export default async function AdminOverviewPage({
         : locale === "fr"
           ? "Unified control center for users, listings, plans, and reports."
           : "Unified control center for users, listings, plans, and reports.",
-    viewAllUsers: locale === "ar" ? "عرض كل المستخدمين" : "View all users",
-    viewAllListings: locale === "ar" ? "عرض كل العقارات" : "View all listings",
-    totalUsers: locale === "ar" ? "إجمالي المستخدمين" : "Total users",
-    activeListings: locale === "ar" ? "العقارات النشطة" : "Active listings",
-    propertyTypes: locale === "ar" ? "أنواع العقارات" : "Property types",
-    cities: locale === "ar" ? "المدن" : "Cities",
+    viewAllUsers:
+      locale === "ar"
+        ? "عرض كل المستخدمين"
+        : locale === "fr"
+          ? "Voir tous les utilisateurs"
+          : "View all users",
+    viewAllListings:
+      locale === "ar"
+        ? "عرض كل العقارات"
+        : locale === "fr"
+          ? "Voir toutes les annonces"
+          : "View all listings",
+    totalUsers:
+      locale === "ar"
+        ? "إجمالي المستخدمين"
+        : locale === "fr"
+          ? "Total des utilisateurs"
+          : "Total users",
+    activeListings:
+      locale === "ar"
+        ? "العقارات النشطة"
+        : locale === "fr"
+          ? "Annonces actives"
+          : "Active listings",
+    propertyTypes:
+      locale === "ar"
+        ? "أنواع العقارات"
+        : locale === "fr"
+          ? "Types de propriétés"
+          : "Property types",
+    cities: locale === "ar" ? "المدن" : locale === "fr" ? "Villes" : "Cities",
   };
 
   const [
@@ -168,10 +193,14 @@ export default async function AdminOverviewPage({
                     {property.featured
                       ? locale === "ar"
                         ? "مميز"
-                        : "Featured"
+                        : locale === "fr"
+                          ? "En vedette"
+                          : "Featured"
                       : locale === "ar"
                         ? "عادي"
-                        : "Regular"}
+                        : locale === "fr"
+                          ? "Ordinaire"
+                          : "Regular"}
                   </Badge>
                 </div>
               </div>

@@ -38,6 +38,7 @@ type UpdatePropertyBody = {
   deleteMediaIds?: string[];
   priceType?: string;
   forSale?: boolean;
+  isVerified?: boolean;
   isAvailable?: boolean;
   updateSomeFields?: boolean;
 };
@@ -217,6 +218,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     imageUrl?: string | null;
     videoUrl?: string | null;
     forSale?: boolean;
+    sellerId?: string;
+    isVerified?: boolean;
     isAvailable?: boolean;
   } = {};
 
@@ -233,6 +236,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (typeof body.propertyTypeId === "string")
     data.propertyTypeId = body.propertyTypeId.trim();
   if (body.propertyTypeId === null) data.propertyTypeId = null;
+  if (typeof body.sellerId === "string") data.sellerId = body.sellerId.trim();
   if (typeof body.featured === "boolean") data.featured = body.featured;
   if (typeof body.imageUrl === "string" || body.imageUrl === null)
     data.imageUrl = body.imageUrl;
@@ -242,6 +246,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     data.videoUrl = body.vedioUrl;
   }
   if (typeof body.forSale === "boolean") data.forSale = body.forSale;
+  if (typeof body.isVerified === "boolean") data.isVerified = body.isVerified;
   if (typeof body.isAvailable === "boolean")
     data.isAvailable = body.isAvailable;
   if (typeof body.priceType === "string")
