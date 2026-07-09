@@ -41,7 +41,11 @@ export default async function AdminListingsPage({
   let propertyTypes = [];
   let cities = [];
   let neighborhoods = [];
-  let sellers: Array<{ id: string; name?: string | null; email?: string | null }> = [];
+  let sellers: Array<{
+    id: string;
+    name: string | null;
+    email: string | null;
+  }> = [];
   let totalCount = 0;
 
   // Update ad statuses before fetching
@@ -76,9 +80,9 @@ export default async function AdminListingsPage({
           rooms: true,
           bathrooms: true,
           price: true,
-            sellerId: true,
-            isVerified: true,
-            isAvailable: true,
+          sellerId: true,
+          isVerified: true,
+          isAvailable: true,
           propertyTypeId: true,
           featured: true,
           imageUrl: true,
@@ -152,7 +156,11 @@ export default async function AdminListingsPage({
     propertyTypes = propertyTypesResult;
     cities = citiesResult;
     neighborhoods = neighborhoodsResult;
-    sellers = sellersResult || [];
+    sellers = (sellersResult || []).map((seller) => ({
+      id: seller.id,
+      name: seller.name ?? null,
+      email: seller.email ?? null,
+    }));
   } catch (err) {
     console.error("Prisma query failed in AdminListingsPage:", err);
     throw err;
